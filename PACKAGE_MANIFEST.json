@@ -1,0 +1,353 @@
+{
+  "package": "New-Earth-Engineering-OS-Omega",
+  "version": "0.1.0",
+  "generated": "2026-08-07",
+  "file_count": 69,
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "354304c278db58ebe48da6b4db9780b59b931811e52c25c8540e195210bc86dc",
+      "bytes": 385
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "e97cb86bd258f1e1062b65e30aff39e9df5240551092f8e020bb92c62517fbd0",
+      "bytes": 132
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "a255504adeef9c530b27e82465fa17388b412bb2b9932dc87a4cb7c7da819fa9",
+      "bytes": 323
+    },
+    {
+      "path": "CODEX_OMEGA_BUILD_PROMPT.md",
+      "sha256": "c7c0ee6ebce6b3798073e7d654379e9a9b4b12b0516cdaccd32c8afc2bd75699",
+      "bytes": 6122
+    },
+    {
+      "path": "LICENSE.md",
+      "sha256": "7213313e010adfcdd5bc2dccbdf41568f6ed372d801b140bbc083a5d2bbd6e82",
+      "bytes": 256
+    },
+    {
+      "path": "README.md",
+      "sha256": "06c424c257c4aaca3ac2f46d3d0984837fc4a094cc320cc91436d4d54c6e9e15",
+      "bytes": 2672
+    },
+    {
+      "path": "VERSION",
+      "sha256": "e9dd8507f4bf0c6f42458e41aea833ad0bd3f6127272335eee9bf4d58541ed67",
+      "bytes": 6
+    },
+    {
+      "path": "docs/00_START_HERE.md",
+      "sha256": "c2b45d8cb68e92b7e437329598473937e92535f2730aa86a0d6b97efafcc94f6",
+      "bytes": 1462
+    },
+    {
+      "path": "docs/01_VISION_AND_PRODUCT_STRATEGY.md",
+      "sha256": "fde20d4a07828b28cad77ac40d1d4a59e74d575c7a7b98439b6bd856594cbcf5",
+      "bytes": 2206
+    },
+    {
+      "path": "docs/02_SYSTEM_ARCHITECTURE.md",
+      "sha256": "07f3864a4da935a59234d35c2406e1f13056eb9db20e46e37fc123c6bf86990e",
+      "bytes": 2427
+    },
+    {
+      "path": "docs/03_ALPHA_IMPLEMENTATION_PLAN.md",
+      "sha256": "119a5495949c93b910a86c70810496abe91a7a468efb11cd6dd19f79c31319b8",
+      "bytes": 1550
+    },
+    {
+      "path": "docs/04_DATA_MODEL_AND_KNOWLEDGE_GRAPH.md",
+      "sha256": "ce23ae582bfe387ac539ef448e6569897ed0e83444106139b1c1b7dd22f1ea7d",
+      "bytes": 1363
+    },
+    {
+      "path": "docs/05_PLUGIN_ARCHITECTURE.md",
+      "sha256": "92c2727d19c7397f0bdd6d1f7cecfafe844e08bf23fa053852c4bf1b9bce47bc",
+      "bytes": 1154
+    },
+    {
+      "path": "docs/06_DESKTOP_APP_SPECIFICATION.md",
+      "sha256": "11e68a69f075152aa4a22b379f8935fecb2d6d4d199efd2d85fdc7ce441190fa",
+      "bytes": 1348
+    },
+    {
+      "path": "docs/07_SECURITY_AND_LOCAL_FIRST.md",
+      "sha256": "88ac01a68f1441a55ec6ccb1f7d8a0b123469f2792bd38deac83622b5cc03a1d",
+      "bytes": 1096
+    },
+    {
+      "path": "docs/08_TESTING_AND_VALIDATION.md",
+      "sha256": "289085c882da63efa2feac76dd4368fa78ecf93b139c291d5c70477fda77c479",
+      "bytes": 1086
+    },
+    {
+      "path": "docs/09_ROADMAP.md",
+      "sha256": "2f74de620733fab53dfa841629b7a7795c6a24961bb5c0c2f82d15c702d84b6b",
+      "bytes": 1310
+    },
+    {
+      "path": "docs/10_OPERATING_MODEL.md",
+      "sha256": "38c5df8019f2116d2ce7ffbe5af9a330ca0b35c53379257bf4df9495c7f2e087",
+      "bytes": 667
+    },
+    {
+      "path": "docs/11_PROJECT_GENOME_CONCEPT.md",
+      "sha256": "162d6e7415b7d7b46cd8794510c683561c1cf505bd1d5f4e763d6fd170609b5b",
+      "bytes": 720
+    },
+    {
+      "path": "docs/12_ENGINEERING_FLIGHT_RECORDER.md",
+      "sha256": "fe42a9622f1068e3a4ce28ddfe32be1cd6bd287ab857f48637bea42f346f44d1",
+      "bytes": 580
+    },
+    {
+      "path": "docs/13_AI_ENGINEERING_ASSISTANT.md",
+      "sha256": "7e3aa684772aec403890b218f021beeae92d44286ca03f6d875d21456c73ea27",
+      "bytes": 668
+    },
+    {
+      "path": "docs/14_RELEASE_AND_VERSIONING.md",
+      "sha256": "b819dde6dcc22437c8857db865fb8ba71918618bdcc0ec30a913a6a346828b19",
+      "bytes": 455
+    },
+    {
+      "path": "docs/15_BACKUP_AND_RECOVERY.md",
+      "sha256": "977c202cd40f7e577103eaf9278d379ce90f4a4557e01ca4cec3b1ea0f9e44c4",
+      "bytes": 445
+    },
+    {
+      "path": "docs/16_GLOSSARY.md",
+      "sha256": "a4d38e503c4dedbb45927127b06e29cd117581e3bcf408d25f69ac6aea9501b8",
+      "bytes": 626
+    },
+    {
+      "path": "docs/CLI_REFERENCE.md",
+      "sha256": "f0dd754ab4a534b2e13a2977201c5fa8fcc01187187d962aada95919bb9137b5",
+      "bytes": 436
+    },
+    {
+      "path": "docs/DEVELOPER_GUIDE.md",
+      "sha256": "cf7f3218b8cc17f30d097ad7ab5ef68c13697cbcce11ec9d48128fab87d87190",
+      "bytes": 266
+    },
+    {
+      "path": "docs/MICROGROW_INTEGRATION_GUIDE.md",
+      "sha256": "20511c9f15aa22443964b5d0c0dcb11500edca5e75ed5e684383c463c4c16fdb",
+      "bytes": 588
+    },
+    {
+      "path": "docs/TROUBLESHOOTING.md",
+      "sha256": "7fb4bd13b0a8082432ffb95b495f205c41887aa26affb46bd15920a50ccf127e",
+      "bytes": 432
+    },
+    {
+      "path": "docs/USER_GUIDE.md",
+      "sha256": "b69e91f736be84d83d4150069b8fa591363d70eb5631f74a6fbcf0ca1babf68f",
+      "bytes": 572
+    },
+    {
+      "path": "docs/adr/ADR-0001-local-first.md",
+      "sha256": "f907eeddaf821507993a92cd11f8e554c0dbb8e4fee56c8feee69eb8e4c19909",
+      "bytes": 298
+    },
+    {
+      "path": "docs/adr/ADR-0002-sqlite-alpha.md",
+      "sha256": "4faa5b333daa770f024e81b6962f070d3d588a0e0820a5213b27e54780d99ff3",
+      "bytes": 285
+    },
+    {
+      "path": "docs/adr/ADR-0003-ui-not-source-of-truth.md",
+      "sha256": "f9e9000c38486df09f09c58e8f83e4a8f02b15db1e37293257434f3328a08d30",
+      "bytes": 187
+    },
+    {
+      "path": "docs/adr/ADR-0004-derived-vs-canonical.md",
+      "sha256": "45ae71be62b5907d834e4cd8b32f4fbbd51175e600ce57308b7e0c8ab8d8dba7",
+      "bytes": 189
+    },
+    {
+      "path": "docs/governance/CONTRIBUTING.md",
+      "sha256": "fb699c73f192670dc41ef09e3746a223acf7b4fc5aa2b74ff5647c97a125126a",
+      "bytes": 262
+    },
+    {
+      "path": "docs/governance/DEFINITION_OF_DONE.md",
+      "sha256": "fb5862cdec5e4b65d844c867c86b754d83382f2f03cf7643ea8ae8d614bd5501",
+      "bytes": 355
+    },
+    {
+      "path": "docs/governance/ENGINEERING_PRINCIPLES.md",
+      "sha256": "e70ef98b8cb25bd05d2ad29a8615ae120aac093fa21dd8a114e40242008bb520",
+      "bytes": 464
+    },
+    {
+      "path": "docs/project_control/ACCEPTANCE_CRITERIA_ALPHA.md",
+      "sha256": "aec69bc25fae0a1b0990646b9fcb3d2a113ee6f0a5337c5f81e64f3650f9da2a",
+      "bytes": 525
+    },
+    {
+      "path": "docs/project_control/DECISIONS_LOG.md",
+      "sha256": "d4ea02085e71974caa317e73239278b91b4294c05080163085036fd0dc21f03a",
+      "bytes": 381
+    },
+    {
+      "path": "docs/project_control/FEATURE_MATRIX.md",
+      "sha256": "0a2cc1336b8d2817e6d9126a9880d61eb7ffdadac2e74f2ffba5d3962ea24705",
+      "bytes": 556
+    },
+    {
+      "path": "docs/project_control/MILESTONES.md",
+      "sha256": "1fb2b6ab46f5439a6027339f7194fb47511fdd4efa4d8df10335c9a450a56ae5",
+      "bytes": 518
+    },
+    {
+      "path": "docs/project_control/RISK_REGISTER.md",
+      "sha256": "d85086a350ce856332e7ba897dcac8053cfd7c7842b51a04896147af0901cc69",
+      "bytes": 807
+    },
+    {
+      "path": "docs/release_evidence/README.md",
+      "sha256": "6d2d79563a10974704089a78eceb27620115dd9c30ffd823df24e674a636fcc5",
+      "bytes": 209
+    },
+    {
+      "path": "docs/security/THREAT_MODEL.md",
+      "sha256": "4c43e9073fecb631e2aa9793a72fcb78be34d271fafced7a6d86c75b897537d5",
+      "bytes": 891
+    },
+    {
+      "path": "examples/microgrow/README.md",
+      "sha256": "c41d0264468789bb1e53d8f8ddc612feed8d8d532ad7e13611ca8f5fa17af506",
+      "bytes": 262
+    },
+    {
+      "path": "examples/microgrow/project.neos.json",
+      "sha256": "d6e9de6c7e04ff1a9e3ac5548201f88fc483af3bf9c0f8a2532bf3b3d2d3266a",
+      "bytes": 592
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "f13e49de9738e1746256312ba8caa45bbe124d6546be3aeb32964b743a5e678d",
+      "bytes": 669
+    },
+    {
+      "path": "schemas/ai-context-bundle.schema.json",
+      "sha256": "2ba97cc8569ca5fb1c34b7a85b15c26ae32a9504d7e67965fd9b11b71c1045ed",
+      "bytes": 578
+    },
+    {
+      "path": "schemas/knowledge-edge.schema.json",
+      "sha256": "7f908052220a10a776970c0c26414990b395043ed68f2a665ae34e5369d01062",
+      "bytes": 523
+    },
+    {
+      "path": "schemas/knowledge-node.schema.json",
+      "sha256": "62cdd82136a2c276b45f7e5c52db7888d4e998b518907bbe7e71d89eb00074f2",
+      "bytes": 526
+    },
+    {
+      "path": "schemas/project-manifest.schema.json",
+      "sha256": "6f7c3c545876bdab4e7860aa3299c2fa3705a0c2f1dcb7285f9072232c28ee15",
+      "bytes": 1353
+    },
+    {
+      "path": "scripts/backup_neos.ps1",
+      "sha256": "f8f4ff81ec416c6905206f1f48394fe87aa43b7a99fed35994fd93bcf3eabdec",
+      "bytes": 325
+    },
+    {
+      "path": "scripts/demo_microgrow.ps1",
+      "sha256": "d2337c6a136ca164176a50b78e4d2b0bc26c305d46dfa21045c5bd1b987c9891",
+      "bytes": 344
+    },
+    {
+      "path": "scripts/setup_windows.ps1",
+      "sha256": "fd97b32a2bd421bd16d52467b2f9dadd824147e41ea416889c18892e14e87b90",
+      "bytes": 578
+    },
+    {
+      "path": "scripts/validate_windows.ps1",
+      "sha256": "b5f478105fa39ffada439df4599f58ab85a437d5414db72fab9fa5cc1fcd0bd0",
+      "bytes": 203
+    },
+    {
+      "path": "src/neos/__init__.py",
+      "sha256": "91447944015cec709e8aa7655f7e9d64e1e4508e7023a57fe3746911c0fc6fed",
+      "bytes": 22
+    },
+    {
+      "path": "src/neos/__main__.py",
+      "sha256": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+      "bytes": 79
+    },
+    {
+      "path": "src/neos/classify.py",
+      "sha256": "c8ca90c713a15c97292dd95cb6567bd632acb4f291d0577a346adb575ab36fb2",
+      "bytes": 1017
+    },
+    {
+      "path": "src/neos/cli.py",
+      "sha256": "38db98b98173bfd66043dfa709f0210ba22e5e78b87e76e67b044d722da32565",
+      "bytes": 1897
+    },
+    {
+      "path": "src/neos/config.py",
+      "sha256": "c96d121f075e6308352e4af00728c64dcab470c1cafd32f87b242fc33593717a",
+      "bytes": 82
+    },
+    {
+      "path": "src/neos/core.py",
+      "sha256": "73ba883fbb09cf17e6ce2a9443ad4c026db197db4e3571da116cb3c33c0e4938",
+      "bytes": 4337
+    },
+    {
+      "path": "src/neos/db.py",
+      "sha256": "8da8faf1ae4a7893e4fce5947badf23349ab53e5359159361745e4a0240efcab",
+      "bytes": 1927
+    },
+    {
+      "path": "src/neos/models.py",
+      "sha256": "328b13a2ae758b55e3b9b3e023e4dd7eeabe9f43e15cb11c95d44e0b4fbae259",
+      "bytes": 270
+    },
+    {
+      "path": "src/neos/plugins/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "src/neos/plugins/base.py",
+      "sha256": "5351198f088d9e6102e49d944979ce14c1acbb3f0967940aaf73433bb6befc31",
+      "bytes": 446
+    },
+    {
+      "path": "src/neos/plugins/example_platformio.py",
+      "sha256": "07e21df2b526ffd97682856b90887d7ad0dc42f0d4e65f902496eee2a4071306",
+      "bytes": 519
+    },
+    {
+      "path": "src/neos/scanner.py",
+      "sha256": "17ad5e2990776f997c8aeb9dc3a97a215094e569dde14d240b9d5bcf222ad9a7",
+      "bytes": 1825
+    },
+    {
+      "path": "tests/test_classify.py",
+      "sha256": "670c315dbfdaf16016d09abb51e8246c490e8e2d2ac79779d192d428ae588fe6",
+      "bytes": 331
+    },
+    {
+      "path": "tests/test_core.py",
+      "sha256": "cedee66479d47548e85ce5c3bdc2505905f821672a122e1381ef1b1663f847ae",
+      "bytes": 634
+    },
+    {
+      "path": "tests/test_scanner.py",
+      "sha256": "c526b377feb431148025928f99f381edbda0aacce06092fcc73b4a9267d6c8c5",
+      "bytes": 348
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "project_id": "microgrow-v1",
+  "name": "MicroGrow V1",
+  "description": "Reference NEOS Alpha integration for the MicroGrow engineering repository.",
+  "lifecycle": "active",
+  "repository": {
+    "path": "D:/Dev/Projects/MicroGrow V1",
+    "default_branch": "develop"
+  },
+  "technologies": [
+    "PlatformIO",
+    "ESP32",
+    "Flutter",
+    "Python",
+    "Markdown",
+    "GitHub Actions"
+  ],
+  "owners": [
+    "New Earth Advanced Technologies Ltd"
+  ],
+  "tags": [
+    "embedded",
+    "grow-automation",
+    "local-first",
+    "reference-integration"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NEOS AI Context Bundle",
+  "type": "object",
+  "required": [
+    "project_id",
+    "scan_id",
+    "generated_at",
+    "question",
+    "evidence_paths",
+    "selected_facts",
+    "provenance",
+    "unknowns",
+    "limitations"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "scan_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scan_freshness": {
+      "type": "object"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "question": {
+      "type": "string"
+    },
+    "evidence_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "selected_facts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "provenance": {
+      "type": "object"
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
