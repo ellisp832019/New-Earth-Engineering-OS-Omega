@@ -54,6 +54,28 @@ Semantic repository intelligence commands:
 
 `neos why ENTITY_ID` shows supporting evidence and related decisions.
 
+`neos genome build PROJECT_ID` builds and stores a deterministic project genome snapshot.
+
+`neos genome show PROJECT_ID` shows the latest stored genome snapshot.
+
+`neos genome summary PROJECT_ID` prints a compact project genome summary.
+
+`neos genome export PROJECT_ID` exports the stored genome payload.
+
+`neos genome diff PROJECT_ID` compares the latest genome snapshot to the previous one.
+
+`neos genome domains PROJECT_ID` prints the domain map.
+
+`neos genome risks PROJECT_ID` prints the risk genome.
+
+`neos genome unknowns PROJECT_ID` prints the unknown surface map.
+
+`neos genome health PROJECT_ID` prints the project health model.
+
+`neos genome attention PROJECT_ID` prints the current attention queue.
+
+`neos report project PROJECT_ID` renders the project genome report in markdown by default or JSON with `--json`.
+
 `neos version` prints the NEOS version.
 
 Most read commands accept `--format text|json`.

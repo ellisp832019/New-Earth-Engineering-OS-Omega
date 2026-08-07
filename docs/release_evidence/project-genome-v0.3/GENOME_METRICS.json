@@ -1,0 +1,18 @@
+{
+  "attention_count": 1,
+  "domain_count": 11,
+  "feature_count": 13,
+  "genome_schema_version": 1,
+  "health_score": 946,
+  "health_status": "healthy",
+  "latest_genome_id": "genome-874beeefe1bcb72981dd5864",
+  "maturity_label": "healthy",
+  "maturity_score": 946,
+  "previous_genome_id": null,
+  "project_id": "microgrow-v1",
+  "reuse_count": 10,
+  "risk_count": 1,
+  "scan_id": "scan-aac96b9287d74edf",
+  "technology_count": 9,
+  "unknown_count": 3
+}

@@ -15,10 +15,11 @@ The recommended development sequence is:
 3. Scan and classify artefacts.
 4. Persist the knowledge graph.
 5. Add semantic repository intelligence for symbols, dependencies, features, API routes, config keys and decisions.
-6. Add deterministic queries, traceability and impact analysis.
-7. Add AI context generation with bounded provenance.
-8. Build the desktop experience on top.
-9. Add plugins and multi-project intelligence.
+6. Add deterministic project genome snapshots, maturity models and evidence packs.
+7. Add deterministic queries, traceability and impact analysis.
+8. Add AI context generation with bounded provenance.
+9. Build the desktop experience on top.
+10. Add plugins and multi-project intelligence.
 
 ## Definition of Alpha
 
@@ -36,4 +37,6 @@ Alpha is complete when NEOS can index one real project, identify its major artef
 
 ## First target project
 
-The sample integration is MicroGrow, because it contains firmware, a desktop/mobile application, documentation, tests, releases and hardware-oriented engineering evidence—making it an excellent representative project for the NEOS Alpha model.
+The sample integration is MicroGrow, because it contains firmware, a desktop/mobile application, documentation, tests, releases and hardware-oriented engineering evidence, making it an excellent representative project for the NEOS Alpha model.
+
+For the NEOS v0.3 genome release, the canonical evidence bundle lives at `docs/release_evidence/project-genome-v0.3/`.

@@ -1,0 +1,1945 @@
+# MicroGrow Architecture Genome
+Project: `microgrow-v1`
+Components: **81**
+Layers: **4**
+Interfaces: **40**
+Boundaries: **20**
+Coverage score: **100**
+
+Top components:
+- contracts/api_fixtures | confidence 0.98 | evidence 20
+- docs/03_architecture | confidence 0.98 | evidence 20
+- docs/04_hardware | confidence 0.98 | evidence 20
+- docs/09_logs | confidence 0.98 | evidence 20
+- docs/10_roadmap | confidence 0.98 | evidence 20
+- docs/audit | confidence 0.98 | evidence 20
+- docs/diagrams | confidence 0.98 | evidence 20
+- docs/project_control | confidence 0.98 | evidence 20
+
+```json
+{
+  "boundaries": [
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-002b2360b705dfbde3931f12"
+      ],
+      "source": "sym-73ed434c45df71b0785ec5f1",
+      "target": "dep-31e15c47d8586ae856d1ad2b"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-0041c2a5f82cd0eb45b1aefb"
+      ],
+      "source": "sym-a022aa8aec2001241d8f7724",
+      "target": "dep-3816e372b105d09167255c85"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-008df5a0dc3be25b02262fbc"
+      ],
+      "source": "sym-a1738887881a4ecdf4f748d0",
+      "target": "dep-f21ca5138d64158dd238e236"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-00a6b66ed5a632cefee58957"
+      ],
+      "source": "sym-5518d913f2f57cc45c7c5044",
+      "target": "dep-98fe3a645ffb75e4061b9cd9"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-00c056759a15c3d1ca968f88"
+      ],
+      "source": "sym-73ed434c45df71b0785ec5f1",
+      "target": "dep-cccdde5d16f5c95a880e6710"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-00d041ae3a948e14946f1c7a"
+      ],
+      "source": "sym-a1738887881a4ecdf4f748d0",
+      "target": "dep-5e3236ad94d393a3578fe5bf"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-01031e75cb0570bb1c112110"
+      ],
+      "source": "sym-b5f0ac792c0388da0bfb6b86",
+      "target": "dep-d0c46036deffc035641d64fa"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-01841c5d28254e0730838447"
+      ],
+      "source": "sym-085b045e0b9c9a0ff56cd644",
+      "target": "dep-afbf4003b53ab3833f119198"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-018dc16bf4dba96eca4bc3ba"
+      ],
+      "source": "sym-a9ccc5d7e5cc86d02aeb85e3",
+      "target": "dep-ba27ce26d729a140a3da516a"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-019f5dd7b9fa12f7c73df344"
+      ],
+      "source": "sym-a1738887881a4ecdf4f748d0",
+      "target": "dep-09b30840e4115aeab790dbee"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-01c8ba99693940ddf1bc2c89"
+      ],
+      "source": "sym-e565da5988b29fd50bfaf5cb",
+      "target": "dep-a6e1e6a2ac5a414c59c7696c"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-02e83d1aa3e8345e53d0d2f7"
+      ],
+      "source": "sym-6f3c42dd72ed315003f32171",
+      "target": "dep-98fe3a645ffb75e4061b9cd9"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-02f8aadbc37aa8b1d98d2b1e"
+      ],
+      "source": "sym-4d9c68433babf02a70c48a70",
+      "target": "dep-4a48f438e6f4b2a5cf62e69c"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-0321ba8f65a60ef711bafcaa"
+      ],
+      "source": "sym-400fd6d49f03bb061668c795",
+      "target": "dep-aee6a7e101ab1e9d71116edf"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-03383237621d9080c955910a"
+      ],
+      "source": "sym-73ed434c45df71b0785ec5f1",
+      "target": "dep-62bdf595ab05f8ff1dffc52f"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-03d19d0d91901a3dfb5179cb"
+      ],
+      "source": "sym-a9ccc5d7e5cc86d02aeb85e3",
+      "target": "dep-63ea5067ea8eb19e6e5c1ead"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-0411276dbb5e48ef7908507e"
+      ],
+      "source": "sym-e565da5988b29fd50bfaf5cb",
+      "target": "dep-04b639ba7552b9110fdac9cf"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-047a1f8daf81c22c0e58cfc4"
+      ],
+      "source": "sym-17df830b4d3b0cacd2bfe2a7",
+      "target": "dep-5a5e498365871023f3161cc9"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-048f84b6e9b9836ea584377f"
+      ],
+      "source": "sym-7903f7f193d55d9bcc2c8e53",
+      "target": "dep-ff92c89f83269c485be5aa27"
+    },
+    {
+      "confidence": 0.6,
+      "dependency_ids": [
+        "dep-0519f72861f599968aa3a35a"
+      ],
+      "source": "sym-a1347eb38eef8e22ea90a606",
+      "target": "dep-1f3538fa6fb556d572edcdf2"
+    }
+  ],
+  "components": [
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/flutter_app/.flutter-plugins-dependencies",
+        "software/flutter_app/.gitignore",
+        "software/flutter_app/.metadata",
+        "software/flutter_app/README.md",
+        "software/flutter_app/analysis_options.yaml",
+        "software/flutter_app/android/.gitignore",
+        "software/flutter_app/android/app/build.gradle.kts",
+        "software/flutter_app/android/app/src/debug/AndroidManifest.xml",
+        "software/flutter_app/android/app/src/main/AndroidManifest.xml",
+        "software/flutter_app/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java",
+        "software/flutter_app/android/app/src/main/kotlin/com/microgrow/app/MainActivity.kt",
+        "software/flutter_app/android/app/src/main/res/drawable-v21/launch_background.xml",
+        "software/flutter_app/android/app/src/main/res/drawable/launch_background.xml",
+        "software/flutter_app/android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+        "software/flutter_app/android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+        "software/flutter_app/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+        "software/flutter_app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+        "software/flutter_app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+        "software/flutter_app/android/app/src/main/res/values-night/styles.xml",
+        "software/flutter_app/android/app/src/main/res/values/styles.xml"
+      ],
+      "id": "component-42c2b08d024b3cc7a7453246",
+      "kind": "component",
+      "name": "software/flutter_app"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "firmware/microgrow_node/.gitignore",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/.github/workflows/main.yml",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/.piopm",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/.travis.yml",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/DHTesp.cpp",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/DHTesp.h",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/LICENSE",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/README.md",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/examples/DHT_ESP32/.esp8266.test.skip",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/examples/DHT_ESP32/DHT_ESP32.ino",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/examples/DHT_ESP8266/.esp32.test.skip",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/examples/DHT_ESP8266/DHT_ESP8266.ino",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/examples/DHT_Multi_ESP32/.esp8266.test.skip",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/examples/DHT_Multi_ESP32/DHT_Multi_ESP32.ino",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/keywords.txt",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/library.json",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/DHT sensor library for ESPx/library.properties",
+        "firmware/microgrow_node/.pio/libdeps/dht22_diag/integrity.dat",
+        "firmware/microgrow_node/.pio/libdeps/esp32dev/ArduinoJson/.piopm",
+        "firmware/microgrow_node/.pio/libdeps/esp32dev/ArduinoJson/ArduinoJson.h"
+      ],
+      "id": "component-1585d3755760be82d7f2076c",
+      "kind": "component",
+      "name": "firmware/microgrow_node"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "docs/project_control/CHANGE_CONTROL.md",
+        "docs/project_control/CONTROL_DASHBOARD.md",
+        "docs/project_control/CONTROL_SYSTEM_SECURITY_REVIEW.md",
+        "docs/project_control/CURRENT_POSITION.md",
+        "docs/project_control/DECISION_LOG.md",
+        "docs/project_control/FEATURE_STATUS.md",
+        "docs/project_control/GLOSSARY.md",
+        "docs/project_control/HARDWARE_VALIDATION_STATUS.md",
+        "docs/project_control/MASTER_ROADMAP.md",
+        "docs/project_control/MILESTONE_STATUS.md",
+        "docs/project_control/NEXT_ACTIONS.md",
+        "docs/project_control/OWNER_OPERATING_GUIDE.md",
+        "docs/project_control/RELEASE_GATES.md",
+        "docs/project_control/RELEASE_TRAIN.md",
+        "docs/project_control/RISK_STATUS.md",
+        "docs/project_control/SOURCE_TRACEABILITY.md",
+        "docs/project_control/START_HERE.md",
+        "docs/project_control/SUBSYSTEM_STATUS.md",
+        "docs/project_control/VALIDATION_STATUS.md",
+        "docs/project_control/VERSION_DIRECTION.md"
+      ],
+      "id": "component-37c21ae9869c7819df70d564",
+      "kind": "component",
+      "name": "docs/project_control"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "docs/10_roadmap/MicroGrow_V1_Access_Model_Roadmap.pdf",
+        "docs/10_roadmap/README.md",
+        "docs/10_roadmap/complete_repository_feature_roadmap.md",
+        "docs/10_roadmap/development_roadmap.md",
+        "docs/10_roadmap/firmware_app_execution_roadmap.md",
+        "docs/10_roadmap/fsd/README.md",
+        "docs/10_roadmap/fsd/fsd_001_diagnostics_system.md",
+        "docs/10_roadmap/fsd/fsd_002_device_setup_recovery_ux.md",
+        "docs/10_roadmap/fsd/fsd_003_automation_guardrails.md",
+        "docs/10_roadmap/fsd/fsd_004_live_system_status.md",
+        "docs/10_roadmap/fsd/fsd_005_local_node_discovery.md",
+        "docs/10_roadmap/fsd/fsd_006_relay_boot_inhibit_interlock.md",
+        "docs/10_roadmap/fsd/fsd_007_crop_profiles.md",
+        "docs/10_roadmap/fsd/fsd_008_crop_profile_marketplace_and_entitlements.md",
+        "docs/10_roadmap/fsd/fsd_009_crop_profile_commerce_backend_and_billing.md",
+        "docs/10_roadmap/fsd/fsd_010_local_food_resilience_platform.md",
+        "docs/10_roadmap/fsd/fsd_011_unified_app_experience_and_sensor_expansion.md",
+        "docs/10_roadmap/fsd/fsd_012_mist_driver_status_fault_ui.md",
+        "docs/10_roadmap/fsd/fsd_013_subscription_plans_and_node_coverage.md",
+        "docs/10_roadmap/fsd/fsd_014_microgrow_four_connection_addon.md"
+      ],
+      "id": "component-f1bf10342b0fbb5973ab0e03",
+      "kind": "component",
+      "name": "docs/10_roadmap"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "tools/microgrow_dev_launcher/.gitignore",
+        "tools/microgrow_dev_launcher/.metadata",
+        "tools/microgrow_dev_launcher/README.md",
+        "tools/microgrow_dev_launcher/analysis_options.yaml",
+        "tools/microgrow_dev_launcher/config/local_settings.json",
+        "tools/microgrow_dev_launcher/config/microgrow_tasks.json",
+        "tools/microgrow_dev_launcher/lib/app.dart",
+        "tools/microgrow_dev_launcher/lib/main.dart",
+        "tools/microgrow_dev_launcher/lib/models/dev_launcher_settings.dart",
+        "tools/microgrow_dev_launcher/lib/models/dev_task.dart",
+        "tools/microgrow_dev_launcher/lib/models/task_command_plan.dart",
+        "tools/microgrow_dev_launcher/lib/models/task_run_result.dart",
+        "tools/microgrow_dev_launcher/lib/screens/about_screen.dart",
+        "tools/microgrow_dev_launcher/lib/screens/dashboard_screen.dart",
+        "tools/microgrow_dev_launcher/lib/screens/hub_screen.dart",
+        "tools/microgrow_dev_launcher/lib/screens/logs_screen.dart",
+        "tools/microgrow_dev_launcher/lib/screens/settings_screen.dart",
+        "tools/microgrow_dev_launcher/lib/screens/tasks_screen.dart",
+        "tools/microgrow_dev_launcher/lib/screens/terminal_screen.dart",
+        "tools/microgrow_dev_launcher/lib/services/hub_health_service.dart"
+      ],
+      "id": "component-e05ad3464a1481e672475cc4",
+      "kind": "component",
+      "name": "tools/microgrow_dev_launcher"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "simulation/proteus/.gitignore",
+        "simulation/proteus/CHANGELOG.md",
+        "simulation/proteus/PROTEUS_SETUP.md",
+        "simulation/proteus/README.md",
+        "simulation/proteus/SAFETY_NOTES.md",
+        "simulation/proteus/SIMULATION_WORKFLOW.md",
+        "simulation/proteus/datasheets/.gitkeep",
+        "simulation/proteus/datasheets/README.md",
+        "simulation/proteus/exports/.gitkeep",
+        "simulation/proteus/exports/README.md",
+        "simulation/proteus/exports/bom/.gitkeep",
+        "simulation/proteus/exports/images/.gitkeep",
+        "simulation/proteus/exports/images/mg_mist_driver_v1_sheet01_esp32_enable_interface.png",
+        "simulation/proteus/exports/images/mg_mist_driver_v1_sheet02_fault_status_return.png",
+        "simulation/proteus/exports/images/mg_mist_driver_v1_sheet03_water_level_lockout.png",
+        "simulation/proteus/exports/images/mg_mist_driver_v1_sheet04_safe_enable_chain.png",
+        "simulation/proteus/exports/images/mg_mist_driver_v1_sheet05_mist_power_stage_approx.png",
+        "simulation/proteus/exports/images/mg_mist_driver_v1_sheet06_current_limit_fault.png",
+        "simulation/proteus/exports/images/mg_mist_driver_v1_sheet07_fault_lockout_chain.png",
+        "simulation/proteus/exports/images/mg_mist_driver_v1_sheet08_latched_fault_shutdown.png"
+      ],
+      "id": "component-654f91354f3a4f575f2fd66d",
+      "kind": "component",
+      "name": "simulation/proteus"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "docs/audit/AUDIT_DOCUMENT_REGISTER.csv",
+        "docs/audit/AUDIT_DOCUMENT_REGISTER.md",
+        "docs/audit/AUDIT_GLOSSARY.md",
+        "docs/audit/CURRENT_CAPABILITY_MATRIX.csv",
+        "docs/audit/EXECUTIVE_READING_PATH.md",
+        "docs/audit/HOW_TO_USE_THE_AUDIT_AND_ATLAS.md",
+        "docs/audit/MICROGROW_V1_FULL_REPOSITORY_AUDIT.md",
+        "docs/audit/REMEDIATION_HANDOFF.md",
+        "docs/audit/RISK_REGISTER.csv",
+        "docs/audit/START_HERE.md",
+        "docs/audit/TECHNICAL_READING_PATH.md",
+        "docs/audit/consistency/CROSS_SYSTEM_CONSISTENCY_MATRIX.md",
+        "docs/audit/deep_verification/ACTIVE_FIRST_PARTY_FILE_MANIFEST.csv",
+        "docs/audit/deep_verification/ACTIVE_FIRST_PARTY_FILE_MANIFEST.json",
+        "docs/audit/deep_verification/ACTIVE_FIRST_PARTY_FILE_MANIFEST.md",
+        "docs/audit/deep_verification/DIRECTORY_GUIDE.md",
+        "docs/audit/deep_verification/EXCLUDED_FILE_COLLECTIONS.md",
+        "docs/audit/deep_verification/EXISTING_AUDIT_COVERAGE_REVIEW.md",
+        "docs/audit/deep_verification/EXISTING_AUDIT_REQUIREMENT_MATRIX.csv",
+        "docs/audit/deep_verification/EXPERIMENT_REGISTER.csv"
+      ],
+      "id": "component-e9583b9058c286322e5da103",
+      "kind": "component",
+      "name": "docs/audit"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "tools/project_control_app/.gitignore",
+        "tools/project_control_app/.metadata",
+        "tools/project_control_app/README.md",
+        "tools/project_control_app/analysis_options.yaml",
+        "tools/project_control_app/lib/app/project_control_app.dart",
+        "tools/project_control_app/lib/core/controller.dart",
+        "tools/project_control_app/lib/core/models.dart",
+        "tools/project_control_app/lib/core/repository.dart",
+        "tools/project_control_app/lib/core/types.dart",
+        "tools/project_control_app/lib/features/control_screens.dart",
+        "tools/project_control_app/lib/main.dart",
+        "tools/project_control_app/project_control_app.iml",
+        "tools/project_control_app/pubspec.lock",
+        "tools/project_control_app/pubspec.yaml",
+        "tools/project_control_app/scripts/build_windows.ps1",
+        "tools/project_control_app/scripts/check.ps1",
+        "tools/project_control_app/scripts/package_windows.ps1",
+        "tools/project_control_app/scripts/run_windows.ps1",
+        "tools/project_control_app/scripts/setup_windows.ps1",
+        "tools/project_control_app/test/control_shell_smoke_test.dart"
+      ],
+      "id": "component-80c97d04456509e46f050f3c",
+      "kind": "component",
+      "name": "tools/project_control_app"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "docs/09_logs/MG-LOG-000_project_genesis.md",
+        "docs/09_logs/MG-LOG-0011_dev_pipeline.md",
+        "docs/09_logs/MG-LOG-001_firmware.md",
+        "docs/09_logs/MG-LOG-002_flutter_app.md",
+        "docs/09_logs/MG-LOG-003_architecture.md",
+        "docs/09_logs/MG-LOG-004_dev_environment.md",
+        "docs/09_logs/MG-LOG-005_networking_api.md",
+        "docs/09_logs/MG-LOG-006_security.md",
+        "docs/09_logs/MG-LOG-007_hardware.md",
+        "docs/09_logs/MG-LOG-008_repository_cicd.md",
+        "docs/09_logs/MG-LOG-009_architecture_documentation.md",
+        "docs/09_logs/MG-LOG-010_firmware_source_layout_refactor.md",
+        "docs/09_logs/MG-LOG-012_veml7700_light_sensor.md",
+        "docs/09_logs/MG-LOG-013_mist_driver_module_spec.md",
+        "docs/09_logs/MG-LOG-014_mist_driver_stage2_plan.md",
+        "docs/09_logs/MG-LOG-015_mist_driver_stage2_summary.md",
+        "docs/09_logs/MG-LOG-APP-001_flutter_architecture_refactor_phase1.md",
+        "docs/09_logs/MG-LOG-APP-002_flutter_architecture_refactor_phase2.md",
+        "docs/09_logs/MG-LOG-APP-003_flutter_architecture_refactor_phase3.md",
+        "docs/09_logs/MG-LOG-APP-004_flutter_architecture_refactor_phase4.md"
+      ],
+      "id": "component-37d5d3b1cc10844b4101ff4e",
+      "kind": "component",
+      "name": "docs/09_logs"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "experiments/sensors/co2/NEXT_STEPS.md",
+        "experiments/sensors/co2/README.md",
+        "experiments/sensors/co2/RESULTS.md",
+        "experiments/sensors/co2/STATUS.md",
+        "experiments/sensors/co2/TEST_PLAN.md",
+        "experiments/sensors/environmental/aht10/NEXT_STEPS.md",
+        "experiments/sensors/environmental/aht10/README.md",
+        "experiments/sensors/environmental/aht10/RESULTS.md",
+        "experiments/sensors/environmental/aht10/STATUS.md",
+        "experiments/sensors/environmental/aht10/TEST_PLAN.md",
+        "experiments/sensors/environmental/dht11/NEXT_STEPS.md",
+        "experiments/sensors/environmental/dht11/README.md",
+        "experiments/sensors/environmental/dht11/RESULTS.md",
+        "experiments/sensors/environmental/dht11/STATUS.md",
+        "experiments/sensors/environmental/dht11/TEST_PLAN.md",
+        "experiments/sensors/environmental/dht22/NEXT_STEPS.md",
+        "experiments/sensors/environmental/dht22/README.md",
+        "experiments/sensors/environmental/dht22/RESULTS.md",
+        "experiments/sensors/environmental/dht22/STATUS.md",
+        "experiments/sensors/environmental/dht22/TEST_PLAN.md"
+      ],
+      "id": "component-fe5635d06dcf26bdffe5fbdb",
+      "kind": "component",
+      "name": "experiments/sensors"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/.gitignore",
+        "software/microgrow_hub/.microgrow/hub_state.json",
+        "software/microgrow_hub/.microgrow/ota_plan.json",
+        "software/microgrow_hub/.microgrow/uvicorn_8091_stderr.log",
+        "software/microgrow_hub/.microgrow/uvicorn_8091_stdout.log",
+        "software/microgrow_hub/.microgrow/uvicorn_stderr.log",
+        "software/microgrow_hub/.microgrow/uvicorn_stdout.log",
+        "software/microgrow_hub/README.md",
+        "software/microgrow_hub/app/__init__.py",
+        "software/microgrow_hub/app/config.py",
+        "software/microgrow_hub/app/database.py",
+        "software/microgrow_hub/app/deps.py",
+        "software/microgrow_hub/app/main.py",
+        "software/microgrow_hub/app/models.py",
+        "software/microgrow_hub/app/ota/__init__.py",
+        "software/microgrow_hub/app/ota/bundle_verifier.py",
+        "software/microgrow_hub/app/ota/manager_state.py",
+        "software/microgrow_hub/app/ota/plan_store.py",
+        "software/microgrow_hub/app/ota/report.py",
+        "software/microgrow_hub/app/ota/storage.py"
+      ],
+      "id": "component-43b8835a381a2362e13154f2",
+      "kind": "component",
+      "name": "software/microgrow_hub"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "docs/diagrams/README.md",
+        "docs/diagrams/diagram_index.md",
+        "docs/diagrams/distributed_grow_network_architecture.png",
+        "docs/diagrams/firmware_architecture.png",
+        "docs/diagrams/firmware_module_interaction.png",
+        "docs/diagrams/microgrow_8_relay_expansion_board.png",
+        "docs/diagrams/microgrow_api_sequence_diagram.png",
+        "docs/diagrams/microgrow_architecture.png",
+        "docs/diagrams/microgrow_connection_flow.png",
+        "docs/diagrams/microgrow_control_authority_flow.png",
+        "docs/diagrams/microgrow_engineering_dashboard.png",
+        "docs/diagrams/microgrow_engineering_map.png",
+        "docs/diagrams/microgrow_engineering_timeline.md",
+        "docs/diagrams/microgrow_firmware_architecture.png",
+        "docs/diagrams/microgrow_flutter_navigation_map.png",
+        "docs/diagrams/microgrow_full_grow_rack_system_overview.png",
+        "docs/diagrams/microgrow_future_architecture.png",
+        "docs/diagrams/microgrow_master_architecture.png",
+        "docs/diagrams/microgrow_master_system_architecture.png",
+        "docs/diagrams/microgrow_node_hardware_block_diagram.png"
+      ],
+      "id": "component-ec42dec90e1c5aa98687de3b",
+      "kind": "component",
+      "name": "docs/diagrams"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "tools/dev/adb_utils.ps1",
+        "tools/dev/check_flutter_format.cmd",
+        "tools/dev/check_flutter_format.ps1",
+        "tools/dev/commerce_backend.cmd",
+        "tools/dev/commerce_backend.ps1",
+        "tools/dev/connect_android.cmd",
+        "tools/dev/connect_android.ps1",
+        "tools/dev/doctor.cmd",
+        "tools/dev/doctor.ps1",
+        "tools/dev/flutter.cmd",
+        "tools/dev/flutter_app.cmd",
+        "tools/dev/flutter_app.ps1",
+        "tools/dev/flutter_windows_preflight.ps1",
+        "tools/dev/fsd_ai.cmd",
+        "tools/dev/fsd_ai.ps1",
+        "tools/dev/generate_access_test_account_fixtures.cmd",
+        "tools/dev/generate_access_test_account_fixtures.ps1",
+        "tools/dev/generate_access_test_account_fixtures.py",
+        "tools/dev/generate_microgrow_printable_pack.py",
+        "tools/dev/generate_repo_feature_inventory.ps1"
+      ],
+      "id": "component-2defcedc6590b0793ba21e60",
+      "kind": "component",
+      "name": "tools/dev"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "contracts/api_fixtures/README.md",
+        "contracts/api_fixtures/access_test_account_seed_data.json",
+        "contracts/api_fixtures/get_auth_me_pro_active_owner_response.json",
+        "contracts/api_fixtures/get_auth_me_pro_expired_owner_response.json",
+        "contracts/api_fixtures/get_auth_me_pro_grace_owner_response.json",
+        "contracts/api_fixtures/get_auth_me_team_editor_response.json",
+        "contracts/api_fixtures/get_auth_me_team_owner_response.json",
+        "contracts/api_fixtures/get_auth_me_team_viewer_response.json",
+        "contracts/api_fixtures/get_config_response.json",
+        "contracts/api_fixtures/get_crop_profile_catalog_response.json",
+        "contracts/api_fixtures/get_crop_profile_entitlements_response.json",
+        "contracts/api_fixtures/get_crop_profile_package_tomato_pro_response.json",
+        "contracts/api_fixtures/get_data_response.json",
+        "contracts/api_fixtures/get_firmware_capabilities_response.json",
+        "contracts/api_fixtures/get_firmware_update_status_response.json",
+        "contracts/api_fixtures/get_firmware_version_response.json",
+        "contracts/api_fixtures/get_info_response.json",
+        "contracts/api_fixtures/get_outputs_response.json",
+        "contracts/api_fixtures/get_status_response.json",
+        "contracts/api_fixtures/get_subscription_summary_local_response.json"
+      ],
+      "id": "component-9c3e1f4b489a89a62fa6c02a",
+      "kind": "component",
+      "name": "contracts/api_fixtures"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "docs/04_hardware/README.md",
+        "docs/04_hardware/enclosure_design.md",
+        "docs/04_hardware/enclosure_design.md (future)",
+        "docs/04_hardware/hardware_block_diagram.md",
+        "docs/04_hardware/hardware_design.md",
+        "docs/04_hardware/hardware_interface_map.md",
+        "docs/04_hardware/hardware_revision_history.md",
+        "docs/04_hardware/microgrow_pwm_mosfet_driver_board_wiring_reference.png",
+        "docs/04_hardware/microgrow_v1_wiring_diagram.md",
+        "docs/04_hardware/microgrow_v1_wiring_diagram.png",
+        "docs/04_hardware/mist_driver_module_v1_spec.md",
+        "docs/04_hardware/node_status_rgb_led_plan.md",
+        "docs/04_hardware/output_controller_base_standard.md",
+        "docs/04_hardware/power_system_design.md",
+        "docs/04_hardware/pressure_water_level_sensor_bench_plan.md",
+        "docs/04_hardware/prototype/README.md",
+        "docs/04_hardware/prototype/architecture.md",
+        "docs/04_hardware/prototype/images/rev_b_bench_layout.png",
+        "docs/04_hardware/prototype/rev_b_bench_checklist.md",
+        "docs/04_hardware/prototype/rev_b_bench_layout.md"
+      ],
+      "id": "component-08d618cf4721ab7748c14326",
+      "kind": "component",
+      "name": "docs/04_hardware"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "docs/03_architecture/README.md",
+        "docs/03_architecture/api_overview.md",
+        "docs/03_architecture/architecture_overview.md",
+        "docs/03_architecture/crop_profile_commerce_backend_deployment.md",
+        "docs/03_architecture/crop_profile_marketplace_backend.md",
+        "docs/03_architecture/diagrams/firmware_architecture_v1.png",
+        "docs/03_architecture/diagrams/firmware_module_architecture.png",
+        "docs/03_architecture/diagrams/firmware_startup_flow.png",
+        "docs/03_architecture/diagrams/microgrow_development_roadmap.png",
+        "docs/03_architecture/diagrams/microgrow_development_workflow.png",
+        "docs/03_architecture/diagrams/microgrow_master_architecture.png",
+        "docs/03_architecture/diagrams/microgrow_network_architecture.png",
+        "docs/03_architecture/diagrams/microgrow_system_map.png",
+        "docs/03_architecture/firmware_architecture.md",
+        "docs/03_architecture/firmware_freertos_adoption_note.md",
+        "docs/03_architecture/hardware_architecture.md",
+        "docs/03_architecture/master_architecture.md",
+        "docs/03_architecture/microgrow_node_specification.md",
+        "docs/03_architecture/microgrow_production_startup_flow.md",
+        "docs/03_architecture/microgrow_production_startup_reference.png"
+      ],
+      "id": "component-cb65405669629c85053a0244",
+      "kind": "component",
+      "name": "docs/03_architecture"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "services/crop_profile_commerce_backend/.gitignore",
+        "services/crop_profile_commerce_backend/README.md",
+        "services/crop_profile_commerce_backend/bin/commerce_backend_hosted.dart",
+        "services/crop_profile_commerce_backend/bin/commerce_backend_seed_catalog.dart",
+        "services/crop_profile_commerce_backend/bin/commerce_backend_server.dart",
+        "services/crop_profile_commerce_backend/bin/commerce_backend_smoke.dart",
+        "services/crop_profile_commerce_backend/deploy/Dockerfile",
+        "services/crop_profile_commerce_backend/deploy/README.md",
+        "services/crop_profile_commerce_backend/lib/crop_profile_commerce_backend.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_catalog_loader.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_database.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_options.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_package_verifier.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_seed_data.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_service.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_state.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_billing_provider.dart",
+        "services/crop_profile_commerce_backend/pubspec.lock",
+        "services/crop_profile_commerce_backend/pubspec.yaml",
+        "services/crop_profile_commerce_backend/test/commerce_backend_catalog_loader_test.dart"
+      ],
+      "id": "component-c227570324e65b696664d173",
+      "kind": "component",
+      "name": "services/crop_profile_commerce_backend"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "postman/collections/MicroGrow Access Validation/.resources/definition.yaml",
+        "postman/collections/MicroGrow Access Validation/GET -auth-me.request.yaml",
+        "postman/collections/MicroGrow Access Validation/GET -health.request.yaml",
+        "postman/collections/MicroGrow Access Validation/GET -subscription-summary.request.yaml",
+        "postman/collections/MicroGrow Access Validation/POST -auth-login.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/.resources/definition.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/GET -.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/GET -config.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/GET -data.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/GET -info.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/GET -output-id=-.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/GET -outputs.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/GET -status.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/POST -config.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/POST -mode-direct.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/POST -mode-setup.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/POST -output-mode.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/POST -output-reset_fault.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/POST -output-state.request.yaml",
+        "postman/collections/MicroGrow ESP32 Node API/POST -relay.request.yaml"
+      ],
+      "id": "component-2e32b98a2bb2e11ecf280ecc",
+      "kind": "component",
+      "name": "postman/collections"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "experiments/networking/ble_onboarding/NEXT_STEPS.md",
+        "experiments/networking/ble_onboarding/README.md",
+        "experiments/networking/ble_onboarding/RESULTS.md",
+        "experiments/networking/ble_onboarding/STATUS.md",
+        "experiments/networking/ble_onboarding/TEST_PLAN.md",
+        "experiments/networking/direct_ap_mode/NEXT_STEPS.md",
+        "experiments/networking/direct_ap_mode/README.md",
+        "experiments/networking/direct_ap_mode/RESULTS.md",
+        "experiments/networking/direct_ap_mode/STATUS.md",
+        "experiments/networking/direct_ap_mode/TEST_PLAN.md",
+        "experiments/networking/offline_mode/NEXT_STEPS.md",
+        "experiments/networking/offline_mode/README.md",
+        "experiments/networking/offline_mode/RESULTS.md",
+        "experiments/networking/offline_mode/STATUS.md",
+        "experiments/networking/offline_mode/TEST_PLAN.md",
+        "experiments/networking/wifi_lan_discovery/NEXT_STEPS.md",
+        "experiments/networking/wifi_lan_discovery/README.md",
+        "experiments/networking/wifi_lan_discovery/RESULTS.md",
+        "experiments/networking/wifi_lan_discovery/STATUS.md",
+        "experiments/networking/wifi_lan_discovery/TEST_PLAN.md"
+      ],
+      "id": "component-1b3e8d967a5f85c09e093b02",
+      "kind": "component",
+      "name": "experiments/networking"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "experiments/firmware/esp32_dual_core/NEXT_STEPS.md",
+        "experiments/firmware/esp32_dual_core/README.md",
+        "experiments/firmware/esp32_dual_core/RESULTS.md",
+        "experiments/firmware/esp32_dual_core/STATUS.md",
+        "experiments/firmware/esp32_dual_core/TEST_PLAN.md",
+        "experiments/firmware/esp32_s3_migration/NEXT_STEPS.md",
+        "experiments/firmware/esp32_s3_migration/README.md",
+        "experiments/firmware/esp32_s3_migration/RESULTS.md",
+        "experiments/firmware/esp32_s3_migration/STATUS.md",
+        "experiments/firmware/esp32_s3_migration/TEST_PLAN.md",
+        "experiments/firmware/node_health/NEXT_STEPS.md",
+        "experiments/firmware/node_health/README.md",
+        "experiments/firmware/node_health/RESULTS.md",
+        "experiments/firmware/node_health/STATUS.md",
+        "experiments/firmware/node_health/TEST_PLAN.md",
+        "experiments/firmware/stm32_coprocessor/NEXT_STEPS.md",
+        "experiments/firmware/stm32_coprocessor/README.md",
+        "experiments/firmware/stm32_coprocessor/RESULTS.md",
+        "experiments/firmware/stm32_coprocessor/STATUS.md",
+        "experiments/firmware/stm32_coprocessor/TEST_PLAN.md"
+      ],
+      "id": "component-5f0a819744a9c2b905d3f8d7",
+      "kind": "component",
+      "name": "experiments/firmware"
+    },
+    {
+      "confidence": 0.95,
+      "evidence_paths": [
+        "experiments/ai/grow_recommendations/NEXT_STEPS.md",
+        "experiments/ai/grow_recommendations/README.md",
+        "experiments/ai/grow_recommendations/RESULTS.md",
+        "experiments/ai/grow_recommendations/STATUS.md",
+        "experiments/ai/grow_recommendations/TEST_PLAN.md",
+        "experiments/ai/leak_detection/NEXT_STEPS.md",
+        "experiments/ai/leak_detection/README.md",
+        "experiments/ai/leak_detection/RESULTS.md",
+        "experiments/ai/leak_detection/STATUS.md",
+        "experiments/ai/leak_detection/TEST_PLAN.md",
+        "experiments/ai/refill_prediction/NEXT_STEPS.md",
+        "experiments/ai/refill_prediction/README.md",
+        "experiments/ai/refill_prediction/RESULTS.md",
+        "experiments/ai/refill_prediction/STATUS.md",
+        "experiments/ai/refill_prediction/TEST_PLAN.md"
+      ],
+      "id": "component-ab0a88a85d74a84ba6fde2f3",
+      "kind": "component",
+      "name": "experiments/ai"
+    },
+    {
+      "confidence": 0.95,
+      "evidence_paths": [
+        "experiments/automation/mist_driver/NEXT_STEPS.md",
+        "experiments/automation/mist_driver/README.md",
+        "experiments/automation/mist_driver/RESULTS.md",
+        "experiments/automation/mist_driver/STATUS.md",
+        "experiments/automation/mist_driver/TEST_PLAN.md",
+        "experiments/automation/pump_control/NEXT_STEPS.md",
+        "experiments/automation/pump_control/README.md",
+        "experiments/automation/pump_control/RESULTS.md",
+        "experiments/automation/pump_control/STATUS.md",
+        "experiments/automation/pump_control/TEST_PLAN.md",
+        "experiments/automation/relay_safety/NEXT_STEPS.md",
+        "experiments/automation/relay_safety/README.md",
+        "experiments/automation/relay_safety/RESULTS.md",
+        "experiments/automation/relay_safety/STATUS.md",
+        "experiments/automation/relay_safety/TEST_PLAN.md"
+      ],
+      "id": "component-d81c70ac98b0c3b936b865ee",
+      "kind": "component",
+      "name": "experiments/automation"
+    },
+    {
+      "confidence": 0.95,
+      "evidence_paths": [
+        "experiments/diagnostics/field_support_logs/NEXT_STEPS.md",
+        "experiments/diagnostics/field_support_logs/README.md",
+        "experiments/diagnostics/field_support_logs/RESULTS.md",
+        "experiments/diagnostics/field_support_logs/STATUS.md",
+        "experiments/diagnostics/field_support_logs/TEST_PLAN.md",
+        "experiments/diagnostics/hidden_app_screen/NEXT_STEPS.md",
+        "experiments/diagnostics/hidden_app_screen/README.md",
+        "experiments/diagnostics/hidden_app_screen/RESULTS.md",
+        "experiments/diagnostics/hidden_app_screen/STATUS.md",
+        "experiments/diagnostics/hidden_app_screen/TEST_PLAN.md",
+        "experiments/diagnostics/postman_access_validation/NEXT_STEPS.md",
+        "experiments/diagnostics/postman_access_validation/README.md",
+        "experiments/diagnostics/postman_access_validation/RESULTS.md",
+        "experiments/diagnostics/postman_access_validation/STATUS.md",
+        "experiments/diagnostics/postman_access_validation/TEST_PLAN.md"
+      ],
+      "id": "component-48d65cc4ab2b2e1fdbf71de1",
+      "kind": "component",
+      "name": "experiments/diagnostics"
+    },
+    {
+      "confidence": 0.95,
+      "evidence_paths": [
+        "experiments/security/licence_token_validation/NEXT_STEPS.md",
+        "experiments/security/licence_token_validation/README.md",
+        "experiments/security/licence_token_validation/RESULTS.md",
+        "experiments/security/licence_token_validation/STATUS.md",
+        "experiments/security/licence_token_validation/TEST_PLAN.md",
+        "experiments/security/node_pairing_secret/NEXT_STEPS.md",
+        "experiments/security/node_pairing_secret/README.md",
+        "experiments/security/node_pairing_secret/RESULTS.md",
+        "experiments/security/node_pairing_secret/STATUS.md",
+        "experiments/security/node_pairing_secret/TEST_PLAN.md",
+        "experiments/security/signed_firmware_bundles/NEXT_STEPS.md",
+        "experiments/security/signed_firmware_bundles/README.md",
+        "experiments/security/signed_firmware_bundles/RESULTS.md",
+        "experiments/security/signed_firmware_bundles/STATUS.md",
+        "experiments/security/signed_firmware_bundles/TEST_PLAN.md"
+      ],
+      "id": "component-ae448cba687cae1fb7ec8ac8",
+      "kind": "component",
+      "name": "experiments/security"
+    },
+    {
+      "confidence": 0.95,
+      "evidence_paths": [
+        "prototypes/hardware_mockups/MASTER_TRACKER.md",
+        "prototypes/hardware_mockups/PHOTO_CHECKLIST.md",
+        "prototypes/hardware_mockups/README.md",
+        "prototypes/hardware_mockups/rev_a_bench_pack/BOM.md",
+        "prototypes/hardware_mockups/rev_a_bench_pack/CHANGELOG.md",
+        "prototypes/hardware_mockups/rev_a_bench_pack/README.md",
+        "prototypes/hardware_mockups/rev_a_bench_pack/RESULTS.md",
+        "prototypes/hardware_mockups/rev_a_bench_pack/TEST_PLAN.md",
+        "prototypes/hardware_mockups/rev_a_bench_pack/WIRING.md",
+        "prototypes/hardware_mockups/rev_b_bench_pack/BOM.md",
+        "prototypes/hardware_mockups/rev_b_bench_pack/CHANGELOG.md",
+        "prototypes/hardware_mockups/rev_b_bench_pack/README.md",
+        "prototypes/hardware_mockups/rev_b_bench_pack/RESULTS.md",
+        "prototypes/hardware_mockups/rev_b_bench_pack/TEST_PLAN.md",
+        "prototypes/hardware_mockups/rev_b_bench_pack/WIRING.md"
+      ],
+      "id": "component-a461ca0bff48832a63e65ca0",
+      "kind": "component",
+      "name": "prototypes/hardware_mockups"
+    },
+    {
+      "confidence": 0.89,
+      "evidence_paths": [
+        "docs/00_master_index/daily_engineering_routine.md",
+        "docs/00_master_index/developer_diagnostics_workflow.md",
+        "docs/00_master_index/developer_onboarding.md",
+        "docs/00_master_index/development_roadmap.md",
+        "docs/00_master_index/docs_audit_register.md",
+        "docs/00_master_index/docs_gap_integration_plan.md",
+        "docs/00_master_index/documentation_map.md",
+        "docs/00_master_index/documentation_spine.md",
+        "docs/00_master_index/engineering_control_center.md",
+        "docs/00_master_index/engineering_index.md",
+        "docs/00_master_index/engineering_map.md",
+        "docs/00_master_index/master_index.md",
+        "docs/00_master_index/repository_file_feature_index.md"
+      ],
+      "id": "component-755a1126e6dca89749595073",
+      "kind": "component",
+      "name": "docs/00_master_index"
+    },
+    {
+      "confidence": 0.86,
+      "evidence_paths": [
+        "docs/05_firmware/README.md",
+        "docs/05_firmware/api_sequence_diagram.md",
+        "docs/05_firmware/dev_cheat_sheet.md",
+        "docs/05_firmware/dev_cheat_sheet_image_prompt.md",
+        "docs/05_firmware/dev_environment.md",
+        "docs/05_firmware/espnow_lab_architecture.md",
+        "docs/05_firmware/firmware_api_spec.md",
+        "docs/05_firmware/firmware_hardware_integration.md",
+        "docs/05_firmware/firmware_module_map.md",
+        "docs/05_firmware/firmware_notes.md",
+        "docs/05_firmware/firmware_startup_flow.md",
+        "docs/05_firmware/node_firmware_specification.md"
+      ],
+      "id": "component-36b88b66f733e97bc98d9a1e",
+      "kind": "component",
+      "name": "docs/05_firmware"
+    },
+    {
+      "confidence": 0.83,
+      "evidence_paths": [
+        "docs/ota/BUNDLE_FORMAT.md",
+        "docs/ota/OTA_BUNDLE_FORMAT.md",
+        "docs/ota/OTA_FAILURE_RECOVERY.md",
+        "docs/ota/OTA_POST_UPDATE_SMOKE_TEST_PLAN.md",
+        "docs/ota/OTA_ROADMAP.md",
+        "docs/ota/OTA_SAFETY_REQUIREMENTS.md",
+        "docs/ota/OTA_STRATEGY.md",
+        "docs/ota/OTA_TEST_PLAN.md",
+        "docs/ota/README.md",
+        "docs/ota/SAFETY_RULES.md",
+        "docs/ota/SIGNING_KEY_CUSTODY.md"
+      ],
+      "id": "component-ab0be1b2700c37f96c4c2722",
+      "kind": "component",
+      "name": "docs/ota"
+    },
+    {
+      "confidence": 0.83,
+      "evidence_paths": [
+        "modules/microgrow_local_ota_module/README.md",
+        "modules/microgrow_local_ota_module/app/ota/APP_COURIER_FLOW.md",
+        "modules/microgrow_local_ota_module/codex_handoff/CODEX_TASK_LOCAL_OTA_V1_1.md",
+        "modules/microgrow_local_ota_module/codex_handoff/CODEX_TASK_OTA_READY_V1.md",
+        "modules/microgrow_local_ota_module/docs/ota/BUNDLE_FORMAT.md",
+        "modules/microgrow_local_ota_module/docs/ota/OTA_STRATEGY.md",
+        "modules/microgrow_local_ota_module/docs/ota/SAFETY_RULES.md",
+        "modules/microgrow_local_ota_module/firmware/contracts/firmware_ota_contract.md",
+        "modules/microgrow_local_ota_module/hub/ota/LOCAL_OTA_MANAGER_SPEC.md",
+        "modules/microgrow_local_ota_module/tests/ota/OTA_TEST_PLAN.md",
+        "modules/microgrow_local_ota_module/tools/create_manifest_example.py"
+      ],
+      "id": "component-c1305ae688f377aee376a375",
+      "kind": "component",
+      "name": "modules/microgrow_local_ota_module"
+    },
+    {
+      "confidence": 0.83,
+      "evidence_paths": [
+        "tools/marketplace/OPERATOR_CHECKLIST.md",
+        "tools/marketplace/README.md",
+        "tools/marketplace/RELEASE_AUTHORING_WORKFLOW.md",
+        "tools/marketplace/build_crop_profile_package.py",
+        "tools/marketplace/templates/bonsai_shape_starter.template.json",
+        "tools/marketplace/templates/cactus_resilience_starter.template.json",
+        "tools/marketplace/templates/carnivorous_plant_lab.template.json",
+        "tools/marketplace/templates/exotic_foliage_showcase.template.json",
+        "tools/marketplace/templates/leafy_greens_starter.template.json",
+        "tools/marketplace/templates/mushroom_humidity_lab.template.json",
+        "tools/marketplace/templates/tropical_houseplant_starter.template.json"
+      ],
+      "id": "component-c13178972716fda3ea2b5350",
+      "kind": "component",
+      "name": "tools/marketplace"
+    },
+    {
+      "confidence": 0.8,
+      "evidence_paths": [
+        "docs/14_brand/README.md",
+        "docs/14_brand/asset_file_map.md",
+        "docs/14_brand/brand_identity.md",
+        "docs/14_brand/microgrow_new_user_quick_start.png",
+        "docs/14_brand/microgrow_quick_reference_sheet.png",
+        "docs/14_brand/prompt_pack.md",
+        "docs/14_brand/prompts/future/microgrow_v1_access_model_roadmap.md",
+        "docs/14_brand/prompts/future/microgrow_v1_screen_access_matrix.md",
+        "docs/14_brand/visual_asset_backlog.md",
+        "docs/14_brand/visual_asset_manifest.md"
+      ],
+      "id": "component-9257cadf0f83e8665334c43c",
+      "kind": "component",
+      "name": "docs/14_brand"
+    },
+    {
+      "confidence": 0.8,
+      "evidence_paths": [
+        "experiments/_templates/BOM.md",
+        "experiments/_templates/CALIBRATION.md",
+        "experiments/_templates/NEXT_STEPS.md",
+        "experiments/_templates/README.md",
+        "experiments/_templates/RESULTS.md",
+        "experiments/_templates/RISKS.md",
+        "experiments/_templates/STATUS.md",
+        "experiments/_templates/TEST_PLAN.md",
+        "experiments/_templates/WIRING.md",
+        "experiments/_templates/experiment.json"
+      ],
+      "id": "component-35470dfc71d36ea0135a7ef9",
+      "kind": "component",
+      "name": "experiments/_templates"
+    },
+    {
+      "confidence": 0.8,
+      "evidence_paths": [
+        "experiments/local_first/hub_restart_recovery/NEXT_STEPS.md",
+        "experiments/local_first/hub_restart_recovery/README.md",
+        "experiments/local_first/hub_restart_recovery/RESULTS.md",
+        "experiments/local_first/hub_restart_recovery/STATUS.md",
+        "experiments/local_first/hub_restart_recovery/TEST_PLAN.md",
+        "experiments/local_first/multi_site_hubs/NEXT_STEPS.md",
+        "experiments/local_first/multi_site_hubs/README.md",
+        "experiments/local_first/multi_site_hubs/RESULTS.md",
+        "experiments/local_first/multi_site_hubs/STATUS.md",
+        "experiments/local_first/multi_site_hubs/TEST_PLAN.md"
+      ],
+      "id": "component-7494122e9859690e4ea337eb",
+      "kind": "component",
+      "name": "experiments/local_first"
+    },
+    {
+      "confidence": 0.8,
+      "evidence_paths": [
+        "experiments/ota/offline_ota_courier/NEXT_STEPS.md",
+        "experiments/ota/offline_ota_courier/README.md",
+        "experiments/ota/offline_ota_courier/RESULTS.md",
+        "experiments/ota/offline_ota_courier/STATUS.md",
+        "experiments/ota/offline_ota_courier/TEST_PLAN.md",
+        "experiments/ota/safe_rollback/NEXT_STEPS.md",
+        "experiments/ota/safe_rollback/README.md",
+        "experiments/ota/safe_rollback/RESULTS.md",
+        "experiments/ota/safe_rollback/STATUS.md",
+        "experiments/ota/safe_rollback/TEST_PLAN.md"
+      ],
+      "id": "component-1dd473c7c9fe4deff9b9a3f5",
+      "kind": "component",
+      "name": "experiments/ota"
+    },
+    {
+      "confidence": 0.8,
+      "evidence_paths": [
+        "experiments/vision/leaf_health/NEXT_STEPS.md",
+        "experiments/vision/leaf_health/README.md",
+        "experiments/vision/leaf_health/RESULTS.md",
+        "experiments/vision/leaf_health/STATUS.md",
+        "experiments/vision/leaf_health/TEST_PLAN.md",
+        "experiments/vision/plant_scanner/NEXT_STEPS.md",
+        "experiments/vision/plant_scanner/README.md",
+        "experiments/vision/plant_scanner/RESULTS.md",
+        "experiments/vision/plant_scanner/STATUS.md",
+        "experiments/vision/plant_scanner/TEST_PLAN.md"
+      ],
+      "id": "component-13a2a83a4336c5208ec428d9",
+      "kind": "component",
+      "name": "experiments/vision"
+    },
+    {
+      "confidence": 0.74,
+      "evidence_paths": [
+        "docs/02_product/README.md",
+        "docs/02_product/access_model.md",
+        "docs/02_product/crop_profile_marketplace.md",
+        "docs/02_product/faq.md",
+        "docs/02_product/problem_statement.md",
+        "docs/02_product/product_concept.md",
+        "docs/02_product/system_specification.md",
+        "docs/02_product/v1_user_guide.md"
+      ],
+      "id": "component-8a53ddfc9ca18097cd88aae1",
+      "kind": "component",
+      "name": "docs/02_product"
+    },
+    {
+      "confidence": 0.74,
+      "evidence_paths": [
+        "tools/project_control/__init__.py",
+        "tools/project_control/execution_workbench.py",
+        "tools/project_control/hardware_validation_lab.py",
+        "tools/project_control/live_intelligence.py",
+        "tools/project_control/mg-control.ps1",
+        "tools/project_control/mg_control.py",
+        "tools/project_control/release_v1.py",
+        "tools/project_control/version_simulator.py"
+      ],
+      "id": "component-7e3bc119218646074089c62d",
+      "kind": "component",
+      "name": "tools/project_control"
+    },
+    {
+      "confidence": 0.71,
+      "evidence_paths": [
+        "docs/14_printable_pack/MicroGrow_Direct_Node_Launch_Readiness_Walkthrough.md",
+        "docs/14_printable_pack/MicroGrow_Printable_Pack_Cover.pdf",
+        "docs/14_printable_pack/MicroGrow_V1_Access_Model_Roadmap_Printable.pdf",
+        "docs/14_printable_pack/MicroGrow_V1_Screen_Access_Matrix_Printable.pdf",
+        "docs/14_printable_pack/MicroGrow_V1_Tier_Matrix_Printable.pdf",
+        "docs/14_printable_pack/README.md",
+        "docs/14_printable_pack/pack_preview.md"
+      ],
+      "id": "component-beea93d13afe70c65610f3e9",
+      "kind": "component",
+      "name": "docs/14_printable_pack"
+    },
+    {
+      "confidence": 0.71,
+      "evidence_paths": [
+        "docs/hub/LOCAL_HUB_ACCEPTANCE_BOUNDARY.md",
+        "docs/hub/LOCAL_OTA_MANAGER_SPEC.md",
+        "docs/hub/LOCAL_OTA_V11_CHECKLIST.md",
+        "docs/hub/LOCAL_OTA_V11_ROADMAP.md",
+        "docs/hub/LOCAL_OTA_V12_CHECKLIST.md",
+        "docs/hub/LOCAL_OTA_V13_CHECKLIST.md",
+        "docs/hub/README.md"
+      ],
+      "id": "component-af560288999734bdffd59c38",
+      "kind": "component",
+      "name": "docs/hub"
+    },
+    {
+      "confidence": 0.65,
+      "evidence_paths": [
+        "architecture/v1_node/block_diagram.png",
+        "architecture/v1_node/data_flow.png",
+        "architecture/v1_node/firmware_module_interaction.png",
+        "architecture/v1_node/microgrow_system_control_loop.png",
+        "architecture/v1_node/microgrow_v1_node_architecture.png"
+      ],
+      "id": "component-92cdff7ad4b3fa5467c50498",
+      "kind": "component",
+      "name": "architecture/v1_node"
+    },
+    {
+      "confidence": 0.65,
+      "evidence_paths": [
+        "docs/api/03_MICROGROW_HUB_API_FSD.md",
+        "docs/api/postman/MicroGrow-ESP32.postman_collection.json",
+        "docs/api/postman/MicroGrow-Hub.postman_collection.json",
+        "docs/api/postman/MicroGrow-Marketplace.postman_collection.json",
+        "docs/api/postman/README.md"
+      ],
+      "id": "component-8eb9391020dd35e5b83a190b",
+      "kind": "component",
+      "name": "docs/api"
+    },
+    {
+      "confidence": 0.65,
+      "evidence_paths": [
+        "docs/hardware/mist_driver/MIST_DRIVER_MODULE_SPEC_v0.1.md",
+        "docs/hardware/mist_driver/README.md",
+        "docs/hardware/mist_driver/STAGE_2_ENGINEERING_SUMMARY.md",
+        "docs/hardware/mist_driver/STAGE_2_PROTEUS_PLAN.md",
+        "docs/hardware/mist_driver/STAGE_3_MODULE_INTERFACE_AND_CONNECTORS.md"
+      ],
+      "id": "component-ca611cfcc684dad351406fbc",
+      "kind": "component",
+      "name": "docs/hardware"
+    },
+    {
+      "confidence": 0.65,
+      "evidence_paths": [
+        "experiments/archived/NEXT_STEPS.md",
+        "experiments/archived/README.md",
+        "experiments/archived/RESULTS.md",
+        "experiments/archived/STATUS.md",
+        "experiments/archived/TEST_PLAN.md"
+      ],
+      "id": "component-49d0f15da2eeddb08f7d33e9",
+      "kind": "component",
+      "name": "experiments/archived"
+    },
+    {
+      "confidence": 0.65,
+      "evidence_paths": [
+        "experiments/espnow_lab/2026-06-03_first_test_template.md",
+        "experiments/espnow_lab/NEXT_STEPS.md",
+        "experiments/espnow_lab/README.md",
+        "experiments/espnow_lab/STATUS.md",
+        "experiments/espnow_lab/TEST_PLAN.md"
+      ],
+      "id": "component-e2bfa5cdee53b3b8a3f95e25",
+      "kind": "component",
+      "name": "experiments/espnow_lab"
+    },
+    {
+      "confidence": 0.65,
+      "evidence_paths": [
+        "firmware/espnow_lab/README.md",
+        "firmware/espnow_lab/gateway_receiver/platformio.ini",
+        "firmware/espnow_lab/gateway_receiver/src/main.cpp",
+        "firmware/espnow_lab/sender_sensor_node/platformio.ini",
+        "firmware/espnow_lab/sender_sensor_node/src/main.cpp"
+      ],
+      "id": "component-1d6761e8bc3e23c83b790f5f",
+      "kind": "component",
+      "name": "firmware/espnow_lab"
+    },
+    {
+      "confidence": 0.65,
+      "evidence_paths": [
+        "tools/scripts/README.md",
+        "tools/scripts/create_experiment_folder.ps1",
+        "tools/scripts/export_experiment_index.ps1",
+        "tools/scripts/sync_experiments.ps1",
+        "tools/scripts/validate_experiment_manifests.ps1"
+      ],
+      "id": "component-31660b334949283a43a54c0a",
+      "kind": "component",
+      "name": "tools/scripts"
+    },
+    {
+      "confidence": 0.62,
+      "evidence_paths": [
+        ".github/workflows/app-ci.yml",
+        ".github/workflows/commerce-backend-ci.yml",
+        ".github/workflows/commerce-backend-provider-smoke.yml",
+        ".github/workflows/firmware-ci.yml"
+      ],
+      "id": "component-51f2cde74e00bf554b053566",
+      "kind": "component",
+      "name": ".github/workflows"
+    },
+    {
+      "confidence": 0.62,
+      "evidence_paths": [
+        "docs/13_commercial_product/MicroGrow_V1_Launch_Master_Plan.pdf",
+        "docs/13_commercial_product/README.md",
+        "docs/13_commercial_product/product_strategy.md",
+        "docs/13_commercial_product/tier_matrix.md"
+      ],
+      "id": "component-a12c1aaa013430ea4c61a138",
+      "kind": "component",
+      "name": "docs/13_commercial_product"
+    },
+    {
+      "confidence": 0.62,
+      "evidence_paths": [
+        "docs/adr/ADR-0001-local-first-architecture.md",
+        "docs/adr/ADR-0002-one-hub-per-site.md",
+        "docs/adr/ADR-0003-pressure-tube-water-level-method.md",
+        "docs/adr/README.md"
+      ],
+      "id": "component-d44b853d2a43a146e1e2a73c",
+      "kind": "component",
+      "name": "docs/adr"
+    },
+    {
+      "confidence": 0.62,
+      "evidence_paths": [
+        "docs/app/APP_COURIER_FLOW.md",
+        "docs/app/APP_COURIER_V12_CHECKLIST.md",
+        "docs/app/APP_COURIER_V13_CHECKLIST.md",
+        "docs/app/README.md"
+      ],
+      "id": "component-f843101b0b2583eba51a459e",
+      "kind": "component",
+      "name": "docs/app"
+    },
+    {
+      "confidence": 0.62,
+      "evidence_paths": [
+        "docs/research/MICROGROW_RND_ROADMAP.md",
+        "docs/research/README_EXPERIMENTS.md",
+        "docs/research/earth_dashboard_experiment_schema.md",
+        "docs/research/experiment_workflow.md"
+      ],
+      "id": "component-ed5fcf94c288b78313ffcf94",
+      "kind": "component",
+      "name": "docs/research"
+    },
+    {
+      "confidence": 0.62,
+      "evidence_paths": [
+        "docs/standards/README.md",
+        "docs/standards/calibration_standard.md",
+        "docs/standards/data_logging_standard.md",
+        "docs/standards/experiment_naming_standard.md"
+      ],
+      "id": "component-439c6636c078be87b70952cb",
+      "kind": "component",
+      "name": "docs/standards"
+    },
+    {
+      "confidence": 0.59,
+      "evidence_paths": [
+        "calibration/sensor_offsets/README.md",
+        "calibration/sensor_offsets/SHTC3_CALIBRATION_RECORD.md",
+        "calibration/sensor_offsets/VEML7700_CALIBRATION_RECORD.md"
+      ],
+      "id": "component-f7503cd25b3c07bd76efefb4",
+      "kind": "component",
+      "name": "calibration/sensor_offsets"
+    },
+    {
+      "confidence": 0.59,
+      "evidence_paths": [
+        "docs/07_network/README.md",
+        "docs/07_network/ble_provisioning_security_acceptance.md",
+        "docs/07_network/network_architecture.md"
+      ],
+      "id": "component-7b7ecbd14d92e7fbda6e0265",
+      "kind": "component",
+      "name": "docs/07_network"
+    },
+    {
+      "confidence": 0.59,
+      "evidence_paths": [
+        "docs/16_appendices/README.md",
+        "docs/16_appendices/appendices.md",
+        "docs/16_appendices/microgrow_technical_whitepaper.md"
+      ],
+      "id": "component-a532bbf3ec9969b5f882a44e",
+      "kind": "component",
+      "name": "docs/16_appendices"
+    },
+    {
+      "confidence": 0.59,
+      "evidence_paths": [
+        "engineering_logs/decisions/ADR-0001-api-style.md",
+        "engineering_logs/decisions/ADR_Architecture_decision_board.md",
+        "engineering_logs/decisions/ADR_TEMPLATE.md"
+      ],
+      "id": "component-1d55a9229d99c398b8384a3a",
+      "kind": "component",
+      "name": "engineering_logs/decisions"
+    },
+    {
+      "confidence": 0.59,
+      "evidence_paths": [
+        "experiments/_index/EXPERIMENT_REGISTER.csv",
+        "experiments/_index/README.md",
+        "experiments/_index/experiments.json"
+      ],
+      "id": "component-cf17d81d49527660c520ee42",
+      "kind": "component",
+      "name": "experiments/_index"
+    },
+    {
+      "confidence": 0.59,
+      "evidence_paths": [
+        "project_control/snapshots/MGSNAP-0011.json",
+        "project_control/snapshots/MGSNAP-0012.json",
+        "project_control/snapshots/MGSNAP-0015.json"
+      ],
+      "id": "component-cbd3fbb89a0f53ede2017db2",
+      "kind": "component",
+      "name": "project_control/snapshots"
+    },
+    {
+      "confidence": 0.59,
+      "evidence_paths": [
+        "tools/codex_prompts/README.md",
+        "tools/codex_prompts/create_new_experiment.md",
+        "tools/codex_prompts/promote_experiment_to_production.md"
+      ],
+      "id": "component-93f6e5fd94a4d1e2dd8d4dc2",
+      "kind": "component",
+      "name": "tools/codex_prompts"
+    },
+    {
+      "confidence": 0.59,
+      "evidence_paths": [
+        "tools/deploy/commerce_backend_hosted.ps1",
+        "tools/deploy/commerce_backend_provider_smoke.ps1",
+        "tools/deploy/commerce_backend_staging.ps1"
+      ],
+      "id": "component-2df56df6b5c9405f2585fc35",
+      "kind": "component",
+      "name": "tools/deploy"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "ai/codex_prompts/espnow_gateway_to_data_bridge_prompt.md",
+        "ai/codex_prompts/espnow_lab_integration_prompt.md"
+      ],
+      "id": "component-4ab20e4e66dda2048216b5ac",
+      "kind": "component",
+      "name": "ai/codex_prompts"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "architecture/master/microgrow_engineering_dashboard.png",
+        "architecture/master/microgrow_master_system_architecture.png"
+      ],
+      "id": "component-31ad48502730bfcc46be377a",
+      "kind": "component",
+      "name": "architecture/master"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "calibration/reference_measurements/README.md",
+        "calibration/reference_measurements/REFERENCE_INSTRUMENT_REGISTER.md"
+      ],
+      "id": "component-d1e0d5d02c8dfd416c9637eb",
+      "kind": "component",
+      "name": "calibration/reference_measurements"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "docs/01_origin_story/README.md",
+        "docs/01_origin_story/microgrow_origin_story.md"
+      ],
+      "id": "component-d7b1057f7517245b74a0d5e3",
+      "kind": "component",
+      "name": "docs/01_origin_story"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "docs/06_software/README.md",
+        "docs/06_software/flutter_notes.md"
+      ],
+      "id": "component-c288a9cd171b121f00dbd886",
+      "kind": "component",
+      "name": "docs/06_software"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "docs/08_security/README.md",
+        "docs/08_security/security_model.md"
+      ],
+      "id": "component-a2f214de75d8048f5d02686d",
+      "kind": "component",
+      "name": "docs/08_security"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "docs/11_market_research/README.md",
+        "docs/11_market_research/market_research.md"
+      ],
+      "id": "component-3d527eb5b95a7619747f35b3",
+      "kind": "component",
+      "name": "docs/11_market_research"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "docs/12_manufacturing/README.md",
+        "docs/12_manufacturing/manufacturing_strategy.md"
+      ],
+      "id": "component-ca74379dbcce23457195858c",
+      "kind": "component",
+      "name": "docs/12_manufacturing"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "docs/15_future_vision/README.md",
+        "docs/15_future_vision/future_platform.md"
+      ],
+      "id": "component-6ed110996ca1f4d1f3ee77e6",
+      "kind": "component",
+      "name": "docs/15_future_vision"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "docs/firmware/README.md",
+        "docs/firmware/firmware_ota_contract.md"
+      ],
+      "id": "component-890ff7d6290e585b6a4a6815",
+      "kind": "component",
+      "name": "docs/firmware"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "lab/calibration_reports/CALIBRATION_REPORT_TEMPLATE.md",
+        "lab/calibration_reports/README.md"
+      ],
+      "id": "component-af4304f9fe126a562e2f569e",
+      "kind": "component",
+      "name": "lab/calibration_reports"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "postman/environments/MicroGrow Access Validation.environment.yaml",
+        "postman/environments/MicroGrow ESP32 Local Dev.environment.yaml"
+      ],
+      "id": "component-ab7163c5f3811aba4da2e553",
+      "kind": "component",
+      "name": "postman/environments"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "project_control/schemas/canonical.schema.json",
+        "project_control/schemas/mutation_request.schema.json"
+      ],
+      "id": "component-613d9cb94f1c34552b9f893a",
+      "kind": "component",
+      "name": "project_control/schemas"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "project_control/work_packages/MGWP-0002.json",
+        "project_control/work_packages/MGWP-0003.json"
+      ],
+      "id": "component-4eb11be6d820f0c6089babc1",
+      "kind": "component",
+      "name": "project_control/work_packages"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "roadmaps/long_term/README.md",
+        "roadmaps/long_term/local_ota_roadmap.md"
+      ],
+      "id": "component-eaafa857dc1e848cfb8af74f",
+      "kind": "component",
+      "name": "roadmaps/long_term"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "templates/calibration_template/CALIBRATION_TABLE.csv",
+        "templates/calibration_template/README.md"
+      ],
+      "id": "component-cefce37c0716cf24ef8b0389",
+      "kind": "component",
+      "name": "templates/calibration_template"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "templates/test_report_template/README.md",
+        "templates/test_report_template/TEST_REPORT.md"
+      ],
+      "id": "component-279884c67691689ad245f98c",
+      "kind": "component",
+      "name": "templates/test_report_template"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "tests/project_control/test_engine.py",
+        "tests/project_control/test_live_intelligence.py"
+      ],
+      "id": "component-371b0c19f2c504a43f52a7fa",
+      "kind": "component",
+      "name": "tests/project_control"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "tools/checklists/EXPERIMENT_START_CHECKLIST.md",
+        "tools/checklists/PRODUCTION_PROMOTION_CHECKLIST.md"
+      ],
+      "id": "component-dc4b56e1ef888c4b0c567031",
+      "kind": "component",
+      "name": "tools/checklists"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "tools/data_processing/README.md",
+        "tools/data_processing/water_level_calibration_notes.py"
+      ],
+      "id": "component-7a5aa27c2c0668fc7c8e208e",
+      "kind": "component",
+      "name": "tools/data_processing"
+    },
+    {
+      "confidence": 0.56,
+      "evidence_paths": [
+        "tools/ota/README.md",
+        "tools/ota/build_firmware_bundle.py"
+      ],
+      "id": "component-7805967414f33ca67940c714",
+      "kind": "component",
+      "name": "tools/ota"
+    }
+  ],
+  "coverage": {
+    "count": 121,
+    "evidence_paths": [
+      ".github/workflows/app-ci.yml",
+      ".github/workflows/commerce-backend-ci.yml",
+      ".github/workflows/commerce-backend-provider-smoke.yml",
+      ".github/workflows/firmware-ci.yml",
+      "ai/codex_prompts/espnow_gateway_to_data_bridge_prompt.md",
+      "ai/codex_prompts/espnow_lab_integration_prompt.md",
+      "architecture/master/microgrow_engineering_dashboard.png",
+      "architecture/master/microgrow_master_system_architecture.png",
+      "architecture/v1_node/block_diagram.png",
+      "architecture/v1_node/data_flow.png",
+      "architecture/v1_node/firmware_module_interaction.png",
+      "architecture/v1_node/microgrow_system_control_loop.png",
+      "architecture/v1_node/microgrow_v1_node_architecture.png",
+      "calibration/reference_measurements/README.md",
+      "calibration/reference_measurements/REFERENCE_INSTRUMENT_REGISTER.md",
+      "calibration/sensor_offsets/README.md",
+      "calibration/sensor_offsets/SHTC3_CALIBRATION_RECORD.md",
+      "calibration/sensor_offsets/VEML7700_CALIBRATION_RECORD.md",
+      "contracts/api_fixtures/README.md",
+      "contracts/api_fixtures/access_test_account_seed_data.json"
+    ],
+    "ratio": 1.0,
+    "score": 100,
+    "threshold": 10,
+    "weight": 100
+  },
+  "interfaces": [
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/nodes.py"
+      ],
+      "kind": "api",
+      "name": "/commands/nodes/{node_uid}/pending"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/structure.py"
+      ],
+      "kind": "api",
+      "name": "/sites/{site_id}/grow-rooms"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/ota.py"
+      ],
+      "kind": "api",
+      "name": "/manager"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/auth.py"
+      ],
+      "kind": "api",
+      "name": "/me"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/structure.py"
+      ],
+      "kind": "api",
+      "name": "/sites/{site_id}/nodes"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/pairing.py"
+      ],
+      "kind": "api",
+      "name": "/pairing-tokens"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/structure.py"
+      ],
+      "kind": "api",
+      "name": "/nodes/{node_id}"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/ota.py"
+      ],
+      "kind": "api",
+      "name": "/logs"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/ota.py"
+      ],
+      "kind": "api",
+      "name": "/plan"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/auth.py"
+      ],
+      "kind": "api",
+      "name": "/login"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/health.py"
+      ],
+      "kind": "api",
+      "name": "/health"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/pairing.py"
+      ],
+      "kind": "api",
+      "name": "/pairing-tokens/{pairing_token_id}/expire"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/structure.py"
+      ],
+      "kind": "api",
+      "name": "/nodes/{node_id}/sensors/{sensor_id}"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/structure.py"
+      ],
+      "kind": "api",
+      "name": "/sites/{site_id}/nodes"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/structure.py"
+      ],
+      "kind": "api",
+      "name": "/sites/{site_id}/grow-rooms"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/auth.py"
+      ],
+      "kind": "api",
+      "name": "/register-owner"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/nodes.py"
+      ],
+      "kind": "api",
+      "name": "/commands/{command_id}/ack"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/structure.py"
+      ],
+      "kind": "api",
+      "name": "/nodes/{node_id}/sensors"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/structure.py"
+      ],
+      "kind": "api",
+      "name": "/grow-rooms/{grow_room_id}"
+    },
+    {
+      "confidence": 0.98,
+      "evidence_paths": [
+        "software/microgrow_hub/app/routers/structure.py"
+      ],
+      "kind": "api",
+      "name": "/sites"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/project_control/canonical.json"
+      ],
+      "kind": "configuration",
+      "name": "project.latest_revalidation_id"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/postman/collections/MicroGrow Access Validation/GET -auth-me.request.yaml"
+      ],
+      "kind": "configuration",
+      "name": "headers.Authorization"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/contracts/api_fixtures/get_config_response.json"
+      ],
+      "kind": "configuration",
+      "name": "lightSchedule.hoursOn"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/contracts/api_fixtures/get_firmware_capabilities_response.json"
+      ],
+      "kind": "configuration",
+      "name": "ota_supported"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/experiments/networking/wifi_lan_discovery/experiment.json"
+      ],
+      "kind": "configuration",
+      "name": "data_paths"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/software/flutter_app/pubspec.yaml"
+      ],
+      "kind": "configuration",
+      "name": "flutter.assets._items"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/contracts/api_fixtures/get_subscription_summary_team_owner_response.json"
+      ],
+      "kind": "configuration",
+      "name": "billing_status"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/contracts/api_fixtures/post_accounts_register_response.json"
+      ],
+      "kind": "configuration",
+      "name": "account.displayName"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/config/local_settings.json"
+      ],
+      "kind": "configuration",
+      "name": "androidDeviceHostIp"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/contracts/api_fixtures/access_test_account_seed_data.json"
+      ],
+      "kind": "configuration",
+      "name": "team_viewer.login.expires_in"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/contracts/api_fixtures/get_crop_profile_package_tomato_pro_response.json"
+      ],
+      "kind": "configuration",
+      "name": "item.currencyCode"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/contracts/api_fixtures/get_firmware_capabilities_response.json"
+      ],
+      "kind": "configuration",
+      "name": "one_node_at_a_time"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/contracts/api_fixtures/get_config_response.json"
+      ],
+      "kind": "configuration",
+      "name": "timing.loopDelayMs"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/software/microgrow_hub/.microgrow/hub_state.json"
+      ],
+      "kind": "configuration",
+      "name": "workspace"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/contracts/api_fixtures/get_data_response.json"
+      ],
+      "kind": "configuration",
+      "name": "humidity"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/tools/marketplace/templates/mushroom_humidity_lab.template.json"
+      ],
+      "kind": "configuration",
+      "name": "manifest.targetRangeSummary"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/contracts/api_fixtures/get_status_response.json"
+      ],
+      "kind": "configuration",
+      "name": "safetyInputs.sensorInvalid.label"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/postman/collections/MicroGrow ESP32 Node API/GET -info.request.yaml"
+      ],
+      "kind": "configuration",
+      "name": "name"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/software/flutter_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json"
+      ],
+      "kind": "configuration",
+      "name": "info.author"
+    },
+    {
+      "confidence": 0.85,
+      "evidence_paths": [
+        "D:/Dev/Projects/MicroGrow V1/contracts/api_fixtures/get_subscription_summary_team_editor_response.json"
+      ],
+      "kind": "configuration",
+      "name": "active_room_count"
+    }
+  ],
+  "layers": [
+    {
+      "confidence": 0.8,
+      "evidence_paths": [],
+      "name": "documentation"
+    },
+    {
+      "confidence": 0.8,
+      "evidence_paths": [],
+      "name": "testing"
+    },
+    {
+      "confidence": 0.75,
+      "evidence_paths": [],
+      "name": "application"
+    },
+    {
+      "confidence": 0.75,
+      "evidence_paths": [],
+      "name": "tooling"
+    }
+  ]
+}
+```

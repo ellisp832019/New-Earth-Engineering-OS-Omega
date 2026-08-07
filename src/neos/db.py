@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 SCHEMA = """
 PRAGMA foreign_keys=ON;
@@ -280,6 +280,22 @@ CREATE TABLE IF NOT EXISTS impact_findings (
     metadata_json TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_impact_findings_project_entity ON impact_findings(project_id, entity_id);
+
+CREATE TABLE IF NOT EXISTS project_genomes (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    source_commit TEXT,
+    source_branch TEXT,
+    genome_schema_version INTEGER NOT NULL,
+    source_fingerprint TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    summary_json TEXT NOT NULL,
+    genome_json TEXT NOT NULL,
+    metrics_json TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_project_genomes_unique ON project_genomes(project_id, genome_schema_version, source_fingerprint);
+CREATE INDEX IF NOT EXISTS idx_project_genomes_created ON project_genomes(project_id, created_at);
 """
 
 
@@ -329,6 +345,13 @@ def _migrate(conn: sqlite3.Connection) -> None:
             conn,
             3,
             "Add semantic intelligence tables for symbols, features, decisions, API routes, configuration keys, and impact findings.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 4 or conn.execute("SELECT 1 FROM migrations WHERE version=4").fetchone() is None:
+        _record_migration(
+            conn,
+            4,
+            "Add project genome snapshots for deterministic project-wide engineering models.",
             applied_at,
         )
     conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version',?)", (str(SCHEMA_VERSION),))

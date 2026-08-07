@@ -7,7 +7,7 @@ Project registry, scanner, SQLite graph, CLI, manifests, basic queries.
 Git metadata, scan diff, change classification, stale-state warnings.
 
 ## Alpha 0.3 - Semantic Engineering Model
-Features, repository intelligence, decisions, tests, releases and stronger relationships.
+Features, repository intelligence, decisions, tests, releases, project genome snapshots and stronger relationships.
 
 ## Alpha 0.4 - AI Context Gateway
 Deterministic retrieval, bounded context packages, provenance, uncertainty and prompt-injection defense.
@@ -37,3 +37,5 @@ Production packaging, migrations, backup/restore, plugin governance, polished de
 - experiment intelligence
 - specialized AI engineering agents
 - organization/team mode
+
+The NEOS v0.3 MicroGrow genome evidence bundle is stored at `docs/release_evidence/project-genome-v0.3/`.

@@ -37,6 +37,19 @@ from .core import (
     why_entity,
 )
 from .db import connect, schema_info
+from .genome import (
+    build_project_genome,
+    genome_attention,
+    genome_diff,
+    genome_domains,
+    genome_health,
+    genome_markdown_report,
+    genome_risks,
+    genome_summary,
+    genome_unknowns,
+    latest_project_genome,
+    render_project_report,
+)
 
 
 def parser() -> argparse.ArgumentParser:
@@ -159,6 +172,45 @@ def parser() -> argparse.ArgumentParser:
     config_list.add_argument("project_id")
     config_list.add_argument("--format", choices=("text", "json"), default="json")
 
+    genome = sub.add_parser("genome")
+    genome_sub = genome.add_subparsers(dest="genome_cmd", required=True)
+    genome_build = genome_sub.add_parser("build")
+    genome_build.add_argument("project_id")
+    genome_build.add_argument("--json", action="store_true")
+    genome_show = genome_sub.add_parser("show")
+    genome_show.add_argument("project_id")
+    genome_show.add_argument("--json", action="store_true")
+    genome_summary = genome_sub.add_parser("summary")
+    genome_summary.add_argument("project_id")
+    genome_summary.add_argument("--json", action="store_true")
+    genome_export = genome_sub.add_parser("export")
+    genome_export.add_argument("project_id")
+    genome_export.add_argument("--json", action="store_true")
+    genome_diff = genome_sub.add_parser("diff")
+    genome_diff.add_argument("project_id")
+    genome_diff.add_argument("--json", action="store_true")
+    genome_domains = genome_sub.add_parser("domains")
+    genome_domains.add_argument("project_id")
+    genome_domains.add_argument("--json", action="store_true")
+    genome_risks = genome_sub.add_parser("risks")
+    genome_risks.add_argument("project_id")
+    genome_risks.add_argument("--json", action="store_true")
+    genome_unknowns = genome_sub.add_parser("unknowns")
+    genome_unknowns.add_argument("project_id")
+    genome_unknowns.add_argument("--json", action="store_true")
+    genome_health = genome_sub.add_parser("health")
+    genome_health.add_argument("project_id")
+    genome_health.add_argument("--json", action="store_true")
+    genome_attention = genome_sub.add_parser("attention")
+    genome_attention.add_argument("project_id")
+    genome_attention.add_argument("--json", action="store_true")
+
+    report = sub.add_parser("report")
+    report_sub = report.add_subparsers(dest="report_cmd", required=True)
+    report_project = report_sub.add_parser("project")
+    report_project.add_argument("project_id")
+    report_project.add_argument("--json", action="store_true")
+
     sub.add_parser("version")
     return p
 
@@ -192,6 +244,13 @@ def _print(data: Any, fmt: str) -> None:
         print(json.dumps(data, indent=2, sort_keys=True))
     else:
         print(_render_text(data))
+
+
+def _genome_or_build(db: Path, project_id: str) -> dict[str, Any]:
+    genome = latest_project_genome(db, project_id)
+    if genome:
+        return genome
+    return build_project_genome(db, project_id)["genome"]
 
 
 def main(argv=None) -> int:
@@ -294,6 +353,35 @@ def main(argv=None) -> int:
             return 0
         if args.cmd == "config":
             _print(configuration_inventory(db, args.project_id), args.format)
+            return 0
+        if args.cmd == "genome":
+            if args.genome_cmd == "build":
+                _print(build_project_genome(db, args.project_id), "json")
+            elif args.genome_cmd == "show":
+                _print(_genome_or_build(db, args.project_id), "json")
+            elif args.genome_cmd == "summary":
+                _print(genome_summary(_genome_or_build(db, args.project_id)), "json")
+            elif args.genome_cmd == "export":
+                _print(_genome_or_build(db, args.project_id), "json")
+            elif args.genome_cmd == "diff":
+                _print(genome_diff(db, args.project_id), "json")
+            elif args.genome_cmd == "domains":
+                _print(genome_domains(_genome_or_build(db, args.project_id)), "json")
+            elif args.genome_cmd == "risks":
+                _print(genome_risks(_genome_or_build(db, args.project_id)), "json")
+            elif args.genome_cmd == "unknowns":
+                _print(genome_unknowns(_genome_or_build(db, args.project_id)), "json")
+            elif args.genome_cmd == "health":
+                _print(genome_health(_genome_or_build(db, args.project_id)), "json")
+            elif args.genome_cmd == "attention":
+                _print(genome_attention(_genome_or_build(db, args.project_id)), "json")
+            return 0
+        if args.cmd == "report" and args.report_cmd == "project":
+            genome = _genome_or_build(db, args.project_id)
+            if args.json:
+                _print(render_project_report(genome), "json")
+            else:
+                print(genome_markdown_report(genome), end="")
             return 0
         if args.cmd == "version":
             print(__version__)

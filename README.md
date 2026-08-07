@@ -14,6 +14,7 @@ NEOS is designed to become the intelligence layer above engineering repositories
 - Repository scanning and project indexing
 - Basic knowledge graph node/edge persistence
 - Semantic repository intelligence for symbols, features, API routes, config keys and decisions
+- Deterministic project genome snapshots, reports and release evidence packs
 - Plugin SDK contract and example plugin
 - Sample MicroGrow project manifest
 - Tests and validation scripts
@@ -39,6 +40,8 @@ python -m neos doctor
 python -m neos init-project --manifest examples\microgrow\project.neos.json
 python -m neos scan --project-id microgrow-v1 --repo "D:\Dev\Projects\MicroGrow V1"
 python -m neos project-summary --project-id microgrow-v1
+python -m neos genome build microgrow-v1 --json
+python -m neos report project microgrow-v1 --json
 ```
 
 ## Quick start — cross-platform
@@ -51,6 +54,8 @@ python -m neos doctor
 python -m neos init-project --manifest examples/microgrow/project.neos.json
 python -m neos scan --project-id microgrow-v1 --repo /path/to/repo
 python -m neos project-summary --project-id microgrow-v1
+python -m neos genome build microgrow-v1 --json
+python -m neos report project microgrow-v1 --json
 ```
 
 ## Recommended reading order
@@ -66,6 +71,8 @@ python -m neos project-summary --project-id microgrow-v1
 9. `docs/08_TESTING_AND_VALIDATION.md`
 10. `docs/09_ROADMAP.md`
 11. `CODEX_OMEGA_BUILD_PROMPT.md`
+
+The NEOS v0.3 MicroGrow genome evidence bundle lives in `docs/release_evidence/project-genome-v0.3/`.
 
 ## Repository status
 
