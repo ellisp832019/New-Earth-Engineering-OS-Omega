@@ -9,8 +9,11 @@ Git metadata, scan diff, change classification, stale-state warnings.
 ## Alpha 0.3 - Semantic Engineering Model
 Features, repository intelligence, decisions, tests, releases, project genome snapshots and stronger relationships.
 
-## Alpha 0.4 - AI Context Gateway
-Deterministic retrieval, bounded context packages, provenance, uncertainty and prompt-injection defense.
+## Alpha 0.4 - Engineering Memory
+Decision chronology, git history memory, assumptions, experiments, lessons, changes, timeline queries, memory gaps and contradictions.
+
+## Alpha 0.5 - AI Context Gateway
+Deterministic retrieval, bounded context packages, provenance, uncertainty, prompt-injection defense and engineering memory context.
 
 ## Beta 0.5 - Desktop Explorer
 Windows UI for project/graph/search/reports.
@@ -39,3 +42,5 @@ Production packaging, migrations, backup/restore, plugin governance, polished de
 - organization/team mode
 
 The NEOS v0.3 MicroGrow genome evidence bundle is stored at `docs/release_evidence/project-genome-v0.3/`.
+
+The NEOS v0.4 MicroGrow engineering memory evidence bundle is stored at `docs/release_evidence/engineering-memory-v0.4/`.

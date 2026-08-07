@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 SCHEMA = """
 PRAGMA foreign_keys=ON;
@@ -296,6 +296,63 @@ CREATE TABLE IF NOT EXISTS project_genomes (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_project_genomes_unique ON project_genomes(project_id, genome_schema_version, source_fingerprint);
 CREATE INDEX IF NOT EXISTS idx_project_genomes_created ON project_genomes(project_id, created_at);
+
+CREATE TABLE IF NOT EXISTS memory_records (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    genome_id TEXT REFERENCES project_genomes(id) ON DELETE SET NULL,
+    memory_schema_version INTEGER NOT NULL,
+    memory_type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    status TEXT NOT NULL,
+    source_type TEXT NOT NULL,
+    source_path TEXT,
+    source_commit TEXT,
+    source_branch TEXT,
+    timestamp TEXT NOT NULL,
+    effective_date TEXT,
+    confidence REAL NOT NULL,
+    provenance TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    superseded_by TEXT,
+    related_entities_json TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_memory_records_project_type ON memory_records(project_id, memory_type);
+CREATE INDEX IF NOT EXISTS idx_memory_records_project_time ON memory_records(project_id, COALESCE(effective_date, timestamp), created_at);
+
+CREATE TABLE IF NOT EXISTS memory_relationships (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    source_record_id TEXT NOT NULL REFERENCES memory_records(id) ON DELETE CASCADE,
+    target_record_id TEXT NOT NULL REFERENCES memory_records(id) ON DELETE CASCADE,
+    relationship_type TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    provenance TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_memory_relationships_project_source ON memory_relationships(project_id, source_record_id);
+CREATE INDEX IF NOT EXISTS idx_memory_relationships_project_target ON memory_relationships(project_id, target_record_id);
+
+CREATE TABLE IF NOT EXISTS memory_snapshots (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    genome_id TEXT NOT NULL REFERENCES project_genomes(id) ON DELETE CASCADE,
+    source_commit TEXT,
+    source_branch TEXT,
+    memory_schema_version INTEGER NOT NULL,
+    source_fingerprint TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    summary_json TEXT NOT NULL,
+    memory_json TEXT NOT NULL,
+    metrics_json TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_memory_snapshots_unique ON memory_snapshots(project_id, memory_schema_version, source_fingerprint);
+CREATE INDEX IF NOT EXISTS idx_memory_snapshots_created ON memory_snapshots(project_id, created_at);
 """
 
 
@@ -352,6 +409,13 @@ def _migrate(conn: sqlite3.Connection) -> None:
             conn,
             4,
             "Add project genome snapshots for deterministic project-wide engineering models.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 5 or conn.execute("SELECT 1 FROM migrations WHERE version=5").fetchone() is None:
+        _record_migration(
+            conn,
+            5,
+            "Add engineering memory snapshots for deterministic project history and rationale models.",
             applied_at,
         )
     conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version',?)", (str(SCHEMA_VERSION),))

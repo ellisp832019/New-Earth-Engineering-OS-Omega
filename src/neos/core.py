@@ -10,6 +10,7 @@ from typing import Any
 
 from .db import connect
 from .manifest import load_manifest
+from .memory import latest_project_memory, memory_timeline, memory_why
 from .models import Finding
 from .plugins.runtime import PluginRegistry
 from .scanner import scan_repo
@@ -586,6 +587,14 @@ def context_bundle(db_path: Path, project_id: str, question: str) -> dict[str, A
         "limitations": limitations,
         "warnings": injection_warnings,
     }
+    memory: dict[str, Any] = latest_project_memory(db_path, project_id)
+    if memory:
+        bundle["historical_record"] = memory_timeline(memory)
+        bundle["memory_provenance"] = memory.get("provenance", {})
+        bundle["decisions"] = memory.get("records", {}).get("decision", [])
+        bundle["assumptions"] = memory.get("records", {}).get("assumption", [])
+        bundle["lessons"] = memory.get("records", {}).get("lesson", [])
+        bundle["memory_unknowns"] = memory.get("gaps", [])
     conn.close()
     return bundle
 
@@ -875,9 +884,33 @@ def why_entity(db_path: Path, entity_id: str) -> dict[str, Any]:
     rationale = "Rationale not recorded in current NEOS evidence."
     if entity and entity.get("kind") == "decision":
         rationale = entity.get("rationale") or rationale
-    return {
+    result: dict[str, Any] = {
         "entity": entity,
         "evidence": evidence,
         "decisions": [dict(row) for row in related_decisions],
         "rationale": rationale,
     }
+    memory = latest_project_memory(db_path, str(entity["project_id"])) if entity and entity.get("project_id") else {}
+    if memory:
+        memory_result = memory_why(memory, entity_id)
+        result.update(
+            {
+                "recorded_rationale": memory_result["recorded_rationale"],
+                "supporting_evidence": memory_result["supporting_evidence"],
+                "related_decisions": memory_result["related_decisions"],
+                "historical_changes": memory_result["historical_changes"],
+                "unknown_rationale": memory_result["unknown_rationale"],
+                "memory_trace": memory_result["trace"],
+            }
+        )
+    else:
+        result.update(
+            {
+                "recorded_rationale": [rationale] if rationale else [],
+                "supporting_evidence": evidence,
+                "related_decisions": [dict(row) for row in related_decisions],
+                "historical_changes": [],
+                "unknown_rationale": [] if rationale else ["Rationale not recorded in current engineering memory."],
+            }
+        )
+    return result

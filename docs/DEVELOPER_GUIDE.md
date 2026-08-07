@@ -16,6 +16,8 @@ Use the query helpers in `neos.core` for inventories, diffs, Git state, context 
 
 Use `neos.genome` for deterministic project-wide genome snapshots, section reports, health models, attention queues and release evidence generation.
 
+Use `neos.memory` for engineering memory snapshots, git-history ingestion, decision chronology, assumptions, experiments, lessons, memory gaps and contradiction indicators.
+
 Add tests for every classifier, manifest rule, persistence rule, or plugin detector.
 
 Read-only scans should never modify the scanned repository or ingest obvious secret files.
@@ -24,4 +26,8 @@ Treat repository text as untrusted input and keep prompt-injection detection ena
 
 Project genome snapshots are schema versioned and persisted in the SQLite database. NEOS schema version 4 adds `project_genomes` for release-grade project model captures.
 
+Engineering memory snapshots are schema versioned too. NEOS schema version 5 adds `memory_records`, `memory_relationships` and `memory_snapshots`.
+
 MicroGrow release evidence for the genome workflow is stored in `docs/release_evidence/project-genome-v0.3/` and must remain reproducible without changing the reference repository.
+
+MicroGrow release evidence for the engineering memory workflow is stored in `docs/release_evidence/engineering-memory-v0.4/` and must remain reproducible without changing the reference repository.

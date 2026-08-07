@@ -50,6 +50,20 @@ from .genome import (
     latest_project_genome,
     render_project_report,
 )
+from .memory import (
+    build_project_memory,
+    latest_project_memory,
+    memory_assumptions,
+    memory_contradictions,
+    memory_decisions,
+    memory_diff,
+    memory_experiments,
+    memory_gaps,
+    memory_lessons,
+    memory_milestones,
+    memory_timeline,
+    memory_trace_entity,
+)
 
 
 def parser() -> argparse.ArgumentParser:
@@ -125,15 +139,18 @@ def parser() -> argparse.ArgumentParser:
     trace.add_argument("--relationship")
     trace.add_argument("--direction", choices=("in", "out", "both"), default="both")
     trace.add_argument("--format", choices=("text", "json"), default="json")
+    trace.add_argument("--json", action="store_true")
 
     impact = sub.add_parser("impact")
     impact.add_argument("entity_id")
     impact.add_argument("--depth", type=int, default=2)
     impact.add_argument("--format", choices=("text", "json"), default="json")
+    impact.add_argument("--json", action="store_true")
 
     why = sub.add_parser("why")
     why.add_argument("entity_id")
     why.add_argument("--format", choices=("text", "json"), default="json")
+    why.add_argument("--json", action="store_true")
 
     feature = sub.add_parser("feature")
     feature_sub = feature.add_subparsers(dest="feature_cmd", required=True)
@@ -211,6 +228,33 @@ def parser() -> argparse.ArgumentParser:
     report_project.add_argument("project_id")
     report_project.add_argument("--json", action="store_true")
 
+    memory = sub.add_parser("memory")
+    memory_sub = memory.add_subparsers(dest="memory_cmd", required=True)
+    memory_build = memory_sub.add_parser("build")
+    memory_build.add_argument("project_id")
+    memory_build.add_argument("--json", action="store_true")
+    memory_show = memory_sub.add_parser("show")
+    memory_show.add_argument("project_id")
+    memory_show.add_argument("--json", action="store_true")
+    memory_timeline_parser = memory_sub.add_parser("timeline")
+    memory_timeline_parser.add_argument("project_id")
+    memory_timeline_parser.add_argument("--type")
+    memory_timeline_parser.add_argument("--feature")
+    memory_timeline_parser.add_argument("--domain")
+    memory_timeline_parser.add_argument("--since")
+    memory_timeline_parser.add_argument("--until")
+    memory_timeline_parser.add_argument("--json", action="store_true")
+    memory_diff_parser = memory_sub.add_parser("diff")
+    memory_diff_parser.add_argument("project_id")
+    memory_diff_parser.add_argument("--json", action="store_true")
+    for name in ("decisions", "assumptions", "experiments", "lessons", "milestones", "gaps", "contradictions"):
+        parser = memory_sub.add_parser(name)
+        parser.add_argument("project_id")
+        parser.add_argument("--json", action="store_true")
+    memory_trace_parser = memory_sub.add_parser("trace")
+    memory_trace_parser.add_argument("entity_id")
+    memory_trace_parser.add_argument("--json", action="store_true")
+
     sub.add_parser("version")
     return p
 
@@ -251,6 +295,13 @@ def _genome_or_build(db: Path, project_id: str) -> dict[str, Any]:
     if genome:
         return genome
     return build_project_genome(db, project_id)["genome"]
+
+
+def _memory_or_build(db: Path, project_id: str) -> dict[str, Any]:
+    memory = latest_project_memory(db, project_id)
+    if memory:
+        return memory
+    return build_project_memory(db, project_id)["memory"]
 
 
 def main(argv=None) -> int:
@@ -320,13 +371,13 @@ def main(argv=None) -> int:
             _print(dependencies_for_entity(db, args.entity_id), args.format)
             return 0
         if args.cmd == "trace":
-            _print(trace_entity(db, args.entity_id, depth=args.depth, relationship=args.relationship, direction=args.direction), args.format)
+            _print(trace_entity(db, args.entity_id, depth=args.depth, relationship=args.relationship, direction=args.direction), "json" if args.json else args.format)
             return 0
         if args.cmd == "impact":
-            _print(impact_entity(db, args.entity_id, depth=args.depth), args.format)
+            _print(impact_entity(db, args.entity_id, depth=args.depth), "json" if args.json else args.format)
             return 0
         if args.cmd == "why":
-            _print(why_entity(db, args.entity_id), args.format)
+            _print(why_entity(db, args.entity_id), "json" if args.json else args.format)
             return 0
         if args.cmd == "feature":
             if args.feature_cmd == "list":
@@ -382,6 +433,43 @@ def main(argv=None) -> int:
                 _print(render_project_report(genome), "json")
             else:
                 print(genome_markdown_report(genome), end="")
+            return 0
+        if args.cmd == "memory":
+            if args.memory_cmd == "build":
+                _print(build_project_memory(db, args.project_id), "json")
+            elif args.memory_cmd == "show":
+                _print(_memory_or_build(db, args.project_id), "json")
+            elif args.memory_cmd == "timeline":
+                memory = _memory_or_build(db, args.project_id)
+                _print(
+                    memory_timeline(
+                        memory,
+                        memory_type=args.type,
+                        feature=args.feature,
+                        domain=args.domain,
+                        since=args.since,
+                        until=args.until,
+                    ),
+                    "json" if args.json else "text",
+                )
+            elif args.memory_cmd == "diff":
+                _print(memory_diff(db, args.project_id), "json")
+            elif args.memory_cmd == "decisions":
+                _print(memory_decisions(_memory_or_build(db, args.project_id)), "json")
+            elif args.memory_cmd == "assumptions":
+                _print(memory_assumptions(_memory_or_build(db, args.project_id)), "json")
+            elif args.memory_cmd == "experiments":
+                _print(memory_experiments(_memory_or_build(db, args.project_id)), "json")
+            elif args.memory_cmd == "lessons":
+                _print(memory_lessons(_memory_or_build(db, args.project_id)), "json")
+            elif args.memory_cmd == "milestones":
+                _print(memory_milestones(_memory_or_build(db, args.project_id)), "json")
+            elif args.memory_cmd == "gaps":
+                _print(memory_gaps(_memory_or_build(db, args.project_id)), "json")
+            elif args.memory_cmd == "contradictions":
+                _print(memory_contradictions(_memory_or_build(db, args.project_id)), "json")
+            elif args.memory_cmd == "trace":
+                _print(memory_trace_entity(db, args.entity_id), "json")
             return 0
         if args.cmd == "version":
             print(__version__)

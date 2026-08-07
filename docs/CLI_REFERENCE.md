@@ -54,6 +54,32 @@ Semantic repository intelligence commands:
 
 `neos why ENTITY_ID` shows supporting evidence and related decisions.
 
+`neos why ENTITY_ID --json` returns the same answer as JSON.
+
+`neos memory build PROJECT_ID` builds and stores a deterministic engineering memory snapshot.
+
+`neos memory show PROJECT_ID` shows the latest stored engineering memory snapshot.
+
+`neos memory timeline PROJECT_ID` prints the deterministic engineering memory timeline.
+
+`neos memory diff PROJECT_ID` compares the latest engineering memory snapshot to the previous one.
+
+`neos memory decisions PROJECT_ID` prints decision memory records.
+
+`neos memory assumptions PROJECT_ID` prints assumption memory records.
+
+`neos memory experiments PROJECT_ID` prints experiment memory records.
+
+`neos memory lessons PROJECT_ID` prints lesson memory records.
+
+`neos memory milestones PROJECT_ID` prints milestone memory records.
+
+`neos memory gaps PROJECT_ID` prints memory gap findings.
+
+`neos memory contradictions PROJECT_ID` prints conservative contradiction indicators.
+
+`neos memory trace ENTITY_ID` walks the memory relationship graph around an entity.
+
 `neos genome build PROJECT_ID` builds and stores a deterministic project genome snapshot.
 
 `neos genome show PROJECT_ID` shows the latest stored genome snapshot.

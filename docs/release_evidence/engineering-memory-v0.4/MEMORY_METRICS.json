@@ -1,0 +1,22 @@
+{
+  "assumptions": 18,
+  "changes": 1,
+  "contradictions": 0,
+  "database_size_bytes": 45756416,
+  "decisions": 7,
+  "experiments": 45,
+  "genome_id": "genome-874beeefe1bcb72981dd5864",
+  "git_commits": 1,
+  "latest_memory_snapshot_id": "memory_snapshot-84d8d4926d550e5c1546af66",
+  "lessons": 108,
+  "memory_gaps": 158,
+  "memory_generation_runtime_seconds": 0.342,
+  "memory_records": 811,
+  "memory_schema_version": 2,
+  "milestones": 208,
+  "observations": 381,
+  "outcomes": 43,
+  "previous_memory_snapshot_id": "memory_snapshot-c98f8292ecc4e5087dd36c8f",
+  "project_id": "microgrow-v1",
+  "scan_id": "scan-aac96b9287d74edf"
+}
