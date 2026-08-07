@@ -37,6 +37,19 @@ from .core import (
     why_entity,
 )
 from .db import connect, schema_info
+from .flight import (
+    build_project_flight,
+    create_flight_checkpoint,
+    flight_checkpoints,
+    flight_diff,
+    flight_incidents,
+    flight_regressions,
+    flight_replay,
+    flight_show_snapshot,
+    flight_snapshots,
+    flight_state,
+    flight_timeline,
+)
 from .genome import (
     build_project_genome,
     genome_attention,
@@ -255,6 +268,69 @@ def parser() -> argparse.ArgumentParser:
     memory_trace_parser.add_argument("entity_id")
     memory_trace_parser.add_argument("--json", action="store_true")
 
+    flight = sub.add_parser("flight")
+    flight_sub = flight.add_subparsers(dest="flight_cmd", required=True)
+
+    flight_checkpoint = flight_sub.add_parser("checkpoint")
+    flight_checkpoint_sub = flight_checkpoint.add_subparsers(dest="flight_checkpoint_cmd", required=True)
+    flight_checkpoint_create = flight_checkpoint_sub.add_parser("create")
+    flight_checkpoint_create.add_argument("project_id")
+    flight_checkpoint_create.add_argument("--type", default="manual")
+    flight_checkpoint_create.add_argument("--label")
+    flight_checkpoint_create.add_argument("--ref")
+    flight_checkpoint_create.add_argument("--json", action="store_true")
+
+    flight_checkpoints_parser = flight_sub.add_parser("checkpoints")
+    flight_checkpoints_parser.add_argument("project_id")
+    flight_checkpoints_parser.add_argument("--json", action="store_true")
+
+    flight_snapshot_parser = flight_sub.add_parser("snapshot")
+    flight_snapshot_parser.add_argument("project_id")
+    flight_snapshot_parser.add_argument("--ref")
+    flight_snapshot_parser.add_argument("--json", action="store_true")
+
+    flight_snapshots_parser = flight_sub.add_parser("snapshots")
+    flight_snapshots_parser.add_argument("project_id")
+    flight_snapshots_parser.add_argument("--json", action="store_true")
+
+    flight_show_parser = flight_sub.add_parser("show")
+    flight_show_parser.add_argument("snapshot_id")
+    flight_show_parser.add_argument("--json", action="store_true")
+
+    flight_state_parser = flight_sub.add_parser("state")
+    flight_state_parser.add_argument("project_id")
+    flight_state_parser.add_argument("--at")
+    flight_state_parser.add_argument("--json", action="store_true")
+
+    flight_diff_parser = flight_sub.add_parser("diff")
+    flight_diff_parser.add_argument("project_id")
+    flight_diff_parser.add_argument("from_ref")
+    flight_diff_parser.add_argument("to_ref")
+    flight_diff_parser.add_argument("--json", action="store_true")
+
+    flight_timeline_parser = flight_sub.add_parser("timeline")
+    flight_timeline_parser.add_argument("project_id")
+    flight_timeline_parser.add_argument("--since")
+    flight_timeline_parser.add_argument("--until")
+    flight_timeline_parser.add_argument("--type")
+    flight_timeline_parser.add_argument("--feature")
+    flight_timeline_parser.add_argument("--domain")
+    flight_timeline_parser.add_argument("--json", action="store_true")
+
+    flight_replay_parser = flight_sub.add_parser("replay")
+    flight_replay_parser.add_argument("project_id")
+    flight_replay_parser.add_argument("--from", dest="from_ref", required=True)
+    flight_replay_parser.add_argument("--to", dest="to_ref", required=True)
+    flight_replay_parser.add_argument("--json", action="store_true")
+
+    flight_incidents_parser = flight_sub.add_parser("incidents")
+    flight_incidents_parser.add_argument("project_id")
+    flight_incidents_parser.add_argument("--json", action="store_true")
+
+    flight_regressions_parser = flight_sub.add_parser("regressions")
+    flight_regressions_parser.add_argument("project_id")
+    flight_regressions_parser.add_argument("--json", action="store_true")
+
     sub.add_parser("version")
     return p
 
@@ -470,6 +546,50 @@ def main(argv=None) -> int:
                 _print(memory_contradictions(_memory_or_build(db, args.project_id)), "json")
             elif args.memory_cmd == "trace":
                 _print(memory_trace_entity(db, args.entity_id), "json")
+            return 0
+        if args.cmd == "flight":
+            if args.flight_cmd == "checkpoint" and args.flight_checkpoint_cmd == "create":
+                _print(
+                    create_flight_checkpoint(
+                        db,
+                        args.project_id,
+                        checkpoint_type=args.type,
+                        label=args.label,
+                        source_ref=args.ref,
+                    ),
+                    "json" if args.json else "text",
+                )
+            elif args.flight_cmd == "checkpoints":
+                _print(flight_checkpoints(db, args.project_id), "json" if args.json else "text")
+            elif args.flight_cmd == "snapshot":
+                _print(build_project_flight(db, args.project_id, ref=args.ref), "json" if args.json else "text")
+            elif args.flight_cmd == "snapshots":
+                _print(flight_snapshots(db, args.project_id), "json" if args.json else "text")
+            elif args.flight_cmd == "show":
+                _print(flight_show_snapshot(db, args.snapshot_id), "json" if args.json else "text")
+            elif args.flight_cmd == "state":
+                _print(flight_state(db, args.project_id, at=args.at), "json" if args.json else "text")
+            elif args.flight_cmd == "diff":
+                _print(flight_diff(db, args.project_id, args.from_ref, args.to_ref), "json" if args.json else "text")
+            elif args.flight_cmd == "timeline":
+                _print(
+                    flight_timeline(
+                        db,
+                        args.project_id,
+                        event_type=args.type,
+                        feature=args.feature,
+                        domain=args.domain,
+                        since=args.since,
+                        until=args.until,
+                    ),
+                    "json" if args.json else "text",
+                )
+            elif args.flight_cmd == "replay":
+                _print(flight_replay(db, args.project_id, args.from_ref, args.to_ref), "json" if args.json else "text")
+            elif args.flight_cmd == "incidents":
+                _print(flight_incidents(db, args.project_id), "json" if args.json else "text")
+            elif args.flight_cmd == "regressions":
+                _print(flight_regressions(db, args.project_id), "json" if args.json else "text")
             return 0
         if args.cmd == "version":
             print(__version__)

@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 SCHEMA = """
 PRAGMA foreign_keys=ON;
@@ -353,6 +353,118 @@ CREATE TABLE IF NOT EXISTS memory_snapshots (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_memory_snapshots_unique ON memory_snapshots(project_id, memory_schema_version, source_fingerprint);
 CREATE INDEX IF NOT EXISTS idx_memory_snapshots_created ON memory_snapshots(project_id, created_at);
+
+CREATE TABLE IF NOT EXISTS flight_snapshots (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    genome_id TEXT REFERENCES project_genomes(id) ON DELETE SET NULL,
+    memory_id TEXT REFERENCES memory_snapshots(id) ON DELETE SET NULL,
+    source_commit TEXT,
+    source_branch TEXT,
+    source_ref TEXT,
+    flight_schema_version INTEGER NOT NULL,
+    source_fingerprint TEXT NOT NULL,
+    repository_state_hash TEXT NOT NULL,
+    semantic_state_hash TEXT NOT NULL,
+    genome_state_hash TEXT NOT NULL,
+    memory_state_hash TEXT NOT NULL,
+    feature_state_hash TEXT NOT NULL,
+    test_state_hash TEXT NOT NULL,
+    api_state_hash TEXT NOT NULL,
+    configuration_state_hash TEXT NOT NULL,
+    risk_state_hash TEXT NOT NULL,
+    unknown_state_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    summary_json TEXT NOT NULL,
+    state_json TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_flight_snapshots_unique ON flight_snapshots(project_id, flight_schema_version, source_fingerprint);
+CREATE INDEX IF NOT EXISTS idx_flight_snapshots_created ON flight_snapshots(project_id, created_at);
+
+CREATE TABLE IF NOT EXISTS flight_checkpoints (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    checkpoint_type TEXT NOT NULL,
+    label TEXT NOT NULL,
+    source_ref TEXT,
+    source_commit TEXT,
+    source_branch TEXT,
+    scan_id TEXT REFERENCES scans(scan_id) ON DELETE SET NULL,
+    genome_id TEXT REFERENCES project_genomes(id) ON DELETE SET NULL,
+    memory_id TEXT REFERENCES memory_snapshots(id) ON DELETE SET NULL,
+    snapshot_id TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    timestamp TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_flight_checkpoints_project_time ON flight_checkpoints(project_id, timestamp);
+
+CREATE TABLE IF NOT EXISTS flight_events (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    timestamp TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    source_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    target_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    affected_entities_json TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_flight_events_project_time ON flight_events(project_id, timestamp);
+
+CREATE TABLE IF NOT EXISTS flight_transitions (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    source_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    target_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    timestamp TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    summary_json TEXT NOT NULL,
+    transition_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_flight_transitions_project_time ON flight_transitions(project_id, timestamp);
+
+CREATE TABLE IF NOT EXISTS flight_regressions (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    timestamp TEXT NOT NULL,
+    indicator_type TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    source_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    target_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    summary TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    affected_entities_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_flight_regressions_project_time ON flight_regressions(project_id, timestamp);
+
+CREATE TABLE IF NOT EXISTS flight_incidents (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    timestamp TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    type TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    source TEXT NOT NULL,
+    affected_entities_json TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    resolved_at TEXT,
+    resolution TEXT,
+    related_decisions_json TEXT NOT NULL,
+    related_commits_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_flight_incidents_project_time ON flight_incidents(project_id, timestamp);
 """
 
 
@@ -416,6 +528,13 @@ def _migrate(conn: sqlite3.Connection) -> None:
             conn,
             5,
             "Add engineering memory snapshots for deterministic project history and rationale models.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 6 or conn.execute("SELECT 1 FROM migrations WHERE version=6").fetchone() is None:
+        _record_migration(
+            conn,
+            6,
+            "Add engineering flight recorder snapshots, checkpoints, events, transitions, incidents, and regression intelligence.",
             applied_at,
         )
     conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version',?)", (str(SCHEMA_VERSION),))

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .db import connect
+from .flight import flight_temporal_context
 from .manifest import load_manifest
 from .memory import latest_project_memory, memory_timeline, memory_why
 from .models import Finding
@@ -595,6 +596,7 @@ def context_bundle(db_path: Path, project_id: str, question: str) -> dict[str, A
         bundle["assumptions"] = memory.get("records", {}).get("assumption", [])
         bundle["lessons"] = memory.get("records", {}).get("lesson", [])
         bundle["memory_unknowns"] = memory.get("gaps", [])
+    bundle["temporal_intelligence"] = flight_temporal_context(db_path, project_id, question)
     conn.close()
     return bundle
 
