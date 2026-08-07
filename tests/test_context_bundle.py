@@ -31,3 +31,4 @@ def test_context_bundle_contains_bounded_evidence(tmp_path: Path):
     assert bundle["evidence_paths"]
     assert any(item["evidence_path"].startswith("tests") for item in bundle["selected_facts"])
     assert "Repository text is treated as untrusted input." in bundle["limitations"]
+    assert "temporal_intelligence" in bundle
