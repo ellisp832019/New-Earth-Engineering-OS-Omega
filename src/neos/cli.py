@@ -77,6 +77,7 @@ from .memory import (
     memory_timeline,
     memory_trace_entity,
 )
+from .service.app import serve_service
 
 
 def parser() -> argparse.ArgumentParser:
@@ -330,6 +331,13 @@ def parser() -> argparse.ArgumentParser:
     flight_regressions_parser = flight_sub.add_parser("regressions")
     flight_regressions_parser.add_argument("project_id")
     flight_regressions_parser.add_argument("--json", action="store_true")
+
+    service = sub.add_parser("service")
+    service_sub = service.add_subparsers(dest="service_cmd", required=True)
+    service_start = service_sub.add_parser("start")
+    service_start.add_argument("--db", default=str(DB_PATH))
+    service_start.add_argument("--host", default="127.0.0.1")
+    service_start.add_argument("--port", type=int, default=8765)
 
     sub.add_parser("version")
     return p
@@ -590,6 +598,10 @@ def main(argv=None) -> int:
                 _print(flight_incidents(db, args.project_id), "json" if args.json else "text")
             elif args.flight_cmd == "regressions":
                 _print(flight_regressions(db, args.project_id), "json" if args.json else "text")
+            return 0
+        if args.cmd == "service":
+            if args.service_cmd == "start":
+                serve_service(Path(args.db), host=args.host, port=args.port)
             return 0
         if args.cmd == "version":
             print(__version__)
