@@ -338,6 +338,9 @@ def parser() -> argparse.ArgumentParser:
     service_start.add_argument("--db", default=str(DB_PATH))
     service_start.add_argument("--host", default="127.0.0.1")
     service_start.add_argument("--port", type=int, default=8765)
+    service_start.add_argument("--instance-id")
+    service_start.add_argument("--owner-pid", type=int)
+    service_start.add_argument("--shutdown-token")
 
     sub.add_parser("version")
     return p
@@ -601,7 +604,14 @@ def main(argv=None) -> int:
             return 0
         if args.cmd == "service":
             if args.service_cmd == "start":
-                serve_service(Path(args.db), host=args.host, port=args.port)
+                serve_service(
+                    Path(args.db),
+                    host=args.host,
+                    port=args.port,
+                    instance_id=args.instance_id,
+                    owner_pid=args.owner_pid,
+                    shutdown_token=args.shutdown_token,
+                )
             return 0
         if args.cmd == "version":
             print(__version__)

@@ -57,6 +57,20 @@ def _get_json(url: str):
         return exc.code, json.loads(exc.read().decode("utf-8"))
 
 
+def _post_json(url: str, payload: dict[str, object]):
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:
+            return response.status, json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        return exc.code, json.loads(exc.read().decode("utf-8"))
+
+
 def test_service_endpoints_and_local_binding(tmp_path: Path):
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -83,10 +97,24 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         status, health = _get_json(f"{base}/health")
         assert status == 200
         assert health["status"] == "healthy"
+        assert health["service_name"] == "NEOS Local Service"
+        assert health["service_version"] == "0.1.0"
+        assert health["api_version"] == "v1"
+        assert health["schema_version"] == 6
+        assert health["instance_id"]
 
         status, projects = _get_json(f"{base}/projects")
         assert status == 200
         assert projects["projects"][0]["project_id"] == "demo"
+
+        status, registered = _post_json(f"{base}/projects/register", {"manifest_path": str(manifest)})
+        assert status == 200
+        assert registered["project_id"] == "demo"
+
+        status, scan = _post_json(f"{base}/projects/demo/scan", {"repo_path": str(repo)})
+        assert status == 200
+        assert scan["project_id"] == "demo"
+        assert scan["status"] == "scanned"
 
         status, summary = _get_json(f"{base}/projects/demo/summary")
         assert status == 200
@@ -115,6 +143,10 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         status, regressions = _get_json(f"{base}/projects/demo/flight/regressions")
         assert status == 200
         assert regressions["project_id"] == "demo"
+
+        status, forbidden = _post_json(f"{base}/shutdown", {"shutdown_token": "wrong"})
+        assert status == 403
+        assert forbidden["error"] == "forbidden"
 
         status, invalid = _get_json(f"{base}/projects/missing/summary")
         assert status == 404

@@ -5,6 +5,21 @@ import 'package:flutter_test/flutter_test.dart';
 
 class FakeNeosClient implements NeosClient {
   @override
+  Future<ServiceHealthInfo> probeHealth(Uri baseUri) async {
+    return ServiceHealthInfo.fromJson({
+      'status': 'healthy',
+      'service_name': 'NEOS Local Service',
+      'service_version': '0.1.0',
+      'api_version': 'v1',
+      'schema_version': 6,
+      'instance_id': 'fake-instance',
+      'owner_pid': 0,
+      'host': '127.0.0.1',
+      'port': 8765,
+    });
+  }
+
+  @override
   Future<ProjectRecord> loadProject(Uri baseUri, String projectId) async {
     return ProjectRecord.fromJson({
       'project': {
@@ -73,6 +88,21 @@ class FakeNeosClient implements NeosClient {
         ],
       },
     );
+  }
+
+  @override
+  Future<Map<String, dynamic>> registerProject(Uri baseUri, String manifestPath) async {
+    return {'status': 'registered', 'project_id': 'demo'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> scanProject(Uri baseUri, String projectId, {String? repoPath}) async {
+    return {'status': 'scanned', 'project_id': projectId};
+  }
+
+  @override
+  Future<Map<String, dynamic>> shutdownService(Uri baseUri, String shutdownToken) async {
+    return {'status': 'shutting_down'};
   }
 }
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import os
 import sqlite3
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -77,13 +77,18 @@ def service_health(db_path: Path, config: ServiceConfig) -> dict[str, Any]:
     return {
         "status": "healthy",
         "service_name": config.service_name,
+        "service_version": config.service_version,
         "api_version": config.api_version,
+        "schema_version": info["database_schema"],
         "host": config.host,
         "port": config.port,
+        "instance_id": config.instance_id,
+        "owner_pid": config.owner_pid,
+        "started_at": config.started_at,
         "db_path": str(db_path.resolve()),
         "database_size_bytes": db_path.stat().st_size if db_path.exists() else 0,
         "schema": info,
         "registered_projects": project_count,
         "last_scan": dict(last_scan) if last_scan else None,
-        "python": os.sys.version.split()[0],
+        "python": sys.version.split()[0],
     }

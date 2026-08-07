@@ -12,7 +12,9 @@ from ..core import (
     feature_inventory,
     git_state_report,
     impact_entity,
+    init_project,
     project_summary,
+    scan_project,
     symbol_inventory,
     test_inventory,
     trace_entity,
@@ -88,6 +90,15 @@ def _dependencies_for_project(db_path: Path, project_id: str) -> dict[str, Any]:
 
 def _empty_items(project_id: str) -> dict[str, Any]:
     return {"project_id": project_id, "count": 0, "items": []}
+
+
+def _project_repo_path(db_path: Path, project_id: str) -> Path:
+    conn = connect(db_path)
+    row = conn.execute("SELECT repo_path FROM projects WHERE project_id=?", (project_id,)).fetchone()
+    conn.close()
+    if row is None:
+        raise ValueError(f"Unknown project: {project_id}")
+    return Path(row["repo_path"])
 
 
 def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
@@ -222,4 +233,36 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
     except ValueError:
         return 404, {"error": "not_found"}
 
+    return 404, {"error": "not_found"}
+
+
+def handle_post(
+    path: str,
+    query: dict[str, list[str]],
+    body: dict[str, Any],
+    db_path: Path,
+    config: ServiceConfig,
+    server: Any,
+) -> tuple[int, dict[str, Any]]:
+    segments = [segment for segment in path.strip("/").split("/") if segment]
+    if segments == ["shutdown"]:
+        if body.get("shutdown_token") != config.shutdown_token:
+            return 403, {"error": "forbidden"}
+        server.shutdown()
+        return 200, {"status": "shutting_down", "instance_id": config.instance_id}
+    if segments == ["projects", "register"]:
+        manifest_path = body.get("manifest_path")
+        if not isinstance(manifest_path, str) or not manifest_path.strip():
+            return 400, {"error": "missing_manifest_path"}
+        project_id = init_project(db_path, Path(manifest_path))
+        return 200, {"status": "registered", "project_id": project_id}
+    if len(segments) == 3 and segments[0] == "projects" and segments[2] == "scan":
+        project_id = segments[1]
+        repo_path = body.get("repo_path")
+        if isinstance(repo_path, str) and repo_path.strip():
+            scan_repo_path = Path(repo_path)
+        else:
+            scan_repo_path = _project_repo_path(db_path, project_id)
+        result = scan_project(db_path, project_id, scan_repo_path)
+        return 200, {"status": "scanned", "project_id": project_id, "scan": result}
     return 404, {"error": "not_found"}

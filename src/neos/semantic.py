@@ -12,12 +12,16 @@ from typing import Any
 
 from .models import Finding
 
+yaml: Any = None
+YAMLError: type[Exception] = Exception
 try:  # pragma: no cover - optional dependency
-    import yaml  # type: ignore
-    from yaml import YAMLError  # type: ignore
+    import yaml as _yaml  # type: ignore
+    from yaml import YAMLError as _YAMLError  # type: ignore
 except ImportError:  # pragma: no cover - optional dependency
-    yaml = None
-    YAMLError = ValueError
+    pass
+else:  # pragma: no cover - optional dependency
+    yaml = _yaml
+    YAMLError = _YAMLError
 
 
 INJECTION_MARKERS = (

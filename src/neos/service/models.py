@@ -12,6 +12,11 @@ class ServiceConfig:
     port: int = 8765
     api_version: str = "v1"
     service_name: str = "NEOS Local Service"
+    service_version: str = "0.1.0"
+    instance_id: str = ""
+    owner_pid: int | None = None
+    shutdown_token: str = ""
+    started_at: str = ""
 
 
 @dataclass(frozen=True)

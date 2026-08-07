@@ -1,5 +1,15 @@
 # User Guide
 
+## Windows desktop
+
+- `docs/user/INSTALLING_NEOS_WINDOWS.md`
+- `docs/user/STARTING_NEOS.md`
+- `docs/user/ADDING_A_PROJECT.md`
+- `docs/user/SCANNING_A_PROJECT.md`
+- `docs/user/REFRESHING_PROJECT_INTELLIGENCE.md`
+- `docs/user/TROUBLESHOOTING_WINDOWS.md`
+- `docs/user/CREATING_DIAGNOSTICS.md`
+
 ## 1. Install
 Run `scripts/setup_windows.ps1` from PowerShell.
 

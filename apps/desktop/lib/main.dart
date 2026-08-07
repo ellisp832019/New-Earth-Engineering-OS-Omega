@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 
-import 'app.dart';
-import 'neos_client.dart';
+import 'bootstrap.dart';
+import 'engine_manager.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(NeosApp(client: HttpNeosClient()));
+  runApp(NeosBootstrapApp(manager: NeosEngineManager()));
 }

@@ -62,6 +62,29 @@ class ServiceOverview {
   Map<String, dynamic> get lastScan => _map(health['last_scan']);
 }
 
+class ServiceHealthInfo {
+  const ServiceHealthInfo({
+    required this.raw,
+  });
+
+  factory ServiceHealthInfo.fromJson(Map<String, dynamic> json) {
+    return ServiceHealthInfo(raw: json);
+  }
+
+  final Map<String, dynamic> raw;
+
+  String get status => _string(raw['status'], 'unknown');
+  String get serviceName => _string(raw['service_name'], 'NEOS Local Service');
+  String get serviceVersion => _string(raw['service_version'], '0.1.0');
+  String get apiVersion => _string(raw['api_version'], 'v1');
+  int get schemaVersion => _int(raw['schema_version'], _int(_map(raw['schema'])['database_schema'], 0));
+  String get instanceId => _string(raw['instance_id']);
+  int? get ownerPid => raw['owner_pid'] is int ? raw['owner_pid'] as int : null;
+  String get host => _string(raw['host'], '127.0.0.1');
+  int get port => _int(raw['port'], 8765);
+  bool get isNeos => serviceName.toLowerCase().contains('neos') && apiVersion == 'v1';
+}
+
 class ProjectOverview {
   const ProjectOverview({
     required this.projectId,
@@ -165,8 +188,12 @@ class ProjectRecord {
 }
 
 abstract class NeosClient {
+  Future<ServiceHealthInfo> probeHealth(Uri baseUri);
   Future<ServiceOverview> loadOverview(Uri baseUri);
   Future<ProjectRecord> loadProject(Uri baseUri, String projectId);
+  Future<Map<String, dynamic>> registerProject(Uri baseUri, String manifestPath);
+  Future<Map<String, dynamic>> scanProject(Uri baseUri, String projectId, {String? repoPath});
+  Future<Map<String, dynamic>> shutdownService(Uri baseUri, String shutdownToken);
 }
 
 class HttpNeosClient implements NeosClient {
@@ -181,6 +208,27 @@ class HttpNeosClient implements NeosClient {
     }
     final decoded = jsonDecode(response.body);
     return _map(decoded);
+  }
+
+  Future<Map<String, dynamic>> _postJson(Uri uri, Map<String, dynamic> body) async {
+    final response = await _client
+        .post(
+          uri,
+          headers: const {'Content-Type': 'application/json'},
+          body: jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: 10));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw StateError('NEOS service responded with ${response.statusCode} for $uri');
+    }
+    final decoded = jsonDecode(response.body);
+    return _map(decoded);
+  }
+
+  @override
+  Future<ServiceHealthInfo> probeHealth(Uri baseUri) async {
+    final normalized = _normalize(baseUri);
+    return ServiceHealthInfo.fromJson(await _getJson(normalized.resolve('health')));
   }
 
   @override
@@ -198,6 +246,28 @@ class HttpNeosClient implements NeosClient {
     final normalized = _normalize(baseUri);
     final json = await _getJson(normalized.resolve('projects/$projectId'));
     return ProjectRecord.fromJson(json);
+  }
+
+  @override
+  Future<Map<String, dynamic>> registerProject(Uri baseUri, String manifestPath) async {
+    final normalized = _normalize(baseUri);
+    return _postJson(normalized.resolve('projects/register'), {'manifest_path': manifestPath});
+  }
+
+  @override
+  Future<Map<String, dynamic>> scanProject(Uri baseUri, String projectId, {String? repoPath}) async {
+    final normalized = _normalize(baseUri);
+    final body = <String, dynamic>{};
+    if (repoPath != null && repoPath.isNotEmpty) {
+      body['repo_path'] = repoPath;
+    }
+    return _postJson(normalized.resolve('projects/$projectId/scan'), body);
+  }
+
+  @override
+  Future<Map<String, dynamic>> shutdownService(Uri baseUri, String shutdownToken) async {
+    final normalized = _normalize(baseUri);
+    return _postJson(normalized.resolve('shutdown'), {'shutdown_token': shutdownToken});
   }
 
   Uri _normalize(Uri baseUri) {
