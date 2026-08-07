@@ -13,3 +13,5 @@ For the Phase 2 semantic intelligence release, use `docs/release_evidence/alpha-
 For the NEOS v0.3 project genome release, use `docs/release_evidence/project-genome-v0.3/` as the canonical evidence folder.
 
 For the NEOS v0.4 engineering memory release, use `docs/release_evidence/engineering-memory-v0.4/` as the canonical evidence folder.
+
+For the NEOS v0.5 engineering flight-recorder release, use `docs/release_evidence/flight-recorder-v0.5/` as the canonical evidence folder.

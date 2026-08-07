@@ -16,6 +16,7 @@ NEOS is designed to become the intelligence layer above engineering repositories
 - Semantic repository intelligence for symbols, features, API routes, config keys and decisions
 - Deterministic project genome snapshots, reports and release evidence packs
 - Engineering memory snapshots, timeline queries and rationale tracing
+- Engineering flight recorder snapshots, rewindable state diffs and replayable timelines
 - Plugin SDK contract and example plugin
 - Sample MicroGrow project manifest
 - Tests and validation scripts
@@ -45,6 +46,8 @@ python -m neos genome build microgrow-v1 --json
 python -m neos report project microgrow-v1 --json
 python -m neos memory build microgrow-v1 --json
 python -m neos memory timeline microgrow-v1 --json
+python -m neos flight snapshot microgrow-v1 --json
+python -m neos flight timeline microgrow-v1 --json
 ```
 
 ## Quick start — cross-platform
@@ -61,6 +64,8 @@ python -m neos genome build microgrow-v1 --json
 python -m neos report project microgrow-v1 --json
 python -m neos memory build microgrow-v1 --json
 python -m neos memory timeline microgrow-v1 --json
+python -m neos flight snapshot microgrow-v1 --json
+python -m neos flight timeline microgrow-v1 --json
 ```
 
 ## Recommended reading order
@@ -80,6 +85,19 @@ python -m neos memory timeline microgrow-v1 --json
 The NEOS v0.3 MicroGrow genome evidence bundle lives in `docs/release_evidence/project-genome-v0.3/`.
 
 The NEOS v0.4 MicroGrow engineering memory evidence bundle lives in `docs/release_evidence/engineering-memory-v0.4/`.
+
+The NEOS v0.5 MicroGrow flight-recorder evidence bundle lives in `docs/release_evidence/flight-recorder-v0.5/`.
+
+## Operator index
+
+- `neos memory build PROJECT_ID` builds a deterministic engineering memory snapshot.
+- `neos memory timeline PROJECT_ID` shows the memory timeline.
+- `neos memory diff PROJECT_ID` compares the latest two memory snapshots.
+- `neos flight snapshot PROJECT_ID` stores a deterministic flight snapshot.
+- `neos flight state PROJECT_ID --at REF` reconstructs state at a snapshot or commit reference.
+- `neos flight diff PROJECT_ID FROM TO` compares two historical engineering states.
+- `neos flight timeline PROJECT_ID` merges snapshots, commits, decisions, experiments, milestones and regressions.
+- `neos flight replay PROJECT_ID --from REF --to REF` produces an ordered transition sequence.
 
 ## Repository status
 

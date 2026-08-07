@@ -15,6 +15,9 @@ Decision chronology, git history memory, assumptions, experiments, lessons, chan
 ## Alpha 0.5 - AI Context Gateway
 Deterministic retrieval, bounded context packages, provenance, uncertainty, prompt-injection defense and engineering memory context.
 
+## Alpha 0.6 - Engineering Flight Recorder
+Immutable snapshots, historical state comparison, checkpoints, transition replay, incidents, regressions and rewindable engineering timelines.
+
 ## Beta 0.5 - Desktop Explorer
 Windows UI for project/graph/search/reports.
 
@@ -44,3 +47,5 @@ Production packaging, migrations, backup/restore, plugin governance, polished de
 The NEOS v0.3 MicroGrow genome evidence bundle is stored at `docs/release_evidence/project-genome-v0.3/`.
 
 The NEOS v0.4 MicroGrow engineering memory evidence bundle is stored at `docs/release_evidence/engineering-memory-v0.4/`.
+
+The NEOS v0.5 MicroGrow flight-recorder evidence bundle is stored at `docs/release_evidence/flight-recorder-v0.5/`.
