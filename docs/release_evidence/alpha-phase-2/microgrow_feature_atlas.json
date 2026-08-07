@@ -1,0 +1,289 @@
+{
+  "features": [
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for api.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        "contracts/api_fixtures/README.md",
+        "contracts/api_fixtures/access_test_account_seed_data.json",
+        "contracts/api_fixtures/get_auth_me_pro_active_owner_response.json",
+        "contracts/api_fixtures/get_auth_me_pro_expired_owner_response.json",
+        "contracts/api_fixtures/get_auth_me_pro_grace_owner_response.json",
+        "contracts/api_fixtures/get_auth_me_team_editor_response.json",
+        "contracts/api_fixtures/get_auth_me_team_owner_response.json",
+        "contracts/api_fixtures/get_auth_me_team_viewer_response.json",
+        "contracts/api_fixtures/get_config_response.json",
+        "contracts/api_fixtures/get_crop_profile_catalog_response.json"
+      ],
+      "id": "feat-f775897b978921d2a59877ac",
+      "name": "API",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for climate control.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        "contracts/api_fixtures/post_relay_request.json",
+        "contracts/api_fixtures/post_relay_response.json",
+        "docs/04_hardware/relay_control_design.md",
+        "docs/09_logs/MG-LOG-APP-007_light_scheduler_and_irrigation_guidance.md",
+        "docs/09_logs/MG-LOG-APP-013_relay_command_failure_health.md",
+        "docs/09_logs/MG-LOG-APP-014_relay_command_pending_state.md",
+        "docs/09_logs/MG-LOG-APP-015_relay_command_failure_feedback.md",
+        "docs/10_roadmap/fsd/fsd_003_automation_guardrails.md",
+        "docs/10_roadmap/fsd/fsd_006_relay_boot_inhibit_interlock.md",
+        "docs/10_roadmap/fsd/reviews/fsd_003_automation_guardrails_review.md"
+      ],
+      "id": "feat-352f8363d80487a34ac86743",
+      "name": "Climate Control",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for climate sensing.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        "assets/photos/README.md",
+        "calibration/sensor_offsets/README.md",
+        "calibration/sensor_offsets/SHTC3_CALIBRATION_RECORD.md",
+        "calibration/sensor_offsets/VEML7700_CALIBRATION_RECORD.md",
+        "docs/04_hardware/pressure_water_level_sensor_bench_plan.md",
+        "docs/04_hardware/sensor_arrival_checklist.md",
+        "docs/04_hardware/sensor_specifications.md",
+        "docs/04_hardware/veml7700_light_sensor_bench_plan.md",
+        "docs/09_logs/MG-LOG-012_veml7700_light_sensor.md",
+        "docs/09_logs/MG-LOG-APP-001_flutter_architecture_refactor_phase1.md"
+      ],
+      "id": "feat-0e7f17006f8766739a7129cb",
+      "name": "Climate Sensing",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for device discovery.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        "ai/codex_prompts/espnow_gateway_to_data_bridge_prompt.md",
+        "ai/codex_prompts/espnow_lab_integration_prompt.md",
+        "config/espnow_lab_config.example.json",
+        "diagnostics/espnow_lab_logs/README.md",
+        "docs/05_firmware/espnow_lab_architecture.md",
+        "docs/10_roadmap/fsd/fsd_005_local_node_discovery.md",
+        "docs/10_roadmap/fsd/tasks/fsd_005_local_node_discovery_tasks.md",
+        "experiments/espnow_lab/2026-06-03_first_test_template.md",
+        "experiments/espnow_lab/NEXT_STEPS.md",
+        "experiments/espnow_lab/README.md"
+      ],
+      "id": "feat-ff62c2e79b2cda70c977cc3b",
+      "name": "Device Discovery",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for device profiles.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        "calibration/tank_profiles/README.md",
+        "contracts/api_fixtures/get_crop_profile_catalog_response.json",
+        "contracts/api_fixtures/get_crop_profile_entitlements_response.json",
+        "contracts/api_fixtures/get_crop_profile_package_tomato_pro_response.json",
+        "docs/02_product/crop_profile_marketplace.md",
+        "docs/03_architecture/crop_profile_commerce_backend_deployment.md",
+        "docs/03_architecture/crop_profile_marketplace_backend.md",
+        "docs/10_roadmap/fsd/fsd_007_crop_profiles.md",
+        "docs/10_roadmap/microgrow_crop_profile_first_wave_app_data_model_tasks.md",
+        "docs/10_roadmap/microgrow_crop_profile_first_wave_flutter_mapping.md"
+      ],
+      "id": "feat-8210a0bc2e6b06af23080c5c",
+      "name": "Device Profiles",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for diagnostics.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        "datasets/node_health/README.md",
+        "diagnostics/espnow_lab_logs/README.md",
+        "docs/00_master_index/developer_diagnostics_workflow.md",
+        "docs/04_hardware/validation_logs/V1_RUN_001.md",
+        "docs/04_hardware/validation_logs/V1_RUN_002.md",
+        "docs/04_hardware/validation_logs/V1_RUN_TEMPLATE.md",
+        "docs/09_logs/MG-LOG-000_project_genesis.md",
+        "docs/09_logs/MG-LOG-0011_dev_pipeline.md",
+        "docs/09_logs/MG-LOG-001_firmware.md",
+        "docs/09_logs/MG-LOG-002_flutter_app.md"
+      ],
+      "id": "feat-4c56e84da9d36bd6af4de157",
+      "name": "Diagnostics",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for firmware.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        ".github/workflows/firmware-ci.yml",
+        "architecture/v1_node/firmware_module_interaction.png",
+        "contracts/api_fixtures/get_firmware_capabilities_response.json",
+        "contracts/api_fixtures/get_firmware_update_status_response.json",
+        "contracts/api_fixtures/get_firmware_version_response.json",
+        "docs/03_architecture/diagrams/firmware_architecture_v1.png",
+        "docs/03_architecture/diagrams/firmware_module_architecture.png",
+        "docs/03_architecture/diagrams/firmware_startup_flow.png",
+        "docs/03_architecture/firmware_architecture.md",
+        "docs/03_architecture/firmware_freertos_adoption_note.md"
+      ],
+      "id": "feat-995d0278c2302f7aaf5dbeef",
+      "name": "Firmware",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for flutter application.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        "docs/09_logs/MG-LOG-002_flutter_app.md",
+        "docs/10_roadmap/fsd/fsd_017_ble_wifi_provisioning/06_FSD_FLUTTER_APP_PROVISIONING_FLOW.md",
+        "docs/10_roadmap/future_platform/local_hub/05_FLUTTER_APP_INTEGRATION_FSD.md",
+        "services/crop_profile_commerce_backend/lib/crop_profile_commerce_backend.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_catalog_loader.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_database.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_options.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_package_verifier.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_seed_data.dart",
+        "services/crop_profile_commerce_backend/lib/src/commerce_backend_service.dart"
+      ],
+      "id": "feat-3f28cf38c62cd0f4b2b1a659",
+      "name": "Flutter Application",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for hardware validation.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        "calibration/reference_measurements/README.md",
+        "calibration/reference_measurements/REFERENCE_INSTRUMENT_REGISTER.md",
+        "calibration/sensor_offsets/README.md",
+        "calibration/sensor_offsets/SHTC3_CALIBRATION_RECORD.md",
+        "calibration/sensor_offsets/VEML7700_CALIBRATION_RECORD.md",
+        "calibration/tank_profiles/README.md",
+        "docs/04_hardware/pressure_water_level_sensor_bench_plan.md",
+        "docs/04_hardware/prototype/images/rev_b_bench_layout.png",
+        "docs/04_hardware/prototype/rev_b_bench_checklist.md",
+        "docs/04_hardware/prototype/rev_b_bench_layout.md"
+      ],
+      "id": "feat-788a13b593018923769b94c1",
+      "name": "Hardware Validation",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for project control centre.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        "docs/project_control/CHANGE_CONTROL.md",
+        "docs/project_control/CONTROL_DASHBOARD.md",
+        "docs/project_control/CONTROL_SYSTEM_SECURITY_REVIEW.md",
+        "docs/project_control/CURRENT_POSITION.md",
+        "docs/project_control/DECISION_LOG.md",
+        "docs/project_control/FEATURE_STATUS.md",
+        "docs/project_control/GLOSSARY.md",
+        "docs/project_control/HARDWARE_VALIDATION_STATUS.md",
+        "docs/project_control/MASTER_ROADMAP.md",
+        "docs/project_control/MILESTONE_STATUS.md"
+      ],
+      "id": "feat-6bd78a55b04afdb2036a402f",
+      "name": "Project Control Centre",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for releases.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        "CHANGELOG.md",
+        "docs/10_roadmap/release_candidate_burn_in_checklist.md",
+        "docs/10_roadmap/release_readiness_checklist.md",
+        "docs/10_roadmap/v1_0_0_rc1_release_notes.md",
+        "docs/10_roadmap/v1_0_0_rc3_release_notes.md",
+        "docs/10_roadmap/v1_0_0_rc4_release_notes.md",
+        "docs/10_roadmap/v1_0_0_release_notes.md",
+        "docs/10_roadmap/v1_0_1_release_notes.md",
+        "docs/diagrams/microgrow_release_validation_flow.png",
+        "docs/diagrams/source_ai_drafts/microgrow_release_validation_flow.png"
+      ],
+      "id": "feat-23f809db86bbeebeb78e3814",
+      "name": "Releases",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for repository intelligence.",
+      "evidence_count": 8,
+      "evidence_paths": [
+        "REPO_CONTEXT.md",
+        "docs/project_control/user_guide/REPOSITORY_INTELLIGENCE_GUIDE.md",
+        "experiments/vision/plant_scanner/NEXT_STEPS.md",
+        "experiments/vision/plant_scanner/README.md",
+        "experiments/vision/plant_scanner/RESULTS.md",
+        "experiments/vision/plant_scanner/STATUS.md",
+        "experiments/vision/plant_scanner/TEST_PLAN.md",
+        "tools/dev/update_repo_context.ps1"
+      ],
+      "id": "feat-1da7afc0a31b13a4366e1827",
+      "name": "Repository Intelligence",
+      "source": "heuristic",
+      "status": "candidate"
+    },
+    {
+      "confidence": 0.98,
+      "description": "Deterministically inferred feature area from observed repository evidence for testing.",
+      "evidence_count": 20,
+      "evidence_paths": [
+        "contracts/api_fixtures/access_test_account_seed_data.json",
+        "docs/02_product/system_specification.md",
+        "docs/03_architecture/microgrow_node_specification.md",
+        "docs/04_hardware/mist_driver_module_v1_spec.md",
+        "docs/04_hardware/sensor_specifications.md",
+        "docs/05_firmware/firmware_api_spec.md",
+        "docs/05_firmware/node_firmware_specification.md",
+        "docs/09_logs/MG-LOG-013_mist_driver_module_spec.md",
+        "docs/10_roadmap/fsd/fsd_016_scalable_output_controller/pack/09_ACCEPTANCE_TESTS.md",
+        "docs/10_roadmap/fsd/fsd_017_ble_wifi_provisioning/03_FSD_BLE_GATT_SPEC.md"
+      ],
+      "id": "feat-f1373e78819ccef2774d5d48",
+      "name": "Testing",
+      "source": "heuristic",
+      "status": "candidate"
+    }
+  ],
+  "generated_at": "2026-08-07T08:18:46Z",
+  "project_id": "microgrow-v1",
+  "project_name": "MicroGrow V1",
+  "repo_path": "D:\\Dev\\Projects\\MicroGrow V1",
+  "scan_id": "scan-aac96b9287d74edf",
+  "summary": {
+    "api_endpoints": 33,
+    "configuration_keys": 1738,
+    "decisions": 7,
+    "dependencies": 725,
+    "features": 13,
+    "relationships": 1549,
+    "symbols": 1570
+  }
+}

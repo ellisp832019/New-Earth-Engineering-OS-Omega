@@ -1,0 +1,46 @@
+{
+  "database_path": "D:\\Dev\\Projects\\New-Earth-Engineering-OS-Omega-v0.1.0\\New-Earth-Engineering-OS-Omega\\.neos\\phase2-microgrow.sqlite3",
+  "database_size_bytes": 32231424,
+  "file_count": 2331,
+  "git_branch": "planning/microgrow-v1-firmware-target-dependency-lock",
+  "git_commit": "0f9df32862bfb74f0acba8c4c1aa84d5a17c8363",
+  "migrations": [
+    {
+      "applied_at": "2026-08-07T08:00:16.299472+00:00",
+      "description": "Add semantic intelligence tables for symbols, features, decisions, API routes, configuration keys, and impact findings.",
+      "version": 3
+    }
+  ],
+  "project_id": "microgrow-v1",
+  "prompt_injection_warnings": 0,
+  "raw_findings_dry_run": 2331,
+  "scan_id": "scan-aac96b9287d74edf",
+  "scan_seconds_dry_run": 11.03,
+  "semantic_counts_dry_run": {
+    "api_endpoints": 33,
+    "configuration_keys": 1738,
+    "decision_evidence": 7,
+    "dependencies": 725,
+    "engineering_decisions": 7,
+    "feature_evidence": 248,
+    "features": 13,
+    "impact_findings": 0,
+    "injection_warnings": 0,
+    "relationships": 1549,
+    "symbol_locations": 1570,
+    "symbols": 1570
+  },
+  "semantic_seconds_dry_run": 33.607,
+  "stored_semantic_counts": {
+    "api_endpoints": 33,
+    "configuration_keys": 1738,
+    "decision_evidence": 7,
+    "dependencies": 725,
+    "engineering_decisions": 7,
+    "feature_evidence": 248,
+    "features": 13,
+    "impact_findings": 0,
+    "relationships": 1549,
+    "symbols": 1570
+  }
+}

@@ -52,3 +52,7 @@ Canonical state is human-owned or explicitly accepted. Derived state is scanner/
 ## Graph evolution
 
 Use additive migrations. Avoid encoding UI layout assumptions into graph tables.
+
+## Phase 2 semantic tables
+
+Phase 2 adds deterministic semantic tables for symbols, symbol locations, relationships, dependencies, features, feature evidence, engineering decisions, decision evidence, API endpoints, configuration keys and impact findings.

@@ -14,10 +14,11 @@ The recommended development sequence is:
 2. Normalize project metadata.
 3. Scan and classify artefacts.
 4. Persist the knowledge graph.
-5. Add deterministic queries and reports.
-6. Add AI context generation.
-7. Build the desktop experience on top.
-8. Add plugins and multi-project intelligence.
+5. Add semantic repository intelligence for symbols, dependencies, features, API routes, config keys and decisions.
+6. Add deterministic queries, traceability and impact analysis.
+7. Add AI context generation with bounded provenance.
+8. Build the desktop experience on top.
+9. Add plugins and multi-project intelligence.
 
 ## Definition of Alpha
 

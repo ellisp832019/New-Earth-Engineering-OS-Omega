@@ -13,6 +13,7 @@ NEOS is designed to become the intelligence layer above engineering repositories
 - A working Python CLI/core skeleton using SQLite
 - Repository scanning and project indexing
 - Basic knowledge graph node/edge persistence
+- Semantic repository intelligence for symbols, features, API routes, config keys and decisions
 - Plugin SDK contract and example plugin
 - Sample MicroGrow project manifest
 - Tests and validation scripts
@@ -22,6 +23,7 @@ NEOS is designed to become the intelligence layer above engineering repositories
 - Engineering OS desktop application specification
 - Alpha → Beta → v1.0 roadmap
 - Codex implementation/handoff prompt
+- Phase 2 evidence packs for semantic intelligence and read-only MicroGrow acceptance
 
 ## Omega Alpha objective
 

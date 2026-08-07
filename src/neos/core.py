@@ -13,6 +13,7 @@ from .manifest import load_manifest
 from .models import Finding
 from .plugins.runtime import PluginRegistry
 from .scanner import scan_repo
+from .semantic import extract_semantics, persist_semantics
 
 
 def utc_now() -> str:
@@ -185,6 +186,7 @@ def scan_project(db_path: Path, project_id: str, repo_path: Path) -> dict[str, A
     registry = PluginRegistry()
     analyses = registry.analyze(repo_path, {"project_id": project_id})
     plugin_findings = [finding for analysis in analyses for finding in analysis.findings]
+    combined_findings = findings + plugin_findings
     scan_id = "scan-" + uuid.uuid4().hex[:16]
     commit = git_commit(repo_path)
     branch = git_branch(repo_path)
@@ -227,6 +229,8 @@ def scan_project(db_path: Path, project_id: str, repo_path: Path) -> dict[str, A
             ),
         ),
     )
+    semantic_package = extract_semantics(repo_path, project_id, scan_id, combined_findings)
+    persist_semantics(conn, semantic_package)
 
     project_node = "project-" + project_id
     conn.execute(
@@ -271,6 +275,7 @@ def scan_project(db_path: Path, project_id: str, repo_path: Path) -> dict[str, A
         "git_commit": commit,
         "git_branch": branch,
         "fingerprint": fingerprint,
+        "semantic_counts": {key: len(value) for key, value in semantic_package.items() if isinstance(value, list)},
     }
 
 
@@ -363,6 +368,15 @@ def project_summary(db_path: Path, project_id: str) -> dict[str, Any]:
             (project_id,),
         )
     }
+    semantic_counts = {
+        "symbols": conn.execute("SELECT COUNT(*) FROM symbols WHERE project_id=?", (project_id,)).fetchone()[0],
+        "features": conn.execute("SELECT COUNT(*) FROM features WHERE project_id=?", (project_id,)).fetchone()[0],
+        "decisions": conn.execute("SELECT COUNT(*) FROM engineering_decisions WHERE project_id=?", (project_id,)).fetchone()[0],
+        "api_endpoints": conn.execute("SELECT COUNT(*) FROM api_endpoints WHERE project_id=?", (project_id,)).fetchone()[0],
+        "configuration_keys": conn.execute("SELECT COUNT(*) FROM configuration_keys WHERE project_id=?", (project_id,)).fetchone()[0],
+        "relationships": conn.execute("SELECT COUNT(*) FROM relationships WHERE project_id=?", (project_id,)).fetchone()[0],
+        "dependencies": conn.execute("SELECT COUNT(*) FROM dependencies WHERE project_id=?", (project_id,)).fetchone()[0],
+    }
     last = _latest_scan_row(conn, project_id)
     conn.close()
     return {
@@ -371,6 +385,7 @@ def project_summary(db_path: Path, project_id: str) -> dict[str, Any]:
         "repo_path": project["repo_path"],
         "lifecycle": project["lifecycle"],
         "counts": counts,
+        "semantic_counts": semantic_counts,
         "last_scan": dict(last) if last else None,
     }
 
@@ -501,14 +516,35 @@ def context_bundle(db_path: Path, project_id: str, question: str) -> dict[str, A
     evidence = _select_evidence_rows(conn, project_id, keywords)
     if not evidence:
         evidence = _select_evidence_rows(conn, project_id, set(), limit=8)
-    selected_facts = [
-        {
-            "fact": f"{item['kind']}: {item['label']}",
-            "evidence_path": item["source_path"],
-            "provenance": item["metadata"].get("origin", "scanner"),
-        }
-        for item in evidence
-    ]
+    selected_facts = []
+    for item in evidence:
+        selected_facts.append(
+            {
+                "id": item["node_id"],
+                "kind": item["kind"],
+                "summary": f"{item['kind']}: {item['label']}",
+                "evidence_path": item["source_path"],
+                "provenance": item["metadata"].get("origin", "scanner"),
+                "confidence": 0.8,
+            }
+        )
+    inferences = []
+    if selected_facts:
+        inferences.append(
+            {
+                "summary": f"{len(selected_facts)} evidence items matched the question keywords.",
+                "confidence": 0.7,
+                "provenance": "deterministic-query",
+            }
+        )
+    if latest and latest_rows:
+        inferences.append(
+            {
+                "summary": f"The latest scan observed {len(latest_rows)} raw artefacts.",
+                "confidence": 0.95,
+                "provenance": "scan-snapshot",
+            }
+        )
     limitations = [
         "Repository text is treated as untrusted input.",
         "Context is bounded to selected evidence paths.",
@@ -516,6 +552,16 @@ def context_bundle(db_path: Path, project_id: str, question: str) -> dict[str, A
     unknowns = []
     if not latest:
         unknowns.append("No scan exists for this project.")
+    injection_warnings = []
+    for row in latest_rows[:50]:
+        source_path = row["source_path"]
+        file_path = Path(project["repo_path"]) / source_path
+        try:
+            text = file_path.read_text(encoding="utf-8", errors="ignore") if file_path.exists() else ""
+        except OSError:
+            text = ""
+        if text and any(marker in text.lower() for marker in ("ignore previous instructions", "system prompt", "prompt injection")):
+            injection_warnings.append({"source_path": source_path, "warning": "instruction-like repository text detected"})
     bundle = {
         "project_id": project_id,
         "scan_id": latest["scan_id"] if latest else None,
@@ -528,6 +574,8 @@ def context_bundle(db_path: Path, project_id: str, question: str) -> dict[str, A
         "question": question,
         "evidence_paths": [item["source_path"] for item in evidence],
         "selected_facts": selected_facts,
+        "facts": selected_facts,
+        "inferences": inferences,
         "provenance": {
             "project_name": project["name"],
             "repo_path": project["repo_path"],
@@ -536,6 +584,300 @@ def context_bundle(db_path: Path, project_id: str, question: str) -> dict[str, A
         },
         "unknowns": unknowns,
         "limitations": limitations,
+        "warnings": injection_warnings,
     }
     conn.close()
     return bundle
+
+
+def _row_dict(row) -> dict[str, Any]:
+    return dict(row) if row else {}
+
+
+def _entity_lookup(conn, entity_id: str) -> dict[str, Any] | None:
+    for table in (
+        "symbols",
+        "features",
+        "engineering_decisions",
+        "api_endpoints",
+        "configuration_keys",
+        "impact_findings",
+    ):
+        row = conn.execute(f"SELECT * FROM {table} WHERE id=?", (entity_id,)).fetchone()
+        if row:
+            data = dict(row)
+            data["entity_table"] = table
+            data["entity_type"] = table.removesuffix("s")
+            return data
+    return None
+
+
+def _entity_evidence(conn, entity_id: str) -> list[dict[str, Any]]:
+    evidence: list[dict[str, Any]] = []
+    symbol = conn.execute("SELECT * FROM symbols WHERE id=?", (entity_id,)).fetchone()
+    if symbol:
+        location = conn.execute("SELECT * FROM symbol_locations WHERE symbol_id=? ORDER BY start_line LIMIT 1", (entity_id,)).fetchone()
+        evidence.append({"type": "symbol_location", "row": _row_dict(location)})
+    for table, parent_column in (
+        ("feature_evidence", "feature_id"),
+        ("decision_evidence", "decision_id"),
+    ):
+        rows = conn.execute(f"SELECT * FROM {table} WHERE {parent_column}=? ORDER BY source_path, start_line", (entity_id,)).fetchall()
+        evidence.extend({"type": table, "row": dict(row)} for row in rows)
+    return evidence
+
+
+def _adjacency_rows(conn, entity_id: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in conn.execute(
+        """
+        SELECT id, source_entity_id, target_entity_id, relationship_type, confidence, evidence_source, scan_id, parser_source, created_at, metadata_json
+        FROM relationships
+        WHERE source_entity_id=? OR target_entity_id=?
+        ORDER BY relationship_type, id
+        """,
+        (entity_id, entity_id),
+    ):
+        rows.append(dict(row))
+    for row in conn.execute(
+        """
+        SELECT id, source_entity_id, target_entity_id, dependency_type AS relationship_type, confidence, evidence_source, scan_id, parser_source, created_at, metadata_json
+        FROM dependencies
+        WHERE source_entity_id=? OR target_entity_id=?
+        ORDER BY dependency_type, id
+        """,
+        (entity_id, entity_id),
+    ):
+        rows.append(dict(row))
+    for row in conn.execute(
+        """
+        SELECT id AS id, feature_id AS source_entity_id, entity_id AS target_entity_id, 'supported_by' AS relationship_type,
+               confidence, provenance AS evidence_source, scan_id, 'feature_evidence' AS parser_source, '' AS created_at, metadata_json
+        FROM feature_evidence
+        WHERE feature_id=? OR entity_id=?
+        ORDER BY id
+        """,
+        (entity_id, entity_id),
+    ):
+        rows.append(dict(row))
+    for row in conn.execute(
+        """
+        SELECT id AS id, decision_id AS source_entity_id, entity_id AS target_entity_id, 'supported_by' AS relationship_type,
+               confidence, provenance AS evidence_source, scan_id, 'decision_evidence' AS parser_source, '' AS created_at, metadata_json
+        FROM decision_evidence
+        WHERE decision_id=? OR entity_id=?
+        ORDER BY id
+        """,
+        (entity_id, entity_id),
+    ):
+        rows.append(dict(row))
+    return rows
+
+
+def _project_entities(conn, table: str, project_id: str) -> list[dict[str, Any]]:
+    rows = conn.execute(
+        f"SELECT * FROM {table} WHERE project_id=? ORDER BY id",
+        (project_id,),
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def symbol_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    rows = _project_entities(conn, "symbols", project_id)
+    conn.close()
+    return {"project_id": project_id, "count": len(rows), "items": rows}
+
+
+def symbol_show(db_path: Path, symbol_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    symbol = conn.execute("SELECT * FROM symbols WHERE id=?", (symbol_id,)).fetchone()
+    location = conn.execute("SELECT * FROM symbol_locations WHERE symbol_id=? ORDER BY start_line LIMIT 1", (symbol_id,)).fetchone()
+    conn.close()
+    if not symbol:
+        raise ValueError(f"Unknown symbol: {symbol_id}")
+    return {"symbol": dict(symbol), "location": _row_dict(location)}
+
+
+def feature_inventory(db_path: Path, project_id: str, candidates_only: bool = False) -> dict[str, Any]:
+    conn = connect(db_path)
+    if candidates_only:
+        rows = conn.execute(
+            "SELECT * FROM features WHERE project_id=? AND source='heuristic' ORDER BY confidence DESC, name",
+            (project_id,),
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT * FROM features WHERE project_id=? ORDER BY source, confidence DESC, name",
+            (project_id,),
+        ).fetchall()
+    conn.close()
+    return {"project_id": project_id, "count": len(rows), "items": [dict(row) for row in rows]}
+
+
+def feature_show(db_path: Path, feature_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    feature = conn.execute("SELECT * FROM features WHERE id=?", (feature_id,)).fetchone()
+    evidence = conn.execute("SELECT * FROM feature_evidence WHERE feature_id=? ORDER BY source_path, start_line", (feature_id,)).fetchall()
+    conn.close()
+    if not feature:
+        raise ValueError(f"Unknown feature: {feature_id}")
+    return {"feature": dict(feature), "evidence": [dict(row) for row in evidence]}
+
+
+def confirm_feature(db_path: Path, feature_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    feature = conn.execute("SELECT * FROM features WHERE id=?", (feature_id,)).fetchone()
+    if not feature:
+        conn.close()
+        raise ValueError(f"Unknown feature: {feature_id}")
+    now = utc_now()
+    conn.execute(
+        "UPDATE features SET source='operator', status='validated', updated_at=? WHERE id=?",
+        (now, feature_id),
+    )
+    conn.commit()
+    updated = conn.execute("SELECT * FROM features WHERE id=?", (feature_id,)).fetchone()
+    conn.close()
+    return {"feature": dict(updated)}
+
+
+def decision_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    rows = _project_entities(conn, "engineering_decisions", project_id)
+    conn.close()
+    return {"project_id": project_id, "count": len(rows), "items": rows}
+
+
+def decision_show(db_path: Path, decision_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    decision = conn.execute("SELECT * FROM engineering_decisions WHERE id=?", (decision_id,)).fetchone()
+    evidence = conn.execute("SELECT * FROM decision_evidence WHERE decision_id=? ORDER BY source_path, start_line", (decision_id,)).fetchall()
+    conn.close()
+    if not decision:
+        raise ValueError(f"Unknown decision: {decision_id}")
+    return {"decision": dict(decision), "evidence": [dict(row) for row in evidence]}
+
+
+def api_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    rows = _project_entities(conn, "api_endpoints", project_id)
+    conn.close()
+    return {"project_id": project_id, "count": len(rows), "items": rows}
+
+
+def configuration_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    rows = _project_entities(conn, "configuration_keys", project_id)
+    conn.close()
+    return {"project_id": project_id, "count": len(rows), "items": rows}
+
+
+def dependencies_for_entity(db_path: Path, entity_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    rows = _adjacency_rows(conn, entity_id)
+    conn.close()
+    deps = [row for row in rows if row["relationship_type"] in {"imports", "depends_on"}]
+    return {"entity_id": entity_id, "count": len(deps), "items": deps}
+
+
+def trace_entity(db_path: Path, entity_id: str, depth: int = 3, relationship: str | None = None, direction: str = "both") -> dict[str, Any]:
+    conn = connect(db_path)
+    visited = {entity_id}
+    frontier: list[tuple[str, int, list[str]]] = [(entity_id, 0, [])]
+    edges: list[dict[str, Any]] = []
+    nodes: list[dict[str, Any]] = []
+    while frontier:
+        current_id, current_depth, path = frontier.pop(0)
+        if current_depth >= depth:
+            continue
+        for row in _adjacency_rows(conn, current_id):
+            rel_type = row["relationship_type"]
+            if relationship and rel_type != relationship:
+                continue
+            if direction == "out" and row["source_entity_id"] != current_id:
+                continue
+            if direction == "in" and row["target_entity_id"] != current_id:
+                continue
+            next_id = row["target_entity_id"] if row["source_entity_id"] == current_id else row["source_entity_id"]
+            edge = dict(row)
+            edge["depth"] = current_depth + 1
+            edge["path"] = path + [rel_type]
+            edges.append(edge)
+            if next_id not in visited:
+                visited.add(next_id)
+                entity = _entity_lookup(conn, next_id)
+                if entity:
+                    nodes.append({"id": next_id, "entity": entity, "depth": current_depth + 1})
+                frontier.append((next_id, current_depth + 1, path + [rel_type]))
+    conn.close()
+    return {"entity_id": entity_id, "depth": depth, "nodes": nodes, "edges": edges}
+
+
+def impact_entity(db_path: Path, entity_id: str, depth: int = 2) -> dict[str, Any]:
+    trace = trace_entity(db_path, entity_id, depth=depth, direction="both")
+    direct = [edge for edge in trace["edges"] if edge["depth"] == 1]
+    indirect = [edge for edge in trace["edges"] if edge["depth"] > 1]
+    affected_features = []
+    affected_tests = []
+    affected_docs = []
+    affected_api = []
+    affected_config = []
+    affected_decisions = []
+    for node in trace["nodes"]:
+        entity = node["entity"]
+        kind = entity.get("kind") or entity.get("entity_type")
+        item = {"id": node["id"], "kind": kind, "name": entity.get("name") or entity.get("title") or entity.get("route"), "path": entity.get("source_path"), "depth": node["depth"]}
+        if kind == "feature":
+            affected_features.append(item)
+        elif kind in {"test_function", "test_class", "test"}:
+            affected_tests.append(item)
+        elif kind in {"module", "class", "function", "method", "async_function", "cli_entry_point"}:
+            affected_docs.append(item)
+        elif kind == "api_endpoint":
+            affected_api.append(item)
+        elif kind == "configuration_key":
+            affected_config.append(item)
+        elif kind == "decision":
+            affected_decisions.append(item)
+    conn = connect(db_path)
+    entity = _entity_lookup(conn, entity_id)
+    conn.close()
+    return {
+        "entity": entity,
+        "direct_impacts": direct,
+        "indirect_impacts": indirect,
+        "affected_features": affected_features,
+        "affected_tests": affected_tests,
+        "affected_documentation": affected_docs,
+        "affected_api": affected_api,
+        "affected_configuration": affected_config,
+        "affected_decisions": affected_decisions,
+        "unknown_areas": [],
+    }
+
+
+def why_entity(db_path: Path, entity_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    entity = _entity_lookup(conn, entity_id)
+    evidence = _entity_evidence(conn, entity_id)
+    related_decisions = conn.execute(
+        """
+        SELECT d.*
+        FROM engineering_decisions d
+        JOIN decision_evidence e ON e.decision_id = d.id
+        WHERE e.entity_id = ? OR d.id = ?
+        ORDER BY d.date, d.title
+        """,
+        (entity_id, entity_id),
+    ).fetchall()
+    conn.close()
+    rationale = "Rationale not recorded in current NEOS evidence."
+    if entity and entity.get("kind") == "decision":
+        rationale = entity.get("rationale") or rationale
+    return {
+        "entity": entity,
+        "evidence": evidence,
+        "decisions": [dict(row) for row in related_decisions],
+        "rationale": rationale,
+    }

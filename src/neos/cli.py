@@ -11,19 +11,32 @@ from typing import Any
 from . import __version__
 from .config import DB_PATH
 from .core import (
+    api_inventory,
     build_inventory,
+    configuration_inventory,
+    confirm_feature,
     context_bundle,
+    decision_inventory,
+    decision_show,
+    dependencies_for_entity,
     documentation_inventory,
+    feature_inventory,
+    feature_show,
     git_state_report,
+    impact_entity,
     init_project,
     project_summary,
     scan_diff,
     scan_project,
     stale_scan_status,
+    symbol_inventory,
+    symbol_show,
     technology_inventory,
     test_inventory,
+    trace_entity,
+    why_entity,
 )
-from .db import connect
+from .db import connect, schema_info
 
 
 def parser() -> argparse.ArgumentParser:
@@ -79,6 +92,73 @@ def parser() -> argparse.ArgumentParser:
     context.add_argument("--question", required=True)
     context.add_argument("--format", choices=("text", "json"), default="json")
 
+    symbols = sub.add_parser("symbols")
+    symbols.add_argument("--project-id", required=True)
+    symbols.add_argument("--format", choices=("text", "json"), default="json")
+
+    symbol = sub.add_parser("symbol")
+    symbol_sub = symbol.add_subparsers(dest="symbol_cmd", required=True)
+    symbol_show = symbol_sub.add_parser("show")
+    symbol_show.add_argument("symbol_id")
+    symbol_show.add_argument("--format", choices=("text", "json"), default="json")
+
+    dependencies = sub.add_parser("dependencies")
+    dependencies.add_argument("entity_id")
+    dependencies.add_argument("--format", choices=("text", "json"), default="json")
+
+    trace = sub.add_parser("trace")
+    trace.add_argument("entity_id")
+    trace.add_argument("--depth", type=int, default=3)
+    trace.add_argument("--relationship")
+    trace.add_argument("--direction", choices=("in", "out", "both"), default="both")
+    trace.add_argument("--format", choices=("text", "json"), default="json")
+
+    impact = sub.add_parser("impact")
+    impact.add_argument("entity_id")
+    impact.add_argument("--depth", type=int, default=2)
+    impact.add_argument("--format", choices=("text", "json"), default="json")
+
+    why = sub.add_parser("why")
+    why.add_argument("entity_id")
+    why.add_argument("--format", choices=("text", "json"), default="json")
+
+    feature = sub.add_parser("feature")
+    feature_sub = feature.add_subparsers(dest="feature_cmd", required=True)
+    feature_list = feature_sub.add_parser("list")
+    feature_list.add_argument("project_id")
+    feature_list.add_argument("--format", choices=("text", "json"), default="json")
+    feature_candidates = feature_sub.add_parser("candidates")
+    feature_candidates.add_argument("project_id")
+    feature_candidates.add_argument("--format", choices=("text", "json"), default="json")
+    feature_show = feature_sub.add_parser("show")
+    feature_show.add_argument("feature_id")
+    feature_show.add_argument("--format", choices=("text", "json"), default="json")
+    feature_confirm = feature_sub.add_parser("confirm")
+    feature_confirm.add_argument("candidate_id")
+    feature_confirm.add_argument("--format", choices=("text", "json"), default="json")
+
+    decision = sub.add_parser("decision")
+    decision_sub = decision.add_subparsers(dest="decision_cmd", required=True)
+    decision_show = decision_sub.add_parser("show")
+    decision_show.add_argument("decision_id")
+    decision_show.add_argument("--format", choices=("text", "json"), default="json")
+    decisions = sub.add_parser("decisions")
+    decisions.add_argument("project_id")
+    decisions.add_argument("--entity-id")
+    decisions.add_argument("--format", choices=("text", "json"), default="json")
+
+    api = sub.add_parser("api")
+    api_sub = api.add_subparsers(dest="api_cmd", required=True)
+    api_list = api_sub.add_parser("list")
+    api_list.add_argument("project_id")
+    api_list.add_argument("--format", choices=("text", "json"), default="json")
+
+    config = sub.add_parser("config")
+    config_sub = config.add_subparsers(dest="config_cmd", required=True)
+    config_list = config_sub.add_parser("list")
+    config_list.add_argument("project_id")
+    config_list.add_argument("--format", choices=("text", "json"), default="json")
+
     sub.add_parser("version")
     return p
 
@@ -120,14 +200,15 @@ def main(argv=None) -> int:
     try:
         if args.cmd == "doctor":
             conn = connect(db)
-            v = conn.execute("SELECT value FROM meta WHERE key='schema_version'").fetchone()[0]
+            info = schema_info(conn)
             conn.close()
             print(
                 json.dumps(
                     {
                         "status": "healthy",
                         "neos_version": __version__,
-                        "schema_version": v,
+                        "database_schema": info["database_schema"],
+                        "migration_status": info["migration_status"],
                         "python": sys.version.split()[0],
                         "git": shutil.which("git"),
                     },
@@ -169,6 +250,50 @@ def main(argv=None) -> int:
             return 0
         if args.cmd == "context-bundle":
             _print(context_bundle(db, args.project_id, args.question), args.format)
+            return 0
+        if args.cmd == "symbols":
+            _print(symbol_inventory(db, args.project_id), args.format)
+            return 0
+        if args.cmd == "symbol" and args.symbol_cmd == "show":
+            _print(symbol_show(db, args.symbol_id), args.format)
+            return 0
+        if args.cmd == "dependencies":
+            _print(dependencies_for_entity(db, args.entity_id), args.format)
+            return 0
+        if args.cmd == "trace":
+            _print(trace_entity(db, args.entity_id, depth=args.depth, relationship=args.relationship, direction=args.direction), args.format)
+            return 0
+        if args.cmd == "impact":
+            _print(impact_entity(db, args.entity_id, depth=args.depth), args.format)
+            return 0
+        if args.cmd == "why":
+            _print(why_entity(db, args.entity_id), args.format)
+            return 0
+        if args.cmd == "feature":
+            if args.feature_cmd == "list":
+                _print(feature_inventory(db, args.project_id, candidates_only=False), args.format)
+            elif args.feature_cmd == "candidates":
+                _print(feature_inventory(db, args.project_id, candidates_only=True), args.format)
+            elif args.feature_cmd == "show":
+                _print(feature_show(db, args.feature_id), args.format)
+            elif args.feature_cmd == "confirm":
+                _print(confirm_feature(db, args.candidate_id), args.format)
+            return 0
+        if args.cmd == "decision":
+            if args.decision_cmd == "show":
+                _print(decision_show(db, args.decision_id), args.format)
+            return 0
+        if args.cmd == "decisions":
+            if args.entity_id:
+                _print(why_entity(db, args.entity_id), args.format)
+            else:
+                _print(decision_inventory(db, args.project_id), args.format)
+            return 0
+        if args.cmd == "api":
+            _print(api_inventory(db, args.project_id), args.format)
+            return 0
+        if args.cmd == "config":
+            _print(configuration_inventory(db, args.project_id), args.format)
             return 0
         if args.cmd == "version":
             print(__version__)
