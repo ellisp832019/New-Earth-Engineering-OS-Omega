@@ -104,6 +104,181 @@ class FakeNeosClient implements NeosClient {
   Future<Map<String, dynamic>> shutdownService(Uri baseUri, String shutdownToken) async {
     return {'status': 'shutting_down'};
   }
+
+  @override
+  Future<Map<String, dynamic>> loadAiSettings(Uri baseUri) async {
+    return {
+      'settings': {
+        'provider_id': 'mock',
+        'model': 'mock-engineer-v1',
+        'endpoint': '',
+        'timeout_seconds': 30,
+        'context_budget': 24,
+        'max_output_tokens': 1200,
+        'streaming': false,
+      },
+      'provider': {
+        'provider_id': 'mock',
+        'name': 'Local Mock Provider',
+        'kind': 'local',
+        'configured': true,
+        'local': true,
+        'healthy': true,
+        'model': 'mock-engineer-v1',
+        'endpoint': '',
+        'message': 'Deterministic local mock provider ready.',
+      },
+      'provider_health': {
+        'configured': true,
+        'healthy': true,
+        'message': 'Deterministic local mock provider ready.',
+      },
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> saveAiSettings(Uri baseUri, Map<String, dynamic> settings) async {
+    return loadAiSettings(baseUri);
+  }
+
+  @override
+  Future<List<AIProviderSummary>> loadAiProviders(Uri baseUri) async {
+    return [
+      AIProviderSummary.fromJson({
+        'provider_id': 'mock',
+        'name': 'Local Mock Provider',
+        'kind': 'local',
+        'configured': true,
+        'local': true,
+        'healthy': true,
+        'model': 'mock-engineer-v1',
+        'endpoint': '',
+        'message': 'Deterministic local mock provider ready.',
+      }),
+    ];
+  }
+
+  @override
+  Future<List<AIConversationSummary>> loadAiConversations(Uri baseUri, {String? projectId}) async {
+    return const [];
+  }
+
+  @override
+  Future<Map<String, dynamic>> createAiConversation(Uri baseUri, {required String projectId, required String title}) async {
+    return {
+      'conversation_id': 'conversation-1',
+      'project_id': projectId,
+      'title': title,
+      'provider_id': 'mock',
+      'model': 'mock-engineer-v1',
+      'status': 'active',
+      'created_at': '2026-08-07T00:00:00Z',
+      'updated_at': '2026-08-07T00:00:00Z',
+      'turn_count': 0,
+      'turns': const [],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadAiConversation(Uri baseUri, String conversationId) async {
+    return {
+      'conversation_id': conversationId,
+      'project_id': 'demo',
+      'title': 'Demo Conversation',
+      'provider_id': 'mock',
+      'model': 'mock-engineer-v1',
+      'status': 'active',
+      'created_at': '2026-08-07T00:00:00Z',
+      'updated_at': '2026-08-07T00:00:00Z',
+      'turn_count': 1,
+      'turns': [
+        {
+          'turn_id': 'turn-1',
+          'request_id': 'request-1',
+          'conversation_id': conversationId,
+          'project_id': 'demo',
+          'question': 'What should I work on next?',
+          'response_json': {
+            'request_id': 'request-1',
+            'conversation_id': conversationId,
+            'project_id': 'demo',
+            'question': 'What should I work on next?',
+            'intent': 'plan',
+            'mode': 'plan',
+            'provider': 'mock',
+            'model': 'mock-engineer-v1',
+            'created_at': '2026-08-07T00:00:00Z',
+            'completed_at': '2026-08-07T00:00:01Z',
+            'status': 'success',
+            'answer': 'Focus on the highest-attention evidence.',
+            'facts': [],
+            'derived_facts': [],
+            'inferences': [],
+            'recommendations': [],
+            'unknowns': [],
+            'citations': [],
+            'context_snapshot': {'project_id': 'demo'},
+            'latency_ms': 1,
+            'usage': {'total_tokens': 1},
+            'safety': [],
+            'tool_calls': [],
+            'confidence': 'medium',
+          },
+          'context_json': {'project_id': 'demo'},
+          'citations_json': const [],
+          'provider_id': 'mock',
+          'model': 'mock-engineer-v1',
+          'intent': 'plan',
+          'mode': 'plan',
+          'status': 'success',
+          'created_at': '2026-08-07T00:00:00Z',
+          'completed_at': '2026-08-07T00:00:01Z',
+          'usage_json': {'total_tokens': 1},
+          'safety_json': const [],
+        },
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, String? conversationId, String? mode}) async {
+    return {
+      'request_id': 'request-1',
+      'conversation_id': conversationId ?? 'conversation-1',
+      'project_id': projectId,
+      'question': question,
+      'intent': mode ?? 'plan',
+      'mode': mode ?? 'plan',
+      'provider': 'mock',
+      'model': 'mock-engineer-v1',
+      'created_at': '2026-08-07T00:00:00Z',
+      'completed_at': '2026-08-07T00:00:01Z',
+      'status': 'success',
+      'answer': 'Focus on the highest-attention evidence.',
+      'facts': [],
+      'derived_facts': [],
+      'inferences': [],
+      'recommendations': [],
+      'unknowns': [],
+      'citations': const [],
+      'context_snapshot': {'project_id': projectId, 'evidence_items': []},
+      'latency_ms': 1,
+      'usage': {'total_tokens': 1},
+      'safety': const [],
+      'tool_calls': const [],
+      'confidence': 'medium',
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadAiRequest(Uri baseUri, String requestId) async {
+    return {'request_id': requestId, 'status': 'success'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadAiRequestCitations(Uri baseUri, String requestId) async {
+    return {'request_id': requestId, 'count': 0, 'citations': const []};
+  }
 }
 
 void main() {

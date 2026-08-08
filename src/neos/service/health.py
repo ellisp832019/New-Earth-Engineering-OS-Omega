@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from ..ai.providers import provider_from_settings
+from ..ai.store import load_ai_settings
 from ..db import connect, schema_info
 from ..flight import latest_project_flight
 from ..genome import latest_project_genome
@@ -74,6 +76,9 @@ def service_health(db_path: Path, config: ServiceConfig) -> dict[str, Any]:
     project_count = conn.execute("SELECT COUNT(*) FROM projects").fetchone()[0]
     last_scan = conn.execute("SELECT created_at, project_id, scan_id FROM scans ORDER BY created_at DESC, scan_id DESC LIMIT 1").fetchone()
     conn.close()
+    ai_settings = load_ai_settings(db_path)
+    provider = provider_from_settings(ai_settings)
+    provider_health = provider.health().to_dict() if provider is not None else {"configured": False, "healthy": False, "message": "AI provider not configured."}
     return {
         "status": "healthy",
         "service_name": config.service_name,
@@ -90,5 +95,10 @@ def service_health(db_path: Path, config: ServiceConfig) -> dict[str, Any]:
         "schema": info,
         "registered_projects": project_count,
         "last_scan": dict(last_scan) if last_scan else None,
+        "ai": {
+            "settings": ai_settings.to_dict(),
+            "provider": provider.info(ai_settings).to_dict() if provider is not None else None,
+            "provider_health": provider_health,
+        },
         "python": sys.version.split()[0],
     }

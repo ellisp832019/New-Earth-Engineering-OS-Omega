@@ -187,6 +187,82 @@ class ProjectRecord {
   }
 }
 
+class AIProviderSummary {
+  const AIProviderSummary({
+    required this.providerId,
+    required this.name,
+    required this.kind,
+    required this.configured,
+    required this.local,
+    required this.healthy,
+    required this.model,
+    required this.endpoint,
+    required this.message,
+  });
+
+  factory AIProviderSummary.fromJson(Map<String, dynamic> json) {
+    return AIProviderSummary(
+      providerId: _string(json['provider_id']),
+      name: _string(json['name']),
+      kind: _string(json['kind']),
+      configured: json['configured'] == true,
+      local: json['local'] == true,
+      healthy: json['healthy'] == true,
+      model: _string(json['model']),
+      endpoint: _string(json['endpoint']),
+      message: _string(json['message']),
+    );
+  }
+
+  final String providerId;
+  final String name;
+  final String kind;
+  final bool configured;
+  final bool local;
+  final bool healthy;
+  final String model;
+  final String endpoint;
+  final String message;
+}
+
+class AIConversationSummary {
+  const AIConversationSummary({
+    required this.conversationId,
+    required this.projectId,
+    required this.title,
+    required this.providerId,
+    required this.model,
+    required this.status,
+    required this.turnCount,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory AIConversationSummary.fromJson(Map<String, dynamic> json) {
+    return AIConversationSummary(
+      conversationId: _string(json['conversation_id']),
+      projectId: _string(json['project_id']),
+      title: _string(json['title']),
+      providerId: _string(json['provider_id']),
+      model: _string(json['model']),
+      status: _string(json['status']),
+      turnCount: _int(json['turn_count']),
+      createdAt: _string(json['created_at']),
+      updatedAt: _string(json['updated_at']),
+    );
+  }
+
+  final String conversationId;
+  final String projectId;
+  final String title;
+  final String providerId;
+  final String model;
+  final String status;
+  final int turnCount;
+  final String createdAt;
+  final String updatedAt;
+}
+
 abstract class NeosClient {
   Future<ServiceHealthInfo> probeHealth(Uri baseUri);
   Future<ServiceOverview> loadOverview(Uri baseUri);
@@ -194,6 +270,15 @@ abstract class NeosClient {
   Future<Map<String, dynamic>> registerProject(Uri baseUri, String manifestPath);
   Future<Map<String, dynamic>> scanProject(Uri baseUri, String projectId, {String? repoPath});
   Future<Map<String, dynamic>> shutdownService(Uri baseUri, String shutdownToken);
+  Future<Map<String, dynamic>> loadAiSettings(Uri baseUri);
+  Future<Map<String, dynamic>> saveAiSettings(Uri baseUri, Map<String, dynamic> settings);
+  Future<List<AIProviderSummary>> loadAiProviders(Uri baseUri);
+  Future<List<AIConversationSummary>> loadAiConversations(Uri baseUri, {String? projectId});
+  Future<Map<String, dynamic>> createAiConversation(Uri baseUri, {required String projectId, required String title});
+  Future<Map<String, dynamic>> loadAiConversation(Uri baseUri, String conversationId);
+  Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, String? conversationId, String? mode});
+  Future<Map<String, dynamic>> loadAiRequest(Uri baseUri, String requestId);
+  Future<Map<String, dynamic>> loadAiRequestCitations(Uri baseUri, String requestId);
 }
 
 class HttpNeosClient implements NeosClient {
@@ -268,6 +353,75 @@ class HttpNeosClient implements NeosClient {
   Future<Map<String, dynamic>> shutdownService(Uri baseUri, String shutdownToken) async {
     final normalized = _normalize(baseUri);
     return _postJson(normalized.resolve('shutdown'), {'shutdown_token': shutdownToken});
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadAiSettings(Uri baseUri) async {
+    final normalized = _normalize(baseUri);
+    return _getJson(normalized.resolve('ai/settings'));
+  }
+
+  @override
+  Future<Map<String, dynamic>> saveAiSettings(Uri baseUri, Map<String, dynamic> settings) async {
+    final normalized = _normalize(baseUri);
+    return _postJson(normalized.resolve('ai/settings'), settings);
+  }
+
+  @override
+  Future<List<AIProviderSummary>> loadAiProviders(Uri baseUri) async {
+    final normalized = _normalize(baseUri);
+    final json = await _getJson(normalized.resolve('ai/providers'));
+    return _list(json['providers']).map((value) => AIProviderSummary.fromJson(_map(value))).toList(growable: false);
+  }
+
+  @override
+  Future<List<AIConversationSummary>> loadAiConversations(Uri baseUri, {String? projectId}) async {
+    final normalized = _normalize(baseUri);
+    final uri = projectId == null || projectId.isEmpty
+        ? normalized.resolve('ai/conversations')
+        : normalized.resolve('ai/conversations?project_id=${Uri.encodeQueryComponent(projectId)}');
+    final json = await _getJson(uri);
+    return _list(json['conversations']).map((value) => AIConversationSummary.fromJson(_map(value))).toList(growable: false);
+  }
+
+  @override
+  Future<Map<String, dynamic>> createAiConversation(Uri baseUri, {required String projectId, required String title}) async {
+    final normalized = _normalize(baseUri);
+    return _postJson(normalized.resolve('ai/conversations'), {'project_id': projectId, 'title': title});
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadAiConversation(Uri baseUri, String conversationId) async {
+    final normalized = _normalize(baseUri);
+    return _getJson(normalized.resolve('ai/conversations/$conversationId'));
+  }
+
+  @override
+  Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, String? conversationId, String? mode}) async {
+    final normalized = _normalize(baseUri);
+    final body = <String, dynamic>{
+      'project_id': projectId,
+      'question': question,
+    };
+    if (conversationId != null && conversationId.isNotEmpty) {
+      body['conversation_id'] = conversationId;
+    }
+    if (mode != null && mode.isNotEmpty) {
+      body['mode'] = mode;
+    }
+    return _postJson(normalized.resolve('ai/query'), body);
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadAiRequest(Uri baseUri, String requestId) async {
+    final normalized = _normalize(baseUri);
+    return _getJson(normalized.resolve('ai/requests/$requestId'));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadAiRequestCitations(Uri baseUri, String requestId) async {
+    final normalized = _normalize(baseUri);
+    return _getJson(normalized.resolve('ai/requests/$requestId/citations'));
   }
 
   Uri _normalize(Uri baseUri) {

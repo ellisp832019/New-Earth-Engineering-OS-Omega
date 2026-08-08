@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from ..ai.service import handle_ai_get, handle_ai_post
 from ..core import (
     api_inventory,
     build_inventory,
@@ -148,6 +149,8 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
     segments = [segment for segment in path.strip("/").split("/") if segment]
     if not segments:
         return 404, {"error": "not_found"}
+    if segments[0] == "ai":
+        return handle_ai_get(path, query, db_path, config)
     if segments == ["health"]:
         return 200, service_health(db_path, config)
     if segments == ["projects"]:
@@ -245,6 +248,8 @@ def handle_post(
     server: Any,
 ) -> tuple[int, dict[str, Any]]:
     segments = [segment for segment in path.strip("/").split("/") if segment]
+    if segments and segments[0] == "ai":
+        return handle_ai_post(path, query, body, db_path, config)
     if segments == ["shutdown"]:
         if body.get("shutdown_token") != config.shutdown_token:
             return 403, {"error": "forbidden"}

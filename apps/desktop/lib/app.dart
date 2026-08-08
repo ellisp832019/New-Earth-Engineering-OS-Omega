@@ -1,8 +1,44 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
 import 'neos_client.dart';
+
+Map<String, dynamic> _asMap(dynamic value) {
+  if (value is Map<String, dynamic>) {
+    return value;
+  }
+  if (value is Map) {
+    return value.map((key, item) => MapEntry(key.toString(), item));
+  }
+  return <String, dynamic>{};
+}
+
+List<dynamic> _asList(dynamic value) {
+  if (value is List) {
+    return value;
+  }
+  return const <dynamic>[];
+}
+
+String _asString(dynamic value, [String fallback = '']) {
+  return value == null ? fallback : value.toString();
+}
+
+int _asInt(dynamic value, [int fallback = 0]) {
+  if (value is int) {
+    return value;
+  }
+  return int.tryParse(_asString(value)) ?? fallback;
+}
+
+bool _asBool(dynamic value, [bool fallback = false]) {
+  if (value is bool) {
+    return value;
+  }
+  return fallback;
+}
 
 enum _Destination {
   home,
@@ -68,6 +104,13 @@ class NeosShell extends StatefulWidget {
 class _NeosShellState extends State<NeosShell> {
   final TextEditingController _serviceController = TextEditingController();
   final TextEditingController _projectFilterController = TextEditingController();
+  final TextEditingController _assistantQuestionController = TextEditingController(text: 'What should I work on next?');
+  final TextEditingController _aiProviderController = TextEditingController();
+  final TextEditingController _aiModelController = TextEditingController();
+  final TextEditingController _aiEndpointController = TextEditingController();
+  final TextEditingController _aiTimeoutController = TextEditingController();
+  final TextEditingController _aiContextBudgetController = TextEditingController();
+  final TextEditingController _aiMaxOutputController = TextEditingController();
 
   _Destination _destination = _Destination.home;
   ServiceOverview? _overview;
@@ -76,6 +119,18 @@ class _NeosShellState extends State<NeosShell> {
   String? _error;
   bool _loadingOverview = true;
   bool _loadingProject = false;
+  bool _loadingAi = false;
+  bool _savingAiSettings = false;
+  bool _askingAi = false;
+  String? _aiError;
+  String? _selectedConversationId;
+  String _assistantMode = 'ask';
+  List<AIProviderSummary> _aiProviders = const [];
+  List<AIConversationSummary> _aiConversations = const [];
+  Map<String, dynamic>? _aiSettings;
+  Map<String, dynamic>? _aiProviderHealth;
+  Map<String, dynamic>? _aiResponse;
+  List<Map<String, dynamic>> _aiCitations = const [];
 
   static const List<_NavItem> _items = <_NavItem>[
     _NavItem(_Destination.home, Icons.home_outlined, 'Home'),
@@ -109,6 +164,13 @@ class _NeosShellState extends State<NeosShell> {
   void dispose() {
     _serviceController.dispose();
     _projectFilterController.dispose();
+    _assistantQuestionController.dispose();
+    _aiProviderController.dispose();
+    _aiModelController.dispose();
+    _aiEndpointController.dispose();
+    _aiTimeoutController.dispose();
+    _aiContextBudgetController.dispose();
+    _aiMaxOutputController.dispose();
     super.dispose();
   }
 
@@ -171,6 +233,169 @@ class _NeosShellState extends State<NeosShell> {
     setState(() {
       _destination = destination;
     });
+    if (destination == _Destination.assistant || destination == _Destination.settings || destination == _Destination.health) {
+      unawaited(_refreshAiWorkspace());
+    }
+  }
+
+  Future<void> _refreshAiWorkspace() async {
+    setState(() {
+      _loadingAi = true;
+      _aiError = null;
+    });
+    try {
+      final results = await Future.wait([
+        widget.client.loadAiSettings(_serviceUri),
+        widget.client.loadAiProviders(_serviceUri),
+        widget.client.loadAiConversations(_serviceUri, projectId: _selectedProjectId),
+      ]);
+      final settings = results[0] as Map<String, dynamic>;
+      final providers = results[1] as List<AIProviderSummary>;
+      final conversations = results[2] as List<AIConversationSummary>;
+      final providerHealth = _asMap(settings['provider_health']);
+      final config = _asMap(settings['settings']);
+      Map<String, dynamic>? conversation;
+      if (_selectedConversationId != null) {
+        try {
+          conversation = await widget.client.loadAiConversation(_serviceUri, _selectedConversationId!);
+        } catch (_) {
+          conversation = null;
+        }
+      }
+      setState(() {
+        _aiSettings = settings;
+        _aiProviders = providers;
+        _aiConversations = conversations;
+        _aiProviderHealth = providerHealth;
+        _aiResponse = conversation == null || _asList(conversation['turns']).isEmpty
+            ? _aiResponse
+            : _asMap(_asList(conversation['turns']).last)['response_json'] is Map<String, dynamic>
+                ? _asMap(_asList(conversation['turns']).last)['response_json'] as Map<String, dynamic>
+                : _aiResponse;
+        _loadingAi = false;
+      });
+      _aiProviderController.text = _asString(config['provider_id'], 'mock');
+      _aiModelController.text = _asString(config['model'], 'mock-engineer-v1');
+      _aiEndpointController.text = _asString(config['endpoint']);
+      _aiTimeoutController.text = _asInt(config['timeout_seconds'], 30).toString();
+      _aiContextBudgetController.text = _asInt(config['context_budget'], 24).toString();
+      _aiMaxOutputController.text = _asInt(config['max_output_tokens'], 1200).toString();
+    } catch (error) {
+      setState(() {
+        _loadingAi = false;
+        _aiError = error.toString();
+      });
+    }
+  }
+
+  Future<void> _loadAiConversation(String conversationId) async {
+    setState(() {
+      _selectedConversationId = conversationId;
+      _aiError = null;
+    });
+    try {
+      final conversation = await widget.client.loadAiConversation(_serviceUri, conversationId);
+      final turns = _asList(conversation['turns']).cast<dynamic>();
+      Map<String, dynamic>? response;
+      List<Map<String, dynamic>> citations = const [];
+      if (turns.isNotEmpty) {
+        final lastTurn = _asMap(turns.last);
+        response = _asMap(lastTurn['response_json']);
+        final requestId = _asString(lastTurn['request_id']);
+        if (requestId.isNotEmpty) {
+          final citationPayload = await widget.client.loadAiRequestCitations(_serviceUri, requestId);
+          citations = _asList(citationPayload['citations']).map((item) => _asMap(item)).toList(growable: false);
+        }
+      }
+      setState(() {
+        _aiResponse = response;
+        _aiCitations = citations;
+      });
+    } catch (error) {
+      setState(() {
+        _aiError = error.toString();
+      });
+    }
+  }
+
+  Future<void> _submitAiQuestion() async {
+    final projectId = _selectedProjectId;
+    final question = _assistantQuestionController.text.trim();
+    if (projectId == null || projectId.isEmpty) {
+      setState(() {
+        _aiError = 'Select a project before asking a question.';
+      });
+      return;
+    }
+    if (question.isEmpty) {
+      setState(() {
+        _aiError = 'Enter an engineering question first.';
+      });
+      return;
+    }
+    setState(() {
+      _askingAi = true;
+      _aiError = null;
+    });
+    try {
+      final response = await widget.client.askAi(
+        _serviceUri,
+        projectId: projectId,
+        question: question,
+        conversationId: _selectedConversationId,
+        mode: _assistantMode,
+      );
+      final conversationId = _asString(response['conversation_id']);
+      final requestId = _asString(response['request_id']);
+      final citationsPayload = requestId.isNotEmpty
+          ? await widget.client.loadAiRequestCitations(_serviceUri, requestId)
+          : <String, dynamic>{'citations': const []};
+      final citations = _asList(citationsPayload['citations']).map((item) => _asMap(item)).toList(growable: false);
+      setState(() {
+        _aiResponse = response;
+        _aiCitations = citations;
+        _selectedConversationId = conversationId.isEmpty ? _selectedConversationId : conversationId;
+        _askingAi = false;
+      });
+      await _refreshAiWorkspace();
+      if (_selectedConversationId != null && _selectedConversationId!.isNotEmpty) {
+        await _loadAiConversation(_selectedConversationId!);
+      }
+    } catch (error) {
+      setState(() {
+        _askingAi = false;
+        _aiError = error.toString();
+      });
+    }
+  }
+
+  Future<void> _saveAiSettings() async {
+    setState(() {
+      _savingAiSettings = true;
+      _aiError = null;
+    });
+    try {
+      final payload = <String, dynamic>{
+        'provider_id': _aiProviderController.text.trim(),
+        'model': _aiModelController.text.trim(),
+        'endpoint': _aiEndpointController.text.trim(),
+        'timeout_seconds': int.tryParse(_aiTimeoutController.text.trim()) ?? 30,
+        'context_budget': int.tryParse(_aiContextBudgetController.text.trim()) ?? 24,
+        'max_output_tokens': int.tryParse(_aiMaxOutputController.text.trim()) ?? 1200,
+        'streaming': _asBool(_asMap(_aiSettings?['settings'])['streaming']),
+      };
+      final updated = await widget.client.saveAiSettings(_serviceUri, payload);
+      setState(() {
+        _aiSettings = updated;
+        _savingAiSettings = false;
+      });
+      await _refreshAiWorkspace();
+    } catch (error) {
+      setState(() {
+        _savingAiSettings = false;
+        _aiError = error.toString();
+      });
+    }
   }
 
   String _prettyJson(dynamic data) {
@@ -645,33 +870,322 @@ class _NeosShellState extends State<NeosShell> {
 
   Widget _assistantView() {
     final project = _project;
+    final response = _aiResponse;
+    final providerHealth = _aiProviderHealth ?? const <String, dynamic>{};
+    final providerName = _asString(providerHealth['name'], _asString(providerHealth['provider_id'], 'not configured'));
+    final providerStatus = _asString(providerHealth['message'], 'Provider not configured');
+    final citations = _aiCitations;
+    final facts = _asList(response?['facts']).map((item) => _asMap(item)).toList(growable: false);
+    final derivedFacts = _asList(response?['derived_facts']).map((item) => _asMap(item)).toList(growable: false);
+    final inferences = _asList(response?['inferences']).map((item) => _asMap(item)).toList(growable: false);
+    final recommendations = _asList(response?['recommendations']).map((item) => _asMap(item)).toList(growable: false);
+    final unknowns = _asList(response?['unknowns']).map((item) => _asMap(item)).toList(growable: false);
+    final responseContext = _asMap(response?['context_snapshot']);
+    final contextJson = const JsonEncoder.withIndent('  ').convert(responseContext);
+
+    Widget sectionList(String title, List<Map<String, dynamic>> items, String emptyMessage) {
+      return _panel(
+        title: title,
+        subtitle: '${items.length} item(s)',
+        child: items.isEmpty
+            ? Text(emptyMessage)
+            : Column(
+                children: [
+                  for (final item in items)
+                    ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(_asString(item['text'], _asString(item['summary'], _asString(item['excerpt'], 'Item')))),
+                      subtitle: Text(
+                        _asString(item['basis'], _asString(item['basis'], _asString(item['path'], ''))),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+              ),
+      );
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _panel(
-            title: 'AI Engineering Assistant',
-            subtitle: 'The desktop shell stays deterministic and exposes evidence. Interpretation happens above the core, not inside widgets.',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                _Bullet(text: 'Ask questions against the current project and cite the evidence payload directly.'),
-                _Bullet(text: 'Use freshness, scope and uncertainty panels before trusting any generated answer.'),
-                _Bullet(text: 'Keep model output separate from canonical service responses.'),
-                _Bullet(text: 'If you add a generated response layer later, it should consume these same local service endpoints.'),
+            title: 'AI Engineering Partner',
+            subtitle: 'Evidence-grounded questions, bounded context, and citation-first answers.',
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                _chip('Project ${project?.projectId ?? 'none'}'),
+                _chip('Provider $providerName'),
+                _chip(_asString(response?['model'], _aiModelController.text.isEmpty ? 'mock-engineer-v1' : _aiModelController.text)),
+                _chip(_asString(response?['status'], providerStatus)),
+                if (_loadingAi) const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                if (_aiError != null)
+                  Chip(
+                    backgroundColor: const Color(0xFFFEE2E2),
+                    label: Text(_aiError!, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          _jsonPanel('Evidence focus', project?.summary ?? const {}, subtitle: 'The selected project summary is the first place to verify before answering questions.'),
-          const SizedBox(height: 16),
-          _panel(
-            title: 'Sample prompt',
-            subtitle: 'A simple prompt pattern this UI is prepared to support later.',
-            child: SelectableText(
-              'What changed in ${project?.projectId ?? 'this project'} recently, and which evidence items support that answer?',
-            ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final split = constraints.maxWidth > 1180;
+              final sidebar = _panel(
+                title: 'Conversations',
+                subtitle: 'Project-scoped threads',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: project == null || _askingAi ? null : () async {
+                        final created = await widget.client.createAiConversation(
+                          _serviceUri,
+                          projectId: project.projectId,
+                          title: 'Conversation ${DateTime.now().toIso8601String().substring(11, 19)}',
+                        );
+                        final conversationId = _asString(created['conversation_id']);
+                        if (conversationId.isNotEmpty) {
+                          await _refreshAiWorkspace();
+                          await _loadAiConversation(conversationId);
+                        }
+                      },
+                      icon: const Icon(Icons.add_comment_outlined),
+                      label: const Text('New conversation'),
+                    ),
+                    const SizedBox(height: 12),
+                    for (final conversation in _aiConversations)
+                      Card(
+                        elevation: 0,
+                        color: _selectedConversationId == conversation.conversationId ? const Color(0xFFE0F2F1) : const Color(0xFFF8FAFC),
+                        child: ListTile(
+                          dense: true,
+                          onTap: () => _loadAiConversation(conversation.conversationId),
+                          title: Text(conversation.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          subtitle: Text('${conversation.turnCount} turns\n${conversation.model.isEmpty ? conversation.providerId : conversation.model}'),
+                          isThreeLine: true,
+                        ),
+                      ),
+                    if (_aiConversations.isEmpty) const Text('No conversations yet for this project.'),
+                  ],
+                ),
+              );
+              final workspace = Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _panel(
+                    title: 'Question',
+                    subtitle: 'Ask a bounded engineering question against the selected project.',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          initialValue: _assistantMode,
+                          decoration: const InputDecoration(labelText: 'Mode', border: OutlineInputBorder()),
+                          items: const [
+                            DropdownMenuItem(value: 'ask', child: Text('ASK')),
+                            DropdownMenuItem(value: 'why_query', child: Text('WHY')),
+                            DropdownMenuItem(value: 'impact_query', child: Text('IMPACT')),
+                            DropdownMenuItem(value: 'change_query', child: Text('CHANGE')),
+                            DropdownMenuItem(value: 'risk_query', child: Text('RISK')),
+                            DropdownMenuItem(value: 'plan', child: Text('PLAN')),
+                            DropdownMenuItem(value: 'architecture_explanation', child: Text('EXPLAIN')),
+                            DropdownMenuItem(value: 'review', child: Text('REVIEW')),
+                          ],
+                          onChanged: (value) {
+                            if (value == null) {
+                              return;
+                            }
+                            setState(() {
+                              _assistantMode = value;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _assistantQuestionController,
+                          minLines: 3,
+                          maxLines: 7,
+                          decoration: const InputDecoration(
+                            labelText: 'Engineering question',
+                            hintText: 'What should I work on next?',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            FilledButton.icon(
+                              onPressed: project == null || _askingAi ? null : _submitAiQuestion,
+                              icon: const Icon(Icons.send),
+                              label: Text(_askingAi ? 'Asking...' : 'Ask AI'),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: project == null
+                                  ? null
+                                  : () {
+                                      _assistantQuestionController.text = 'What should I work on next?';
+                                      _assistantMode = 'plan';
+                                      setState(() {});
+                                    },
+                              icon: const Icon(Icons.lightbulb_outline),
+                              label: const Text('Use next-work prompt'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (response == null)
+                    _panel(
+                      title: 'Answer',
+                      subtitle: 'No AI response yet.',
+                      child: Text(
+                        project == null
+                            ? 'Select a project first.'
+                            : 'Ask a question to generate a bounded response with evidence, citations, and unknowns.',
+                      ),
+                    )
+                  else
+                    _panel(
+                      title: 'Answer',
+                      subtitle: _asString(response['status'], 'response'),
+                      child: SelectableText(_asString(response['answer'], '')),
+                    ),
+                  const SizedBox(height: 16),
+                  LayoutBuilder(
+                    builder: (context, inner) {
+                      final stacked = inner.maxWidth < 980;
+                      final evidencePanel = _panel(
+                        title: 'Evidence',
+                        subtitle: 'Context sources sent to the provider',
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                            Text('Project summary: ${project?.projectId ?? _asString(responseContext['project_id'])}'),
+                            const SizedBox(height: 8),
+                            Text('Sources: ${_asList(responseContext['context_sources']).length}'),
+                            const SizedBox(height: 8),
+                            SelectableText(contextJson),
+                          ],
+                        ),
+                      );
+                      final citationsPanel = _panel(
+                        title: 'Citations',
+                        subtitle: '${citations.length} citation(s)',
+                        child: citations.isEmpty
+                            ? const Text('No citations were recorded for this response.')
+                            : Column(
+                                children: [
+                                  for (final citation in citations)
+                                    ListTile(
+                                      dense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Text(_asString(citation['title'], _asString(citation['entity_id'], 'Citation'))),
+                                      subtitle: Text(
+                                        '${_asString(citation['path'])}\n${_asString(citation['excerpt'])}',
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                      );
+                      if (stacked) {
+                        return Column(
+                          children: [
+                            evidencePanel,
+                            const SizedBox(height: 16),
+                            citationsPanel,
+                          ],
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: evidencePanel),
+                          const SizedBox(width: 16),
+                          Expanded(child: citationsPanel),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  LayoutBuilder(
+                    builder: (context, inner) {
+                      final stacked = inner.maxWidth < 980;
+                      final left = Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          sectionList('Facts', facts, 'No explicit facts were returned.'),
+                          const SizedBox(height: 16),
+                          sectionList('Derived facts', derivedFacts, 'No derived facts were produced.'),
+                        ],
+                      );
+                      final right = Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          sectionList('Inferences', inferences, 'No inferences were produced.'),
+                          const SizedBox(height: 16),
+                          sectionList('Recommendations', recommendations, 'No recommendations were produced.'),
+                          const SizedBox(height: 16),
+                          sectionList('Unknowns', unknowns, 'No unknowns were returned.'),
+                        ],
+                      );
+                      if (stacked) {
+                        return Column(
+                          children: [
+                            left,
+                            const SizedBox(height: 16),
+                            right,
+                          ],
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: left),
+                          const SizedBox(width: 16),
+                          Expanded(child: right),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _panel(
+                    title: 'Context inspector',
+                    subtitle: 'Sanitized evidence bundle',
+                    child: SelectableText(const JsonEncoder.withIndent('  ').convert(_aiResponse == null ? <String, dynamic>{} : _asMap(_aiResponse!['context_snapshot']))),
+                  ),
+                ],
+              );
+              if (split) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(width: 360, child: sidebar),
+                    const SizedBox(width: 16),
+                    Expanded(child: workspace),
+                  ],
+                );
+              }
+              return Column(
+                children: [
+                  sidebar,
+                  const SizedBox(height: 16),
+                  workspace,
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -680,6 +1194,16 @@ class _NeosShellState extends State<NeosShell> {
 
   Widget _settingsView() {
     final overview = _overview;
+    final settings = _asMap(_aiSettings?['settings']);
+    final providerHealth = _aiProviderHealth ?? const <String, dynamic>{};
+    final providerOptions = <String>{
+      'mock',
+      'none',
+      'compatible_http',
+      _aiProviderController.text.trim(),
+      _asString(settings['provider_id'], ''),
+      ..._aiProviders.map((provider) => provider.providerId),
+    }.where((value) => value.isNotEmpty).toList(growable: false);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -724,7 +1248,107 @@ class _NeosShellState extends State<NeosShell> {
             ),
           ),
           const SizedBox(height: 16),
+          _panel(
+            title: 'AI settings',
+            subtitle: 'Provider, model, endpoint and context budget.',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButtonFormField<String>(
+                  initialValue: _aiProviderController.text.isEmpty ? _asString(settings['provider_id'], 'mock') : _aiProviderController.text,
+                  items: providerOptions
+                      .map((value) => DropdownMenuItem<String>(value: value, child: Text(value)))
+                      .toList(growable: false),
+                  onChanged: (value) {
+                    if (value == null) {
+                      return;
+                    }
+                    setState(() {
+                      _aiProviderController.text = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Provider',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _aiModelController,
+                  decoration: const InputDecoration(
+                    labelText: 'Model',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _aiEndpointController,
+                  decoration: const InputDecoration(
+                    labelText: 'Endpoint',
+                    hintText: 'http://127.0.0.1:11434',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _aiTimeoutController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Timeout (seconds)',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: _aiContextBudgetController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Context budget',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: _aiMaxOutputController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Max output tokens',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: _savingAiSettings ? null : _saveAiSettings,
+                      icon: const Icon(Icons.save_outlined),
+                      label: Text(_savingAiSettings ? 'Saving...' : 'Save AI settings'),
+                    ),
+                    _chip(_asString(providerHealth['message'], 'AI provider unavailable')),
+                    _chip(_asString(providerHealth['kind'], _asString(providerHealth['provider_id'], 'unknown'))),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
           _jsonPanel('Service health', overview?.health, subtitle: 'Raw backend health payload.'),
+          const SizedBox(height: 16),
+          _jsonPanel('AI provider health', _aiProviderHealth, subtitle: 'Current provider status and capabilities.'),
+          const SizedBox(height: 16),
+          _jsonPanel('AI settings', _aiSettings, subtitle: 'Current AI configuration stored by the local service.'),
         ],
       ),
     );

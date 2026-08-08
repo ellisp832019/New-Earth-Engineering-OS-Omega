@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 SCHEMA = """
 PRAGMA foreign_keys=ON;
@@ -465,6 +465,97 @@ CREATE TABLE IF NOT EXISTS flight_incidents (
     metadata_json TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_flight_incidents_project_time ON flight_incidents(project_id, timestamp);
+
+CREATE TABLE IF NOT EXISTS ai_settings (
+    settings_id TEXT PRIMARY KEY,
+    provider_id TEXT NOT NULL,
+    model TEXT NOT NULL,
+    endpoint TEXT NOT NULL,
+    api_key_env TEXT NOT NULL,
+    timeout_seconds INTEGER NOT NULL,
+    context_budget INTEGER NOT NULL,
+    max_output_tokens INTEGER NOT NULL,
+    streaming INTEGER NOT NULL,
+    temperature REAL NOT NULL,
+    enabled INTEGER NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ai_conversations (
+    conversation_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    provider_id TEXT NOT NULL,
+    model TEXT NOT NULL,
+    status TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_project_updated ON ai_conversations(project_id, updated_at);
+
+CREATE TABLE IF NOT EXISTS ai_conversation_turns (
+    turn_id TEXT PRIMARY KEY,
+    conversation_id TEXT NOT NULL REFERENCES ai_conversations(conversation_id) ON DELETE CASCADE,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    request_id TEXT NOT NULL,
+    question TEXT NOT NULL,
+    response_json TEXT NOT NULL,
+    context_json TEXT NOT NULL,
+    citations_json TEXT NOT NULL,
+    provider_id TEXT NOT NULL,
+    model TEXT NOT NULL,
+    intent TEXT NOT NULL,
+    mode TEXT NOT NULL,
+    status TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    completed_at TEXT NOT NULL,
+    usage_json TEXT NOT NULL,
+    safety_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ai_conversation_turns_conversation_time ON ai_conversation_turns(conversation_id, created_at);
+
+CREATE TABLE IF NOT EXISTS ai_requests (
+    request_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    conversation_id TEXT REFERENCES ai_conversations(conversation_id) ON DELETE SET NULL,
+    question TEXT NOT NULL,
+    intent TEXT NOT NULL,
+    mode TEXT NOT NULL,
+    provider_id TEXT NOT NULL,
+    model TEXT NOT NULL,
+    context_json TEXT NOT NULL,
+    response_json TEXT NOT NULL,
+    status TEXT NOT NULL,
+    latency_ms INTEGER NOT NULL,
+    created_at TEXT NOT NULL,
+    completed_at TEXT NOT NULL,
+    usage_json TEXT NOT NULL,
+    safety_json TEXT NOT NULL,
+    tool_audit_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ai_requests_conversation_time ON ai_requests(conversation_id, created_at);
+
+CREATE TABLE IF NOT EXISTS ai_request_citations (
+    citation_id TEXT PRIMARY KEY,
+    request_id TEXT NOT NULL REFERENCES ai_requests(request_id) ON DELETE CASCADE,
+    conversation_id TEXT REFERENCES ai_conversations(conversation_id) ON DELETE SET NULL,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    entity_id TEXT NOT NULL,
+    source_type TEXT NOT NULL,
+    path TEXT NOT NULL,
+    relationship TEXT NOT NULL,
+    scan_id TEXT NOT NULL,
+    snapshot_id TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    excerpt TEXT NOT NULL,
+    title TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ai_request_citations_request_confidence ON ai_request_citations(request_id, confidence);
 """
 
 
@@ -535,6 +626,13 @@ def _migrate(conn: sqlite3.Connection) -> None:
             conn,
             6,
             "Add engineering flight recorder snapshots, checkpoints, events, transitions, incidents, and regression intelligence.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 7 or conn.execute("SELECT 1 FROM migrations WHERE version=7").fetchone() is None:
+        _record_migration(
+            conn,
+            7,
+            "Add AI settings, conversations, requests, citations, and audit persistence for the NEOS AI Engineering Partner.",
             applied_at,
         )
     conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version',?)", (str(SCHEMA_VERSION),))

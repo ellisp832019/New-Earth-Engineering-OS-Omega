@@ -1,0 +1,23 @@
+{
+  "branch": "feature/neos-ai-engineering-partner-v0.6",
+  "service_version": "0.1.0",
+  "schema_version": 7,
+  "ai_provider": "mock",
+  "microgrow": {
+    "branch": "planning/microgrow-v1-firmware-target-dependency-lock",
+    "head": "0f9df32862bfb74f0acba8c4c1aa84d5a17c8363",
+    "status": "clean"
+  },
+  "validation": {
+    "pytest": "pass",
+    "ruff": "pass",
+    "mypy": "pass",
+    "doctor": "pass",
+    "flutter_analyze": "pass",
+    "flutter_test": "pass",
+    "flutter_build_windows_release": "pass",
+    "package_windows": "pass",
+    "smoke_windows_backend": "pass",
+    "smoke_windows_package": "pass"
+  }
+}

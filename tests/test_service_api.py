@@ -100,12 +100,38 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         assert health["service_name"] == "NEOS Local Service"
         assert health["service_version"] == "0.1.0"
         assert health["api_version"] == "v1"
-        assert health["schema_version"] == 6
+        assert health["schema_version"] == 7
         assert health["instance_id"]
+        assert health["ai"]["settings"]["provider_id"] == "mock"
 
         status, projects = _get_json(f"{base}/projects")
         assert status == 200
         assert projects["projects"][0]["project_id"] == "demo"
+
+        status, providers = _get_json(f"{base}/ai/providers")
+        assert status == 200
+        assert providers["providers"][0]["provider_id"] in {"none", "mock"}
+
+        status, ai_settings = _get_json(f"{base}/ai/settings")
+        assert status == 200
+        assert ai_settings["settings"]["provider_id"] == "mock"
+
+        status, ai_response = _post_json(
+            f"{base}/ai/query",
+            {
+                "project_id": "demo",
+                "question": "What should I work on next?",
+                "mode": "plan",
+            },
+        )
+        assert status == 200
+        assert ai_response["status"] == "success"
+        assert ai_response["request_id"]
+        assert ai_response["conversation_id"]
+
+        status, citations = _get_json(f"{base}/ai/requests/{ai_response['request_id']}/citations")
+        assert status == 200
+        assert citations["request_id"] == ai_response["request_id"]
 
         status, registered = _post_json(f"{base}/projects/register", {"manifest_path": str(manifest)})
         assert status == 200
