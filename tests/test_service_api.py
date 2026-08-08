@@ -98,9 +98,9 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         assert status == 200
         assert health["status"] == "healthy"
         assert health["service_name"] == "NEOS Local Service"
-        assert health["service_version"] == "0.1.0"
+        assert health["service_version"] == "0.7.0"
         assert health["api_version"] == "v1"
-        assert health["schema_version"] == 7
+        assert health["schema_version"] == 8
         assert health["instance_id"]
         assert health["ai"]["settings"]["provider_id"] == "mock"
 

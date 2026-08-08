@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 SCHEMA = """
 PRAGMA foreign_keys=ON;
@@ -556,6 +556,136 @@ CREATE TABLE IF NOT EXISTS ai_request_citations (
     metadata_json TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_ai_request_citations_request_confidence ON ai_request_citations(request_id, confidence);
+
+CREATE TABLE IF NOT EXISTS ecosystems (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    project_ids TEXT NOT NULL,
+    snapshot_id TEXT NOT NULL,
+    schema_version INTEGER NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ecosystems_updated_at ON ecosystems(updated_at);
+
+CREATE TABLE IF NOT EXISTS portfolio_snapshots (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    ecosystem_id TEXT NOT NULL REFERENCES ecosystems(id) ON DELETE CASCADE,
+    project_ids TEXT NOT NULL,
+    source_fingerprint TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    snapshot_json TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_portfolio_snapshots_unique ON portfolio_snapshots(ecosystem_id, source_fingerprint);
+
+CREATE TABLE IF NOT EXISTS project_relationships (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    source_project_id TEXT NOT NULL,
+    target_project_id TEXT NOT NULL,
+    relationship_type TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    evidence_json TEXT NOT NULL,
+    detector TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_project_relationships_snapshot_type ON project_relationships(portfolio_snapshot_id, relationship_type);
+
+CREATE TABLE IF NOT EXISTS shared_capabilities (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    capability TEXT NOT NULL,
+    project_id TEXT NOT NULL,
+    implementation_json TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_shared_capabilities_snapshot_capability ON shared_capabilities(portfolio_snapshot_id, capability);
+
+CREATE TABLE IF NOT EXISTS reuse_candidates (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    source_project_id TEXT NOT NULL,
+    capability TEXT NOT NULL,
+    potential_target_projects_json TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    coupling_evidence_json TEXT NOT NULL,
+    dependencies_json TEXT NOT NULL,
+    test_evidence INTEGER NOT NULL,
+    documentation INTEGER NOT NULL,
+    stability TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    risks_json TEXT NOT NULL,
+    required_adaptation TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_reuse_candidates_snapshot_capability ON reuse_candidates(portfolio_snapshot_id, capability);
+
+CREATE TABLE IF NOT EXISTS duplicate_findings (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    project_ids_json TEXT NOT NULL,
+    capability TEXT NOT NULL,
+    finding_type TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    evidence_json TEXT NOT NULL,
+    recommended_review TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_duplicate_findings_snapshot_capability ON duplicate_findings(portfolio_snapshot_id, capability);
+
+CREATE TABLE IF NOT EXISTS decision_conflicts (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    project_a TEXT NOT NULL,
+    decision_a TEXT NOT NULL,
+    project_b TEXT NOT NULL,
+    decision_b TEXT NOT NULL,
+    conflict_type TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    integration_relevance TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    recommended_review TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_conflicts_snapshot_type ON decision_conflicts(portfolio_snapshot_id, conflict_type);
+
+CREATE TABLE IF NOT EXISTS portfolio_risks (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    category TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    affected_projects_json TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    recommended_investigation TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_portfolio_risks_snapshot_category ON portfolio_risks(portfolio_snapshot_id, category);
+
+CREATE TABLE IF NOT EXISTS ecosystem_attention (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    item_type TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    recommended_action TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ecosystem_attention_snapshot_type ON ecosystem_attention(portfolio_snapshot_id, item_type);
 """
 
 
@@ -633,6 +763,13 @@ def _migrate(conn: sqlite3.Connection) -> None:
             conn,
             7,
             "Add AI settings, conversations, requests, citations, and audit persistence for the NEOS AI Engineering Partner.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 8 or conn.execute("SELECT 1 FROM migrations WHERE version=8").fetchone() is None:
+        _record_migration(
+            conn,
+            8,
+            "Add ecosystem snapshots, project relationships, shared capabilities, reuse candidates, duplication findings, decision conflicts, portfolio risks, and attention records.",
             applied_at,
         )
     conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version',?)", (str(SCHEMA_VERSION),))

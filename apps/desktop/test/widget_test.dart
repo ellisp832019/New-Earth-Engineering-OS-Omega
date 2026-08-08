@@ -9,9 +9,9 @@ class FakeNeosClient implements NeosClient {
     return ServiceHealthInfo.fromJson({
       'status': 'healthy',
       'service_name': 'NEOS Local Service',
-      'service_version': '0.1.0',
+      'service_version': '0.7.0',
       'api_version': 'v1',
-      'schema_version': 6,
+      'schema_version': 8,
       'instance_id': 'fake-instance',
       'owner_pid': 0,
       'host': '127.0.0.1',
@@ -65,7 +65,7 @@ class FakeNeosClient implements NeosClient {
         'db_path': 'C:/neos.db',
         'database_size_bytes': 1024,
         'registered_projects': 1,
-        'schema': {'database_schema': 6},
+        'schema': {'database_schema': 8},
         'last_scan': {'created_at': '2026-08-07T00:00:00Z'},
       },
       projects: {

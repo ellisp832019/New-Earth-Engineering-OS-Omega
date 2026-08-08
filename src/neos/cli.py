@@ -37,6 +37,15 @@ from .core import (
     why_entity,
 )
 from .db import connect, schema_info
+from .ecosystem import (
+    analyse_portfolio,
+    build_portfolio_snapshot,
+    ecosystem_diff,
+    ecosystem_timeline,
+    ecosystem_trace,
+    project_registry_v2,
+    render_ecosystem_report,
+)
 from .flight import (
     build_project_flight,
     create_flight_checkpoint,
@@ -241,6 +250,55 @@ def parser() -> argparse.ArgumentParser:
     report_project = report_sub.add_parser("project")
     report_project.add_argument("project_id")
     report_project.add_argument("--json", action="store_true")
+    report_ecosystem = report_sub.add_parser("ecosystem")
+    report_ecosystem.add_argument("--name", default="default")
+    report_ecosystem.add_argument("--json", action="store_true")
+
+    ecosystem = sub.add_parser("ecosystem")
+    ecosystem_sub = ecosystem.add_subparsers(dest="ecosystem_cmd", required=True)
+    ecosystem_build = ecosystem_sub.add_parser("build")
+    ecosystem_build.add_argument("--name", default="default")
+    ecosystem_build.add_argument("--project-id", action="append")
+    ecosystem_build.add_argument("--json", action="store_true")
+    ecosystem_summary = ecosystem_sub.add_parser("summary")
+    ecosystem_summary.add_argument("--name", default="default")
+    ecosystem_summary.add_argument("--project-id", action="append")
+    ecosystem_summary.add_argument("--json", action="store_true")
+    ecosystem_projects = ecosystem_sub.add_parser("projects")
+    ecosystem_projects.add_argument("--json", action="store_true")
+    ecosystem_capabilities = ecosystem_sub.add_parser("capabilities")
+    ecosystem_capabilities.add_argument("--project-id", action="append")
+    ecosystem_capabilities.add_argument("--json", action="store_true")
+    ecosystem_technologies = ecosystem_sub.add_parser("technologies")
+    ecosystem_technologies.add_argument("--project-id", action="append")
+    ecosystem_technologies.add_argument("--json", action="store_true")
+    ecosystem_reuse = ecosystem_sub.add_parser("reuse")
+    ecosystem_reuse.add_argument("--project-id", action="append")
+    ecosystem_reuse.add_argument("--json", action="store_true")
+    ecosystem_duplication = ecosystem_sub.add_parser("duplication")
+    ecosystem_duplication.add_argument("--project-id", action="append")
+    ecosystem_duplication.add_argument("--json", action="store_true")
+    ecosystem_dependencies = ecosystem_sub.add_parser("dependencies")
+    ecosystem_dependencies.add_argument("--project-id", action="append")
+    ecosystem_dependencies.add_argument("--json", action="store_true")
+    ecosystem_risks = ecosystem_sub.add_parser("risks")
+    ecosystem_risks.add_argument("--project-id", action="append")
+    ecosystem_risks.add_argument("--json", action="store_true")
+    ecosystem_unknowns = ecosystem_sub.add_parser("unknowns")
+    ecosystem_unknowns.add_argument("--project-id", action="append")
+    ecosystem_unknowns.add_argument("--json", action="store_true")
+    ecosystem_attention = ecosystem_sub.add_parser("attention")
+    ecosystem_attention.add_argument("--project-id", action="append")
+    ecosystem_attention.add_argument("--json", action="store_true")
+    ecosystem_timeline_parser = ecosystem_sub.add_parser("timeline")
+    ecosystem_timeline_parser.add_argument("--json", action="store_true")
+    ecosystem_diff_parser = ecosystem_sub.add_parser("diff")
+    ecosystem_diff_parser.add_argument("from_snapshot_id")
+    ecosystem_diff_parser.add_argument("to_snapshot_id")
+    ecosystem_diff_parser.add_argument("--json", action="store_true")
+    ecosystem_trace_parser = ecosystem_sub.add_parser("trace")
+    ecosystem_trace_parser.add_argument("entity_id")
+    ecosystem_trace_parser.add_argument("--json", action="store_true")
 
     memory = sub.add_parser("memory")
     memory_sub = memory.add_subparsers(dest="memory_cmd", required=True)
@@ -520,6 +578,52 @@ def main(argv=None) -> int:
                 _print(render_project_report(genome), "json")
             else:
                 print(genome_markdown_report(genome), end="")
+            return 0
+        if args.cmd == "report" and args.report_cmd == "ecosystem":
+            analysis = analyse_portfolio(db, project_ids=None, name=args.name)
+            if args.json:
+                _print(analysis, "json")
+            else:
+                print(render_ecosystem_report(analysis), end="")
+            return 0
+        if args.cmd == "ecosystem":
+            project_ids = getattr(args, "project_id", None)
+            if args.ecosystem_cmd == "build":
+                _print(build_portfolio_snapshot(db, project_ids=project_ids, name=args.name), "json")
+            elif args.ecosystem_cmd == "summary":
+                _print(analyse_portfolio(db, project_ids=project_ids, name=args.name), "json" if args.json else "text")
+            elif args.ecosystem_cmd == "projects":
+                _print(project_registry_v2(db), "json" if args.json else "text")
+            elif args.ecosystem_cmd == "capabilities":
+                analysis = analyse_portfolio(db, project_ids=project_ids, name=args.name)
+                _print(analysis["capability_matrix"], "json" if args.json else "text")
+            elif args.ecosystem_cmd == "technologies":
+                analysis = analyse_portfolio(db, project_ids=project_ids, name=args.name)
+                _print(analysis["technology_portfolio"], "json" if args.json else "text")
+            elif args.ecosystem_cmd == "reuse":
+                analysis = analyse_portfolio(db, project_ids=project_ids, name=args.name)
+                _print({"count": len(analysis["reuse_candidates"]), "items": analysis["reuse_candidates"]}, "json" if args.json else "text")
+            elif args.ecosystem_cmd == "duplication":
+                analysis = analyse_portfolio(db, project_ids=project_ids, name=args.name)
+                _print({"count": len(analysis["duplicate_findings"]), "items": analysis["duplicate_findings"]}, "json" if args.json else "text")
+            elif args.ecosystem_cmd == "dependencies":
+                analysis = analyse_portfolio(db, project_ids=project_ids, name=args.name)
+                _print({"count": len(analysis["cross_project_dependencies"]), "items": analysis["cross_project_dependencies"]}, "json" if args.json else "text")
+            elif args.ecosystem_cmd == "risks":
+                analysis = analyse_portfolio(db, project_ids=project_ids, name=args.name)
+                _print({"count": len(analysis["portfolio_risks"]), "items": analysis["portfolio_risks"]}, "json" if args.json else "text")
+            elif args.ecosystem_cmd == "unknowns":
+                analysis = analyse_portfolio(db, project_ids=project_ids, name=args.name)
+                _print({"count": len(analysis["unknown_surface"]), "items": analysis["unknown_surface"]}, "json" if args.json else "text")
+            elif args.ecosystem_cmd == "attention":
+                analysis = analyse_portfolio(db, project_ids=project_ids, name=args.name)
+                _print({"count": len(analysis["attention"]), "items": analysis["attention"]}, "json" if args.json else "text")
+            elif args.ecosystem_cmd == "timeline":
+                _print(ecosystem_timeline(db), "json" if args.json else "text")
+            elif args.ecosystem_cmd == "diff":
+                _print(ecosystem_diff(db, args.from_snapshot_id, args.to_snapshot_id), "json" if args.json else "text")
+            elif args.ecosystem_cmd == "trace":
+                _print(ecosystem_trace(db, args.entity_id), "json" if args.json else "text")
             return 0
         if args.cmd == "memory":
             if args.memory_cmd == "build":

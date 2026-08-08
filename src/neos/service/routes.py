@@ -22,6 +22,13 @@ from ..core import (
     why_entity,
 )
 from ..db import connect
+from ..ecosystem import (
+    analyse_portfolio,
+    ecosystem_diff,
+    ecosystem_timeline,
+    ecosystem_trace,
+    latest_portfolio_snapshot,
+)
 from ..flight import (
     flight_diff,
     flight_incidents,
@@ -151,6 +158,48 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
         return 404, {"error": "not_found"}
     if segments[0] == "ai":
         return handle_ai_get(path, query, db_path, config)
+    if segments[0] == "ecosystem":
+        if segments == ["ecosystem"]:
+            analysis = analyse_portfolio(db_path)
+            return 200, analysis
+        if segments == ["ecosystem", "projects"]:
+            analysis = analyse_portfolio(db_path)
+            return 200, {"projects": analysis["projects"], "count": len(analysis["projects"])}
+        if segments == ["ecosystem", "capabilities"]:
+            analysis = analyse_portfolio(db_path)
+            return 200, analysis["capability_matrix"]
+        if segments == ["ecosystem", "technologies"]:
+            analysis = analyse_portfolio(db_path)
+            return 200, analysis["technology_portfolio"]
+        if segments == ["ecosystem", "reuse"]:
+            analysis = analyse_portfolio(db_path)
+            return 200, {"count": len(analysis["reuse_candidates"]), "items": analysis["reuse_candidates"]}
+        if segments == ["ecosystem", "duplication"]:
+            analysis = analyse_portfolio(db_path)
+            return 200, {"count": len(analysis["duplicate_findings"]), "items": analysis["duplicate_findings"]}
+        if segments == ["ecosystem", "dependencies"]:
+            analysis = analyse_portfolio(db_path)
+            return 200, {"count": len(analysis["cross_project_dependencies"]), "items": analysis["cross_project_dependencies"]}
+        if segments == ["ecosystem", "risks"]:
+            analysis = analyse_portfolio(db_path)
+            return 200, {"count": len(analysis["portfolio_risks"]), "items": analysis["portfolio_risks"]}
+        if segments == ["ecosystem", "unknowns"]:
+            analysis = analyse_portfolio(db_path)
+            return 200, {"count": len(analysis["unknown_surface"]), "items": analysis["unknown_surface"]}
+        if segments == ["ecosystem", "attention"]:
+            analysis = analyse_portfolio(db_path)
+            return 200, {"count": len(analysis["attention"]), "items": analysis["attention"]}
+        if segments == ["ecosystem", "timeline"]:
+            return 200, ecosystem_timeline(db_path)
+        if len(segments) == 3 and segments[1] == "trace":
+            return 200, ecosystem_trace(db_path, segments[2])
+        if len(segments) == 4 and segments[1] == "diff":
+            return 200, ecosystem_diff(db_path, segments[2], segments[3])
+        if segments == ["ecosystem", "snapshot"]:
+            snapshot = latest_portfolio_snapshot(db_path)
+            if snapshot is None:
+                return 404, {"error": "not_found"}
+            return 200, snapshot
     if segments == ["health"]:
         return 200, service_health(db_path, config)
     if segments == ["projects"]:
@@ -250,6 +299,15 @@ def handle_post(
     segments = [segment for segment in path.strip("/").split("/") if segment]
     if segments and segments[0] == "ai":
         return handle_ai_post(path, query, body, db_path, config)
+    if segments[:2] == ["ecosystem", "build"]:
+        raw_project_ids = body.get("project_ids")
+        if raw_project_ids is not None and not isinstance(raw_project_ids, list):
+            return 400, {"error": "invalid_project_ids"}
+        project_ids = [str(item) for item in raw_project_ids] if isinstance(raw_project_ids, list) else None
+        raw_name = body.get("name")
+        name = raw_name if isinstance(raw_name, str) else "default"
+        analysis = analyse_portfolio(db_path, project_ids=project_ids, name=name)
+        return 200, analysis
     if segments == ["shutdown"]:
         if body.get("shutdown_token") != config.shutdown_token:
             return 403, {"error": "forbidden"}
