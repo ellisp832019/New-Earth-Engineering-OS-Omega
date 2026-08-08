@@ -17,6 +17,8 @@ NEOS is designed to become the intelligence layer above engineering repositories
 - Deterministic project genome snapshots, reports and release evidence packs
 - Engineering memory snapshots, timeline queries and rationale tracing
 - Engineering flight recorder snapshots, rewindable state diffs and replayable timelines
+- Portfolio workspace for cross-project capability, technology, reuse, overlap, risk and search views
+- Deterministic ecosystem search across the registered project portfolio
 - Plugin SDK contract and example plugin
 - Sample MicroGrow project manifest
 - Tests and validation scripts
@@ -48,6 +50,8 @@ python -m neos memory build microgrow-v1 --json
 python -m neos memory timeline microgrow-v1 --json
 python -m neos flight snapshot microgrow-v1 --json
 python -m neos flight timeline microgrow-v1 --json
+python -m neos ecosystem summary --json
+python -m neos ecosystem search "shared capability" --json
 ```
 
 ## Quick start — cross-platform
@@ -66,6 +70,8 @@ python -m neos memory build microgrow-v1 --json
 python -m neos memory timeline microgrow-v1 --json
 python -m neos flight snapshot microgrow-v1 --json
 python -m neos flight timeline microgrow-v1 --json
+python -m neos ecosystem summary --json
+python -m neos ecosystem search "shared capability" --json
 ```
 
 ## Recommended reading order
@@ -87,6 +93,8 @@ The NEOS v0.3 MicroGrow genome evidence bundle lives in `docs/release_evidence/p
 The NEOS v0.4 MicroGrow engineering memory evidence bundle lives in `docs/release_evidence/engineering-memory-v0.4/`.
 
 The NEOS v0.5 MicroGrow flight-recorder evidence bundle lives in `docs/release_evidence/flight-recorder-v0.5/`.
+
+The NEOS v0.7 portfolio-intelligence completion evidence bundle lives in `docs/release_evidence/neos-v0.7-portfolio-completion/`.
 
 ## Operator index
 

@@ -27,6 +27,9 @@ PlatformIO, Flutter, Python, GitHub and KiCad adapters.
 ## Beta 0.7 - Portfolio Intelligence
 Cross-project dependencies, shared modules, technology and risk maps.
 
+## NEOS v0.7 - Portfolio Completion
+Desktop portfolio workspace, ecosystem search, reuse workbench, overlap intelligence, portfolio AI scope, and release closeout evidence.
+
 ## Beta 0.8 - Living Documentation
 Generated docs, drift detection and review workflows.
 

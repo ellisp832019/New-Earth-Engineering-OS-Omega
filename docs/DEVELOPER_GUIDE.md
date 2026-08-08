@@ -20,6 +20,8 @@ Use `neos.memory` for engineering memory snapshots, git-history ingestion, decis
 
 Use `neos.flight` for immutable flight snapshots, checkpoints, historical state reconstruction, replay, incidents and regression indicators.
 
+Use `neos.ecosystem` for portfolio snapshots, capability matrices, technology matrices, reuse candidates, overlap findings, dependency maps, risk maps, attention queues, timeline history and deterministic ecosystem search.
+
 Add tests for every classifier, manifest rule, persistence rule, or plugin detector.
 
 Read-only scans should never modify the scanned repository or ingest obvious secret files.
@@ -32,8 +34,12 @@ Engineering memory snapshots are schema versioned too. NEOS schema version 5 add
 
 Engineering flight snapshots are schema versioned too. NEOS schema version 6 adds `flight_snapshots`, `flight_checkpoints`, `flight_events`, `flight_transitions`, `flight_regressions` and `flight_incidents`.
 
+Portfolio intelligence is schema versioned too. NEOS schema version 8 adds ecosystem, portfolio snapshot, reuse, duplication, risk, attention and relationship tables.
+
 MicroGrow release evidence for the genome workflow is stored in `docs/release_evidence/project-genome-v0.3/` and must remain reproducible without changing the reference repository.
 
 MicroGrow release evidence for the engineering memory workflow is stored in `docs/release_evidence/engineering-memory-v0.4/` and must remain reproducible without changing the reference repository.
 
 MicroGrow release evidence for the flight recorder workflow is stored in `docs/release_evidence/flight-recorder-v0.5/` and must remain reproducible without changing the reference repository.
+
+NEOS v0.7 portfolio completion evidence is stored in `docs/release_evidence/neos-v0.7-portfolio-completion/` and should capture the exact validation commands used for the desktop portfolio workspace and ecosystem search path.

@@ -108,6 +108,10 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         assert status == 200
         assert projects["projects"][0]["project_id"] == "demo"
 
+        status, ecosystem_search = _get_json(f"{base}/ecosystem/search?q=demo")
+        assert status == 200
+        assert ecosystem_search["count"] >= 1
+
         status, providers = _get_json(f"{base}/ai/providers")
         assert status == 200
         assert providers["providers"][0]["provider_id"] in {"none", "mock"}
@@ -119,7 +123,7 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         status, ai_response = _post_json(
             f"{base}/ai/query",
             {
-                "project_id": "demo",
+                "project_ids": ["demo"],
                 "question": "What should I work on next?",
                 "mode": "plan",
             },
@@ -128,6 +132,7 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         assert ai_response["status"] == "success"
         assert ai_response["request_id"]
         assert ai_response["conversation_id"]
+        assert ai_response["project_ids"] == ["demo"]
 
         status, citations = _get_json(f"{base}/ai/requests/{ai_response['request_id']}/citations")
         assert status == 200

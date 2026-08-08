@@ -114,6 +114,36 @@ def _safe_list(value: Any) -> list[Any]:
     return [value]
 
 
+def _search_text(*values: Any) -> str:
+    parts: list[str] = []
+    for value in values:
+        if value is None:
+            continue
+        if isinstance(value, dict):
+            parts.extend(_search_text(*value.values()).split())
+        elif isinstance(value, list):
+            parts.extend(_search_text(*value).split())
+        else:
+            text = str(value).strip()
+            if text:
+                parts.append(text.lower())
+    return " ".join(parts)
+
+
+def _search_score(query: str, *values: Any) -> int:
+    text = _search_text(*values)
+    if not text:
+        return 0
+    score = 0
+    for token in query.lower().split():
+        if token in text:
+            score += 5
+        for fragment in text.split():
+            if token == fragment:
+                score += 2
+    return score
+
+
 def _normalise_technology(entry: Any) -> dict[str, Any]:
     if isinstance(entry, dict):
         name = str(entry.get("name") or entry.get("technology") or entry.get("id") or entry.get("value") or "").strip()
@@ -1270,3 +1300,177 @@ def render_ecosystem_report(analysis: dict[str, Any]) -> str:
     for item in analysis["attention"]:
         lines.append(f"- {item['summary']}")
     return "\n".join(lines).strip() + "\n"
+
+
+def search_ecosystem(db_path: Path, query: str, *, limit: int = 20, offset: int = 0, project_ids: list[str] | None = None) -> dict[str, Any]:
+    analysis = analyse_portfolio(db_path, project_ids=project_ids)
+    needle = query.strip().lower()
+    if not needle:
+        return {"query": query, "count": 0, "items": []}
+
+    items: list[dict[str, Any]] = []
+
+    def add(item_type: str, item_id: str, title: str, summary: str, *, project_ids: list[str] | None = None, source: str = "", metadata: dict[str, Any] | None = None) -> None:
+        score = _search_score(
+            needle,
+            item_type,
+            item_id,
+            title,
+            summary,
+            project_ids or [],
+            metadata or {},
+        )
+        if score <= 0:
+            return
+        items.append(
+            {
+                "type": item_type,
+                "id": item_id,
+                "title": title,
+                "summary": summary,
+                "project_ids": project_ids or [],
+                "source": source,
+                "score": score,
+                "metadata": metadata or {},
+            }
+        )
+
+    for project in analysis["projects"]:
+        add(
+            "project",
+            project["project_id"],
+            project["display_name"],
+            project.get("summary", project["display_name"]),
+            project_ids=[project["project_id"]],
+            source="project_registry",
+            metadata=project,
+        )
+        for feature in project.get("features", [])[:12]:
+            add(
+                "feature",
+                feature.get("id", feature.get("name", "")),
+                feature.get("name", feature.get("label", "Feature")),
+                feature.get("description", ""),
+                project_ids=[project["project_id"]],
+                source="feature_inventory",
+                metadata=feature,
+            )
+        for decision in project.get("decisions", [])[:12]:
+            add(
+                "decision",
+                decision.get("id", decision.get("title", "")),
+                decision.get("title", "Decision"),
+                decision.get("decision", decision.get("rationale", "")),
+                project_ids=[project["project_id"]],
+                source="decision_inventory",
+                metadata=decision,
+            )
+        for tech in project.get("technologies", [])[:12]:
+            add(
+                "technology",
+                f"{project['project_id']}::{tech['name']}",
+                tech["name"],
+                tech.get("version", ""),
+                project_ids=[project["project_id"]],
+                source="technology_inventory",
+                metadata=tech,
+            )
+
+    for shared in analysis["capability_matrix"]["shared_capabilities"]:
+        add(
+            "capability",
+            shared["capability"],
+            shared["capability"],
+            shared.get("reason", ""),
+            project_ids=shared.get("project_ids", []),
+            source="capability_matrix",
+            metadata=shared,
+        )
+
+    for candidate in analysis["reuse_candidates"]:
+        add(
+            "reuse",
+            candidate["candidate_id"],
+            candidate["capability"],
+            candidate.get("reason", ""),
+            project_ids=[candidate["source_project"], *candidate.get("potential_target_projects", [])],
+            source="reuse_candidates",
+            metadata=candidate,
+        )
+
+    for finding in analysis["duplicate_findings"]:
+        add(
+            "duplication",
+            finding["id"],
+            finding["capability"],
+            finding.get("reason", ""),
+            project_ids=finding.get("project_ids", []),
+            source="duplicate_findings",
+            metadata=finding,
+        )
+
+    for relation in analysis["cross_project_dependencies"]:
+        add(
+            "dependency",
+            relation["id"],
+            f"{relation['source_project_id']} -> {relation['target_project_id']}",
+            relation.get("reason", ""),
+            project_ids=[relation["source_project_id"], relation["target_project_id"]],
+            source="cross_project_dependencies",
+            metadata=relation,
+        )
+
+    for risk in analysis["portfolio_risks"]:
+        add(
+            "risk",
+            risk["id"],
+            risk["title"],
+            risk.get("reason", ""),
+            project_ids=risk.get("affected_projects", []),
+            source="portfolio_risks",
+            metadata=risk,
+        )
+
+    for item in analysis["attention"]:
+        add(
+            "attention",
+            item["id"],
+            item["summary"],
+            item.get("recommended_action", ""),
+            project_ids=item.get("project_ids", []),
+            source="attention",
+            metadata=item,
+        )
+
+    for item in analysis["unknown_surface"]:
+        add(
+            "unknown",
+            item["id"],
+            item["project_id"],
+            ", ".join(item.get("unknown_items", [])),
+            project_ids=[item["project_id"]],
+            source="unknown_surface",
+            metadata=item,
+        )
+
+    for item in analysis["technology_portfolio"]["technologies"]:
+        add(
+            "portfolio_technology",
+            item["technology"],
+            item["technology"],
+            item.get("category", ""),
+            project_ids=item.get("projects", []),
+            source="technology_portfolio",
+            metadata=item,
+        )
+
+    items.sort(key=lambda item: (-item["score"], item["type"], item["id"]))
+    sliced = items[max(0, offset) : max(0, offset) + max(1, limit)]
+    return {
+        "query": query,
+        "offset": offset,
+        "limit": limit,
+        "count": len(items),
+        "items": sliced,
+        "analysis_health": analysis["health"],
+    }

@@ -70,8 +70,16 @@ def handle_ai_post(path: str, query: dict[str, list[str]], body: dict[str, Any],
         return 200, _handle_settings_post(db_path, body)
     if segments == ["ai", "query"] or segments == ["ai", "stream"]:
         project_id = str(body.get("project_id") or query.get("project_id", [""])[0] or "").strip()
+        raw_project_ids = body.get("project_ids")
+        if raw_project_ids is None:
+            raw_project_ids = query.get("project_ids", [])
+        project_ids = [str(item).strip() for item in raw_project_ids if str(item).strip()] if isinstance(raw_project_ids, list) else []
         question = str(body.get("question") or "").strip()
-        if not project_id or not question:
+        if not question:
+            return 400, {"error": "missing_project_or_question"}
+        if not project_id:
+            project_id = "portfolio" if len(project_ids) > 1 else (project_ids[0] if project_ids else "")
+        if not project_id:
             return 400, {"error": "missing_project_or_question"}
         conversation_id = body.get("conversation_id")
         if conversation_id is not None:
@@ -80,6 +88,7 @@ def handle_ai_post(path: str, query: dict[str, list[str]], body: dict[str, Any],
         response = engine.query(
             project_id,
             question,
+            project_ids=project_ids or None,
             conversation_id=conversation_id,
             mode=str(mode).strip() if isinstance(mode, str) and mode.strip() else None,
             title=str(body.get("title")).strip() if isinstance(body.get("title"), str) and str(body.get("title")).strip() else None,

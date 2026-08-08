@@ -17,3 +17,5 @@ For the NEOS v0.4 engineering memory release, use `docs/release_evidence/enginee
 For the NEOS v0.5 engineering flight-recorder release, use `docs/release_evidence/flight-recorder-v0.5/` as the canonical evidence folder.
 
 For the Windows productionisation milestone A1 release, use `docs/release_evidence/windows-productionisation-a1/` as the canonical evidence folder.
+
+For the NEOS v0.7 portfolio completion pass, use `docs/release_evidence/neos-v0.7-portfolio-completion/` as the canonical evidence folder.

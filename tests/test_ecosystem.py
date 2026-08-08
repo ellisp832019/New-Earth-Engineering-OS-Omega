@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from neos.ai.engine import AIEngine
 from neos.core import init_project, scan_project
 from neos.db import connect
 from neos.ecosystem import (
@@ -10,6 +11,7 @@ from neos.ecosystem import (
     build_portfolio_snapshot,
     ecosystem_diff,
     project_registry_v2,
+    search_ecosystem,
 )
 
 
@@ -163,3 +165,25 @@ def test_ecosystem_analysis_is_deterministic_and_evidence_backed(tmp_path: Path)
     diff = ecosystem_diff(db, snapshot["portfolio_snapshot"]["id"], analysis_one["portfolio_snapshot"]["id"])
     assert diff["from_snapshot_id"]
     assert diff["to_snapshot_id"]
+
+    search = search_ecosystem(db, "architecture", project_ids=["alpha", "beta"])
+    assert search["count"] >= 1
+    assert search["items"]
+    assert search["items"][0]["score"] > 0
+
+
+def test_portfolio_ai_scope_preserves_multiple_project_ids(tmp_path: Path):
+    db = _seed(tmp_path)
+    engine = AIEngine(db)
+
+    response = engine.query(
+        "portfolio",
+        "What should the portfolio prioritize next?",
+        project_ids=["alpha", "beta"],
+        mode="portfolio_review",
+    )
+
+    assert response.project_id == "portfolio"
+    assert response.project_ids == ["alpha", "beta"]
+    assert response.citations
+    assert response.context_snapshot["project_ids"] == ["alpha", "beta"]

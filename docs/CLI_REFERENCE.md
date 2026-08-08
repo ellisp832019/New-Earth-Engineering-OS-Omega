@@ -128,6 +128,36 @@ All flight commands accept `--json`.
 
 `neos report project PROJECT_ID` renders the project genome report in markdown by default or JSON with `--json`.
 
+Portfolio commands:
+
+`neos ecosystem summary` builds the deterministic portfolio snapshot and prints the aggregate analysis.
+
+`neos ecosystem projects` lists registered projects in portfolio order.
+
+`neos ecosystem capabilities` prints the capability matrix for the selected portfolio scope.
+
+`neos ecosystem technologies` prints the technology matrix for the selected portfolio scope.
+
+`neos ecosystem reuse` prints reuse candidates across the selected portfolio scope.
+
+`neos ecosystem duplication` prints overlap and duplication findings.
+
+`neos ecosystem dependencies` prints cross-project dependency edges.
+
+`neos ecosystem risks` prints portfolio risks.
+
+`neos ecosystem unknowns` prints unresolved surface area.
+
+`neos ecosystem attention` prints the portfolio attention queue.
+
+`neos ecosystem timeline` prints portfolio snapshot history.
+
+`neos ecosystem search QUERY` ranks portfolio entities by the deterministic ecosystem search index.
+
+`neos ecosystem trace ENTITY_ID` traces a portfolio entity through the portfolio relationship graph.
+
+`neos report ecosystem` renders the portfolio report in markdown by default or JSON with `--json`.
+
 `neos version` prints the NEOS version.
 
 Most read commands accept `--format text|json`.

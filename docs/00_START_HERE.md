@@ -22,6 +22,7 @@ The recommended development sequence is:
 10. Add AI context generation with bounded provenance and temporal intelligence.
 11. Build the desktop experience on top.
 12. Add plugins and multi-project intelligence.
+13. Expose portfolio workspace views, deterministic ecosystem search and portfolio-scoped AI citations.
 
 ## Definition of Alpha
 
@@ -46,3 +47,5 @@ For the NEOS v0.3 genome release, the canonical evidence bundle lives at `docs/r
 For the NEOS v0.4 engineering memory release, the canonical evidence bundle lives at `docs/release_evidence/engineering-memory-v0.4/`.
 
 For the NEOS v0.5 flight-recorder release, the canonical evidence bundle lives at `docs/release_evidence/flight-recorder-v0.5/`.
+
+For the NEOS v0.7 portfolio completion pass, the canonical evidence bundle lives at `docs/release_evidence/neos-v0.7-portfolio-completion/`.

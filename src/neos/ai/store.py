@@ -20,6 +20,20 @@ def _safe_json(data: Any) -> str:
     return json.dumps(data, indent=2, sort_keys=True)
 
 
+def _resolve_storage_project_id(db_path: Path, request: AIRequest) -> str:
+    conn = connect(db_path)
+    candidate_ids = [request.project_id, *request.project_ids]
+    for candidate in candidate_ids:
+        if not candidate:
+            continue
+        row = conn.execute("SELECT 1 FROM projects WHERE project_id=?", (candidate,)).fetchone()
+        if row is not None:
+            conn.close()
+            return candidate
+    conn.close()
+    return request.project_id
+
+
 def default_ai_settings() -> AISettings:
     return AISettings()
 
@@ -134,6 +148,7 @@ def list_ai_providers(db_path: Path) -> list[dict[str, Any]]:
 
 def save_ai_request(db_path: Path, request: AIRequest, response: dict[str, Any]) -> None:
     conn = connect(db_path)
+    storage_project_id = _resolve_storage_project_id(db_path, request)
     conn.execute(
         """
         INSERT INTO ai_requests(
@@ -152,7 +167,7 @@ def save_ai_request(db_path: Path, request: AIRequest, response: dict[str, Any])
         """,
         (
             request.request_id,
-            request.project_id,
+            storage_project_id,
             request.conversation_id,
             request.question,
             request.intent,
@@ -178,6 +193,7 @@ def save_ai_conversation_turn(db_path: Path, request: AIRequest, response: dict[
     conn = connect(db_path)
     conversation_id = request.conversation_id or uuid.uuid4().hex
     now = response.get("completed_at", _now())
+    storage_project_id = _resolve_storage_project_id(db_path, request)
     if request.conversation_id is None:
         conn.execute(
             """
@@ -191,7 +207,7 @@ def save_ai_conversation_turn(db_path: Path, request: AIRequest, response: dict[
             """,
             (
                 conversation_id,
-                request.project_id,
+                storage_project_id,
                 title or request.question[:80],
                 request.provider_id,
                 request.model,
@@ -218,7 +234,9 @@ def save_ai_conversation_turn(db_path: Path, request: AIRequest, response: dict[
         turn_id=uuid.uuid4().hex,
         request_id=request.request_id,
         conversation_id=conversation_id,
-        project_id=request.project_id,
+        # Persist under a real project id when the request is portfolio-scoped.
+        # The response still keeps the original request.project_id for caller visibility.
+        project_id=storage_project_id,
         question=request.question,
         response=response,
         context_snapshot=request.context_snapshot,
@@ -274,7 +292,7 @@ def save_ai_conversation_turn(db_path: Path, request: AIRequest, response: dict[
                 str(citation.get("citation_id") or uuid.uuid4().hex),
                 request.request_id,
                 turn.conversation_id,
-                request.project_id,
+                storage_project_id,
                 str(citation.get("entity_id") or ""),
                 str(citation.get("source_type") or ""),
                 str(citation.get("path") or ""),

@@ -267,6 +267,20 @@ abstract class NeosClient {
   Future<ServiceHealthInfo> probeHealth(Uri baseUri);
   Future<ServiceOverview> loadOverview(Uri baseUri);
   Future<ProjectRecord> loadProject(Uri baseUri, String projectId);
+  Future<Map<String, dynamic>> loadEcosystem(Uri baseUri);
+  Future<Map<String, dynamic>> loadEcosystemProjects(Uri baseUri);
+  Future<Map<String, dynamic>> loadEcosystemCapabilities(Uri baseUri);
+  Future<Map<String, dynamic>> loadEcosystemTechnologies(Uri baseUri);
+  Future<Map<String, dynamic>> loadEcosystemReuse(Uri baseUri);
+  Future<Map<String, dynamic>> loadEcosystemDuplication(Uri baseUri);
+  Future<Map<String, dynamic>> loadEcosystemDependencies(Uri baseUri);
+  Future<Map<String, dynamic>> loadEcosystemRisks(Uri baseUri);
+  Future<Map<String, dynamic>> loadEcosystemUnknowns(Uri baseUri);
+  Future<Map<String, dynamic>> loadEcosystemAttention(Uri baseUri);
+  Future<Map<String, dynamic>> loadEcosystemTimeline(Uri baseUri);
+  Future<Map<String, dynamic>> searchEcosystem(Uri baseUri, String query, {List<String>? projectIds, int limit = 20, int offset = 0});
+  Future<Map<String, dynamic>> loadEcosystemSnapshot(Uri baseUri);
+  Future<Map<String, dynamic>> loadEcosystemDiff(Uri baseUri, String fromSnapshotId, String toSnapshotId);
   Future<Map<String, dynamic>> registerProject(Uri baseUri, String manifestPath);
   Future<Map<String, dynamic>> scanProject(Uri baseUri, String projectId, {String? repoPath});
   Future<Map<String, dynamic>> shutdownService(Uri baseUri, String shutdownToken);
@@ -276,7 +290,7 @@ abstract class NeosClient {
   Future<List<AIConversationSummary>> loadAiConversations(Uri baseUri, {String? projectId});
   Future<Map<String, dynamic>> createAiConversation(Uri baseUri, {required String projectId, required String title});
   Future<Map<String, dynamic>> loadAiConversation(Uri baseUri, String conversationId);
-  Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, String? conversationId, String? mode});
+  Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, List<String>? projectIds, String? conversationId, String? mode});
   Future<Map<String, dynamic>> loadAiRequest(Uri baseUri, String requestId);
   Future<Map<String, dynamic>> loadAiRequestCitations(Uri baseUri, String requestId);
 }
@@ -332,6 +346,64 @@ class HttpNeosClient implements NeosClient {
     final json = await _getJson(normalized.resolve('projects/$projectId'));
     return ProjectRecord.fromJson(json);
   }
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystem(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem'));
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemProjects(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem/projects'));
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemCapabilities(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem/capabilities'));
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemTechnologies(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem/technologies'));
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemReuse(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem/reuse'));
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemDuplication(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem/duplication'));
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemDependencies(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem/dependencies'));
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemRisks(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem/risks'));
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemUnknowns(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem/unknowns'));
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemAttention(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem/attention'));
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemTimeline(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem/timeline'));
+
+  @override
+  Future<Map<String, dynamic>> searchEcosystem(Uri baseUri, String query, {List<String>? projectIds, int limit = 20, int offset = 0}) async {
+    final normalized = _normalize(baseUri);
+    final params = <String, String>{
+      'q': query,
+      'limit': '$limit',
+      'offset': '$offset',
+    };
+    final queryParts = params.entries
+        .map((entry) => '${Uri.encodeQueryComponent(entry.key)}=${Uri.encodeQueryComponent(entry.value)}')
+        .toList(growable: true);
+    if (projectIds != null && projectIds.isNotEmpty) {
+      queryParts.addAll(projectIds.map((value) => 'project_id=${Uri.encodeQueryComponent(value)}'));
+    }
+    final uri = Uri.parse('${normalized.toString()}ecosystem/search?${queryParts.join('&')}');
+    return _getJson(uri);
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemSnapshot(Uri baseUri) async => _getJson(_normalize(baseUri).resolve('ecosystem/snapshot'));
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemDiff(Uri baseUri, String fromSnapshotId, String toSnapshotId) async =>
+      _getJson(_normalize(baseUri).resolve('ecosystem/diff/$fromSnapshotId/$toSnapshotId'));
 
   @override
   Future<Map<String, dynamic>> registerProject(Uri baseUri, String manifestPath) async {
@@ -397,12 +469,15 @@ class HttpNeosClient implements NeosClient {
   }
 
   @override
-  Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, String? conversationId, String? mode}) async {
+  Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, List<String>? projectIds, String? conversationId, String? mode}) async {
     final normalized = _normalize(baseUri);
     final body = <String, dynamic>{
       'project_id': projectId,
       'question': question,
     };
+    if (projectIds != null && projectIds.isNotEmpty) {
+      body['project_ids'] = projectIds;
+    }
     if (conversationId != null && conversationId.isNotEmpty) {
       body['conversation_id'] = conversationId;
     }

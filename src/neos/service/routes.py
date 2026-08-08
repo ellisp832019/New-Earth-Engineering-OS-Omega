@@ -28,6 +28,7 @@ from ..ecosystem import (
     ecosystem_timeline,
     ecosystem_trace,
     latest_portfolio_snapshot,
+    search_ecosystem,
 )
 from ..flight import (
     flight_diff,
@@ -191,6 +192,12 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
             return 200, {"count": len(analysis["attention"]), "items": analysis["attention"]}
         if segments == ["ecosystem", "timeline"]:
             return 200, ecosystem_timeline(db_path)
+        if segments == ["ecosystem", "search"]:
+            query_text = query.get("q", [""])[0].strip()
+            limit = int(query.get("limit", ["20"])[0] or 20)
+            offset = int(query.get("offset", ["0"])[0] or 0)
+            project_ids = [item for item in query.get("project_id", []) if item]
+            return 200, search_ecosystem(db_path, query_text, limit=limit, offset=offset, project_ids=project_ids or None)
         if len(segments) == 3 and segments[1] == "trace":
             return 200, ecosystem_trace(db_path, segments[2])
         if len(segments) == 4 and segments[1] == "diff":

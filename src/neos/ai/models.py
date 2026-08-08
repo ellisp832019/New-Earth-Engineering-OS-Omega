@@ -75,6 +75,7 @@ class AICitation:
     entity_id: str
     source_type: str
     path: str
+    project_ids: list[str] = field(default_factory=list)
     relationship: str = ""
     scan_id: str = ""
     snapshot_id: str = ""
@@ -173,6 +174,7 @@ class AIContextBundle:
     token_estimate: int = 0
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
     safety_findings: list[AISafetyFinding] = field(default_factory=list)
+    project_ids: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return _to_dict(asdict(self))
@@ -224,6 +226,7 @@ class AIRequest:
     context_snapshot: dict[str, Any] = field(default_factory=dict)
     tool_permission: str = "read"
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
+    project_ids: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return _to_dict(asdict(self))
@@ -255,6 +258,7 @@ class AIResponse:
     safety: list[AISafetyFinding] = field(default_factory=list)
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
     confidence: str = "unknown"
+    project_ids: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return _to_dict(asdict(self))

@@ -113,6 +113,7 @@ class MockProvider(AIProvider):
             request_id=request.request_id,
             conversation_id=request.conversation_id,
             project_id=request.project_id,
+            project_ids=request.project_ids,
             question=request.question,
             intent=request.intent,
             mode=request.mode,
@@ -204,6 +205,7 @@ class CompatibleHTTPProvider(AIProvider):
             request_id=request.request_id,
             conversation_id=request.conversation_id,
             project_id=request.project_id,
+            project_ids=request.project_ids,
             question=request.question,
             intent=request.intent,
             mode=request.mode,
@@ -318,16 +320,17 @@ def _build_prompt(request: AIRequest, context: AIContextBundle) -> dict[str, str
         evidence_lines.append(
             f"- [{item.entity_type}] {item.path}: {item.excerpt}".rstrip()
         )
-        user = "\n".join(
-            [
-                f"Project: {request.project_id}",
-                f"Mode: {request.mode}",
-                f"Intent: {request.intent}",
-                f"Question: {request.question}",
-                "Known unknowns:",
-                *( [f"- {item.text}" for item in context.unknowns] or ["- none"] ),
-                "Evidence:",
-                *(evidence_lines or ["- no bounded evidence available"]),
-            ]
-        )
+    scope = ", ".join(request.project_ids) if request.project_ids else request.project_id
+    user = "\n".join(
+        [
+            f"Project scope: {scope}",
+            f"Mode: {request.mode}",
+            f"Intent: {request.intent}",
+            f"Question: {request.question}",
+            "Known unknowns:",
+            *([f"- {item.text}" for item in context.unknowns] or ["- none"]),
+            "Evidence:",
+            *(evidence_lines or ["- no bounded evidence available"]),
+        ]
+    )
     return {"system": system, "user": user}

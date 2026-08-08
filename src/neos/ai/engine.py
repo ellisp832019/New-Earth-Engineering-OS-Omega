@@ -27,6 +27,7 @@ from ..core import (
     why_entity,
 )
 from ..db import connect
+from ..ecosystem import analyse_portfolio
 from ..flight import flight_incidents, flight_regressions, flight_timeline, latest_project_flight
 from ..genome import (
     genome_attention,
@@ -554,12 +555,15 @@ def search_evidence(db_path: Path, project_id: str, question: str, intent: str, 
 def _citations_for_items(items: list[AIEvidenceItem]) -> list[AICitation]:
     citations: list[AICitation] = []
     for index, item in enumerate(items, start=1):
+        metadata_project_ids = item.metadata.get("project_ids") if isinstance(item.metadata, dict) else None
+        project_ids = metadata_project_ids if isinstance(metadata_project_ids, list) else [item.project_id]
         citations.append(
             AICitation(
                 citation_id=f"cite-{index}",
                 entity_id=item.entity_id,
                 source_type=item.source_type,
                 path=item.path,
+                project_ids=[str(project_id) for project_id in project_ids if str(project_id)],
                 relationship=item.relationship,
                 scan_id=item.scan_id,
                 snapshot_id=item.snapshot_id,
@@ -695,6 +699,7 @@ def build_context_bundle(
     context_stub = AIContextBundle(
         request_id=request_id,
         project_id=project_id,
+        project_ids=[project_id],
         question=question,
         intent=intent,
         mode=mode or intent,
@@ -718,6 +723,7 @@ def build_context_bundle(
     bundle = AIContextBundle(
         request_id=request_id,
         project_id=project_id,
+        project_ids=[project_id],
         question=question,
         intent=intent,
         mode=mode or intent,
@@ -747,6 +753,263 @@ def build_context_bundle(
         ]
         if any(item.suspicious_instruction_like_content for item in evidence)
         else [],
+    )
+    return bundle
+
+
+def _portfolio_evidence_items(
+    db_path: Path,
+    project_ids: list[str],
+    question: str,
+    intent: str,
+    context_budget: int,
+) -> tuple[list[AIEvidenceItem], list[str], bool, str]:
+    analysis = analyse_portfolio(db_path, project_ids=project_ids or None, name="ai-portfolio")
+    resolved_project_ids = project_ids or [project["project_id"] for project in analysis["projects"]]
+    tokens = _tokens(question)
+    created_at = datetime.now(UTC).isoformat()
+    snapshot = analysis.get("portfolio_snapshot", {})
+    evidence: list[AIEvidenceItem] = []
+
+    def add(
+        entity_type: str,
+        entity_id: str,
+        path: str,
+        excerpt: str,
+        *,
+        project_id: str,
+        source_type: str,
+        confidence: float,
+        metadata: dict[str, Any] | None = None,
+    ) -> None:
+        evidence.append(
+            AIEvidenceItem(
+                entity_id=entity_id,
+                entity_type=entity_type,
+                project_id=project_id,
+                source_type=source_type,
+                path=path,
+                excerpt=excerpt,
+                scan_id=snapshot.get("id", ""),
+                snapshot_id=snapshot.get("id", ""),
+                timestamp=created_at,
+                confidence=confidence,
+                rank_score=0.0,
+                metadata=metadata or {},
+            )
+        )
+
+    add(
+        "portfolio_health",
+        snapshot.get("id", "portfolio"),
+        "portfolio/health",
+        f"Portfolio health score {analysis['health']['score']} across {len(analysis['projects'])} projects.",
+        project_id="portfolio",
+        source_type="portfolio_health",
+        confidence=0.95,
+        metadata={"health": analysis["health"], "project_ids": resolved_project_ids},
+    )
+    for project in analysis["projects"]:
+        add(
+            "project",
+            project["project_id"],
+            project.get("repo_path", project["project_id"]),
+            project.get("summary", project.get("display_name", project["project_id"])),
+            project_id=project["project_id"],
+            source_type="project_registry",
+            confidence=0.92,
+            metadata=project,
+        )
+    for shared in analysis["capability_matrix"]["shared_capabilities"][:12]:
+        add(
+            "shared_capability",
+            shared["capability"],
+            f"capabilities/{shared['capability']}",
+            shared.get("reason", ""),
+            project_id="portfolio",
+            source_type="capability_matrix",
+            confidence=0.85,
+            metadata=shared | {"project_ids": shared.get("project_ids", [])},
+        )
+    for candidate in analysis["reuse_candidates"][:12]:
+        add(
+            "reuse_candidate",
+            candidate["candidate_id"],
+            f"reuse/{candidate['capability']}",
+            candidate.get("reason", ""),
+            project_id=candidate.get("source_project", "portfolio"),
+            source_type="reuse_candidates",
+            confidence=0.8,
+            metadata=candidate | {"project_ids": [candidate.get("source_project", ""), *candidate.get("potential_target_projects", [])]},
+        )
+    for finding in analysis["duplicate_findings"][:12]:
+        add(
+            "duplicate_finding",
+            finding["id"],
+            f"duplication/{finding['capability']}",
+            finding.get("reason", ""),
+            project_id="portfolio",
+            source_type="duplicate_findings",
+            confidence=0.8,
+            metadata=finding | {"project_ids": finding.get("project_ids", [])},
+        )
+    for dependency in analysis["cross_project_dependencies"][:12]:
+        add(
+            "cross_project_dependency",
+            dependency["id"],
+            f"dependencies/{dependency['source_project_id']}->{dependency['target_project_id']}",
+            dependency.get("reason", ""),
+            project_id=dependency["source_project_id"],
+            source_type="cross_project_dependencies",
+            confidence=0.78,
+            metadata=dependency | {"project_ids": [dependency["source_project_id"], dependency["target_project_id"]]},
+        )
+    for risk in analysis["portfolio_risks"][:12]:
+        add(
+            "portfolio_risk",
+            risk["id"],
+            f"risks/{risk['title']}",
+            risk.get("reason", ""),
+            project_id="portfolio",
+            source_type="portfolio_risks",
+            confidence=0.75,
+            metadata=risk | {"project_ids": risk.get("affected_projects", [])},
+        )
+    for item in analysis["attention"][:12]:
+        add(
+            "attention",
+            item["id"],
+            f"attention/{item['summary']}",
+            item.get("recommended_action", ""),
+            project_id="portfolio",
+            source_type="attention",
+            confidence=0.7,
+            metadata=item | {"project_ids": item.get("project_ids", [])},
+        )
+    for item in analysis["unknown_surface"][:12]:
+        add(
+            "unknown_surface",
+            item["id"],
+            f"unknown/{item['project_id']}",
+            ", ".join(item.get("unknown_items", [])),
+            project_id=item["project_id"],
+            source_type="unknown_surface",
+            confidence=0.6,
+            metadata=item | {"project_ids": [item["project_id"]]},
+        )
+    evidence = [
+        AIEvidenceItem(
+            entity_id=item.entity_id,
+            entity_type=item.entity_type,
+            project_id=item.project_id,
+            source_type=item.source_type,
+            path=item.path,
+            excerpt=item.excerpt,
+            relationship=item.relationship,
+            scan_id=item.scan_id,
+            snapshot_id=item.snapshot_id,
+            timestamp=item.timestamp,
+            confidence=item.confidence,
+            rank_score=_rank_score(tokens, f"{item.entity_id} {item.path} {item.excerpt} {item.source_type}", intent, index),
+            stale=item.stale,
+            suspicious_instruction_like_content=item.suspicious_instruction_like_content,
+            metadata=item.metadata,
+        )
+        for index, item in enumerate(evidence)
+    ]
+    evidence.sort(key=lambda item: (-item.rank_score, -item.confidence, item.path, item.entity_id))
+    context_sources = ["portfolio_analysis", *(f"project:{project['project_id']}" for project in analysis["projects"])]
+    stale = False
+    stale_message = "Portfolio scope is synthesized from the latest registered project snapshots."
+    return evidence[: max(1, context_budget)], context_sources, stale, stale_message
+
+
+def build_portfolio_context_bundle(
+    db_path: Path,
+    project_ids: list[str],
+    question: str,
+    *,
+    conversation: dict[str, Any] | None = None,
+    mode: str | None = None,
+    context_budget: int = 24,
+) -> AIContextBundle:
+    intent = classify_intent(question, mode)
+    request_id = uuid.uuid4().hex
+    created_at = datetime.now(UTC).isoformat()
+    evidence, context_sources, stale, stale_message = _portfolio_evidence_items(db_path, project_ids, question, intent, context_budget)
+    resolved_project_ids = project_ids or sorted({item.project_id for item in evidence if item.project_id and item.project_id != "portfolio"})
+    settings = load_ai_settings(db_path)
+    citations = _citations_for_items(evidence)
+    warnings = [f"Portfolio scope includes {len(set(resolved_project_ids))} registered project(s)."]
+    if len(set(resolved_project_ids)) <= 1:
+        warnings.append("Only one project was requested; cross-project signals may be limited.")
+    if conversation and conversation.get("turns"):
+        last_turn = conversation["turns"][-1]
+        warnings.append(f"Follow-up context includes previous conversation turn {last_turn.get('turn_id', '')}.")
+    selected_facts = [
+        {
+            "kind": item.entity_type,
+            "entity_id": item.entity_id,
+            "evidence_path": item.path,
+            "summary": item.excerpt,
+            "confidence": item.confidence,
+            "source_type": item.source_type,
+            "rank_score": item.rank_score,
+        }
+        for item in evidence
+    ]
+    derived_facts = _derive_facts(evidence)
+    evidence_text = " ".join(str(item.excerpt) for item in evidence)
+    token_estimate = max(1, len(question.split()) + len(evidence_text.split()) + len(json.dumps({"project_ids": project_ids})) // 8)
+    context_stub = AIContextBundle(
+        request_id=request_id,
+        project_id="portfolio",
+        question=question,
+        intent=intent,
+        mode=mode or intent,
+        created_at=created_at,
+        context_budget=settings.context_budget if settings.context_budget else context_budget,
+        evidence_items=[],
+        selected_facts=[],
+        derived_facts=[],
+        inferences=[],
+        recommendations=[],
+        unknowns=[],
+        warnings=warnings,
+        limitations=["Portfolio context is synthesized from registered project intelligence."],
+        context_sources=context_sources,
+        citations=[],
+        stale_scan=stale,
+        stale_message=stale_message,
+        truncated=False,
+        token_estimate=token_estimate,
+        project_ids=resolved_project_ids,
+    )
+    bundle = AIContextBundle(
+        request_id=request_id,
+        project_id="portfolio",
+        question=question,
+        intent=intent,
+        mode=mode or intent,
+        created_at=created_at,
+        context_budget=settings.context_budget if settings.context_budget else context_budget,
+        evidence_items=evidence,
+        selected_facts=selected_facts,
+        derived_facts=derived_facts,
+        inferences=_infer(question, intent, evidence),
+        recommendations=_recommend(question, intent, evidence),
+        unknowns=_unknowns(question, evidence, context_stub),
+        warnings=warnings,
+        limitations=["Portfolio context is synthesized from registered project intelligence."],
+        context_sources=context_sources,
+        citations=citations,
+        stale_scan=stale,
+        stale_message=stale_message,
+        truncated=token_estimate > (settings.context_budget or context_budget) * 70,
+        token_estimate=token_estimate,
+        tool_calls=[],
+        safety_findings=[AISafetyFinding(code="portfolio_scope", level="info", message="Portfolio answers are synthesized from registered project intelligence.")],
+        project_ids=resolved_project_ids,
     )
     return bundle
 
@@ -788,13 +1051,18 @@ class AIEngine:
         project_id: str,
         question: str,
         *,
+        project_ids: list[str] | None = None,
         conversation_id: str | None = None,
         mode: str | None = None,
         title: str | None = None,
     ) -> AIResponse:
         request_id = uuid.uuid4().hex
         intent = classify_intent(question, mode)
-        bundle = build_context_bundle(self.db_path, project_id, question, conversation=self.get_conversation(conversation_id) if conversation_id else None, mode=mode, context_budget=self.settings.context_budget)
+        conversation = self.get_conversation(conversation_id) if conversation_id else None
+        if project_ids and len(project_ids) > 1:
+            bundle = build_portfolio_context_bundle(self.db_path, project_ids, question, conversation=conversation, mode=mode, context_budget=self.settings.context_budget)
+        else:
+            bundle = build_context_bundle(self.db_path, project_id, question, conversation=conversation, mode=mode, context_budget=self.settings.context_budget)
         request = AIRequest(
             request_id=request_id,
             project_id=project_id,
@@ -808,6 +1076,7 @@ class AIEngine:
             context_snapshot=bundle.to_dict(),
             tool_permission="read",
             tool_calls=[],
+            project_ids=project_ids or ([project_id] if project_id else []),
         )
         if isinstance(self.provider, NullProvider):
             response = AIResponse(
@@ -835,6 +1104,7 @@ class AIEngine:
                 safety=bundle.safety_findings,
                 tool_calls=[],
                 confidence="unknown",
+                project_ids=bundle.project_ids,
             )
         else:
             response = self.provider.generate(request, bundle)

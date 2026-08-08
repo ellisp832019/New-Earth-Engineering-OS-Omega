@@ -45,6 +45,7 @@ from .ecosystem import (
     ecosystem_trace,
     project_registry_v2,
     render_ecosystem_report,
+    search_ecosystem,
 )
 from .flight import (
     build_project_flight,
@@ -299,6 +300,12 @@ def parser() -> argparse.ArgumentParser:
     ecosystem_trace_parser = ecosystem_sub.add_parser("trace")
     ecosystem_trace_parser.add_argument("entity_id")
     ecosystem_trace_parser.add_argument("--json", action="store_true")
+    ecosystem_search_parser = ecosystem_sub.add_parser("search")
+    ecosystem_search_parser.add_argument("query")
+    ecosystem_search_parser.add_argument("--project-id", action="append")
+    ecosystem_search_parser.add_argument("--limit", type=int, default=20)
+    ecosystem_search_parser.add_argument("--offset", type=int, default=0)
+    ecosystem_search_parser.add_argument("--json", action="store_true")
 
     memory = sub.add_parser("memory")
     memory_sub = memory.add_subparsers(dest="memory_cmd", required=True)
@@ -624,6 +631,11 @@ def main(argv=None) -> int:
                 _print(ecosystem_diff(db, args.from_snapshot_id, args.to_snapshot_id), "json" if args.json else "text")
             elif args.ecosystem_cmd == "trace":
                 _print(ecosystem_trace(db, args.entity_id), "json" if args.json else "text")
+            elif args.ecosystem_cmd == "search":
+                _print(
+                    search_ecosystem(db, args.query, limit=args.limit, offset=args.offset, project_ids=project_ids),
+                    "json" if args.json else "text",
+                )
             return 0
         if args.cmd == "memory":
             if args.memory_cmd == "build":

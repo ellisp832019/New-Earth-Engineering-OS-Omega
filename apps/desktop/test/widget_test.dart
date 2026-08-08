@@ -101,6 +101,75 @@ class FakeNeosClient implements NeosClient {
   }
 
   @override
+  Future<Map<String, dynamic>> loadEcosystem(Uri baseUri) async {
+    return {
+      'ecosystem': {'id': 'ecosystem-1', 'name': 'Demo Ecosystem'},
+      'projects': [
+        {'project_id': 'demo'},
+      ],
+      'health': {'score': 75},
+      'technology_portfolio': {'technologies': const []},
+      'capability_matrix': {'shared_capabilities': const []},
+      'reuse_candidates': const [],
+      'duplicate_findings': const [],
+      'cross_project_dependencies': const [],
+      'portfolio_risks': const [],
+      'unknown_surface': const [],
+      'attention': const [],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemProjects(Uri baseUri) async {
+    return {
+      'count': 1,
+      'projects': [
+        {'project_id': 'demo', 'display_name': 'Demo Project'},
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemCapabilities(Uri baseUri) async => {'shared_capabilities': const [], 'project_capabilities': const []};
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemTechnologies(Uri baseUri) async => {'technologies': const [], 'shared_technologies': const []};
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemReuse(Uri baseUri) async => {'count': 0, 'items': const []};
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemDuplication(Uri baseUri) async => {'count': 0, 'items': const []};
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemDependencies(Uri baseUri) async => {'count': 0, 'items': const []};
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemRisks(Uri baseUri) async => {'count': 0, 'items': const []};
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemUnknowns(Uri baseUri) async => {'count': 0, 'items': const []};
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemAttention(Uri baseUri) async => {'count': 0, 'items': const []};
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemTimeline(Uri baseUri) async => {'count': 0, 'items': const []};
+
+  @override
+  Future<Map<String, dynamic>> searchEcosystem(Uri baseUri, String query, {List<String>? projectIds, int limit = 20, int offset = 0}) async {
+    return {'query': query, 'count': 0, 'items': const []};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemSnapshot(Uri baseUri) async => {'error': 'not_found'};
+
+  @override
+  Future<Map<String, dynamic>> loadEcosystemDiff(Uri baseUri, String fromSnapshotId, String toSnapshotId) async {
+    return {'from_snapshot_id': fromSnapshotId, 'to_snapshot_id': toSnapshotId, 'added_projects': const [], 'removed_projects': const [], 'changed_projects': const []};
+  }
+
+  @override
   Future<Map<String, dynamic>> shutdownService(Uri baseUri, String shutdownToken) async {
     return {'status': 'shutting_down'};
   }
@@ -241,11 +310,12 @@ class FakeNeosClient implements NeosClient {
   }
 
   @override
-  Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, String? conversationId, String? mode}) async {
+  Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, List<String>? projectIds, String? conversationId, String? mode}) async {
     return {
       'request_id': 'request-1',
       'conversation_id': conversationId ?? 'conversation-1',
       'project_id': projectId,
+      'project_ids': projectIds ?? <String>[projectId],
       'question': question,
       'intent': mode ?? 'plan',
       'mode': mode ?? 'plan',

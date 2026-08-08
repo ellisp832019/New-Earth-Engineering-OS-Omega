@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'neos_client.dart';
+import 'portfolio_workspace.dart';
 
 Map<String, dynamic> _asMap(dynamic value) {
   if (value is Map<String, dynamic>) {
@@ -43,6 +44,7 @@ bool _asBool(dynamic value, [bool fallback = false]) {
 enum _Destination {
   home,
   projects,
+  portfolio,
   intelligence,
   graph,
   features,
@@ -135,6 +137,7 @@ class _NeosShellState extends State<NeosShell> {
   static const List<_NavItem> _items = <_NavItem>[
     _NavItem(_Destination.home, Icons.home_outlined, 'Home'),
     _NavItem(_Destination.projects, Icons.folder_outlined, 'Projects'),
+    _NavItem(_Destination.portfolio, Icons.account_tree_outlined, 'Portfolio Workspace'),
     _NavItem(_Destination.intelligence, Icons.schema_outlined, 'Repository Intelligence'),
     _NavItem(_Destination.graph, Icons.graphic_eq_outlined, 'Knowledge Graph'),
     _NavItem(_Destination.features, Icons.label_outline, 'Features & Requirements'),
@@ -1360,6 +1363,12 @@ class _NeosShellState extends State<NeosShell> {
         return _homeView();
       case _Destination.projects:
         return _projectsView();
+      case _Destination.portfolio:
+        return PortfolioWorkspace(
+          client: widget.client,
+          serviceUri: _serviceUri,
+          selectedProjectId: _selectedProjectId,
+        );
       case _Destination.intelligence:
         return _projectPayloadView(
           title: 'Repository Intelligence',
