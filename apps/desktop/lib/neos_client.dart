@@ -75,7 +75,7 @@ class ServiceHealthInfo {
 
   String get status => _string(raw['status'], 'unknown');
   String get serviceName => _string(raw['service_name'], 'NEOS Local Service');
-  String get serviceVersion => _string(raw['service_version'], '0.7.0');
+  String get serviceVersion => _string(raw['service_version'], '0.8.0');
   String get apiVersion => _string(raw['api_version'], 'v1');
   int get schemaVersion => _int(raw['schema_version'], _int(_map(raw['schema'])['database_schema'], 0));
   String get instanceId => _string(raw['instance_id']);
@@ -293,6 +293,19 @@ abstract class NeosClient {
   Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, List<String>? projectIds, String? conversationId, String? mode});
   Future<Map<String, dynamic>> loadAiRequest(Uri baseUri, String requestId);
   Future<Map<String, dynamic>> loadAiRequestCitations(Uri baseUri, String requestId);
+  Future<Map<String, dynamic>> loadDecisionInbox(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> evaluateDecision(Uri baseUri, Map<String, dynamic> payload);
+  Future<Map<String, dynamic>> compareDecisionOptions(Uri baseUri, Map<String, dynamic> payload);
+  Future<Map<String, dynamic>> loadDecisionNextActions(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadDecisionReleaseReadiness(Uri baseUri, String projectId);
+  Future<Map<String, dynamic>> loadDecisionReuse(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadDecisionTestPriorities(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadDecisionDebtPriorities(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> runDecisionScenario(Uri baseUri, Map<String, dynamic> scenario, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadDecisionHistory(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> acceptDecision(Uri baseUri, String questionId, {String operator, String selectedOption, String notes});
+  Future<Map<String, dynamic>> rejectDecision(Uri baseUri, String questionId, {String operator, String selectedOption, String notes});
+  Future<Map<String, dynamic>> deferDecision(Uri baseUri, String questionId, {String operator, String selectedOption, String notes});
 }
 
 class HttpNeosClient implements NeosClient {
@@ -497,6 +510,133 @@ class HttpNeosClient implements NeosClient {
   Future<Map<String, dynamic>> loadAiRequestCitations(Uri baseUri, String requestId) async {
     final normalized = _normalize(baseUri);
     return _getJson(normalized.resolve('ai/requests/$requestId/citations'));
+  }
+
+  Uri _withQuery(Uri baseUri, String path, [Map<String, String>? query]) {
+    final normalized = _normalize(baseUri);
+    final uri = normalized.resolve(path);
+    if (query == null || query.isEmpty) {
+      return uri;
+    }
+    return uri.replace(
+      queryParameters: <String, String>{
+        ...uri.queryParameters,
+        ...query,
+      },
+    );
+  }
+
+  Uri _withRepeatedQuery(Uri baseUri, String path, List<String> queryParts) {
+    final normalized = _normalize(baseUri);
+    if (queryParts.isEmpty) {
+      return normalized.resolve(path);
+    }
+    return Uri.parse('${normalized.toString()}$path?${queryParts.join('&')}');
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionInbox(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'decisions/intelligence/inbox', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> evaluateDecision(Uri baseUri, Map<String, dynamic> payload) async {
+    return _postJson(_normalize(baseUri).resolve('decisions/intelligence/evaluate'), payload);
+  }
+
+  @override
+  Future<Map<String, dynamic>> compareDecisionOptions(Uri baseUri, Map<String, dynamic> payload) async {
+    return _postJson(_normalize(baseUri).resolve('decisions/intelligence/compare'), payload);
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionNextActions(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'decisions/intelligence/next-actions', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionReleaseReadiness(Uri baseUri, String projectId) async {
+    return _getJson(_withQuery(baseUri, 'decisions/intelligence/release-readiness', {'project_id': projectId}));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionReuse(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'decisions/intelligence/reuse', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionTestPriorities(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'decisions/intelligence/test-priorities', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionDebtPriorities(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'decisions/intelligence/debt-priorities', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> runDecisionScenario(Uri baseUri, Map<String, dynamic> scenario, {List<String>? projectIds}) async {
+    final payload = <String, dynamic>{'scenario': scenario};
+    if (projectIds != null && projectIds.isNotEmpty) {
+      payload['project_ids'] = projectIds;
+    }
+    return _postJson(_normalize(baseUri).resolve('decisions/intelligence/scenario'), payload);
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionHistory(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'decisions/intelligence/history', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> acceptDecision(Uri baseUri, String questionId, {String operator = 'operator', String selectedOption = '', String notes = ''}) async {
+    return _postJson(_normalize(baseUri).resolve('decisions/intelligence/accept/$questionId'), {
+      'operator': operator,
+      'selected_option': selectedOption,
+      'notes': notes,
+    });
+  }
+
+  @override
+  Future<Map<String, dynamic>> rejectDecision(Uri baseUri, String questionId, {String operator = 'operator', String selectedOption = '', String notes = ''}) async {
+    return _postJson(_normalize(baseUri).resolve('decisions/intelligence/reject/$questionId'), {
+      'operator': operator,
+      'selected_option': selectedOption,
+      'notes': notes,
+    });
+  }
+
+  @override
+  Future<Map<String, dynamic>> deferDecision(Uri baseUri, String questionId, {String operator = 'operator', String selectedOption = '', String notes = ''}) async {
+    return _postJson(_normalize(baseUri).resolve('decisions/intelligence/defer/$questionId'), {
+      'operator': operator,
+      'selected_option': selectedOption,
+      'notes': notes,
+    });
   }
 
   Uri _normalize(Uri baseUri) {

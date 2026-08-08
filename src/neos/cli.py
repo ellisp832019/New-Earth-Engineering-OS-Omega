@@ -37,6 +37,18 @@ from .core import (
     why_entity,
 )
 from .db import connect, schema_info
+from .decision_intelligence import (
+    accept_decision,
+    compare_options,
+    decision_history,
+    defer_decision,
+    evaluate_decision_question,
+    get_next_actions,
+    get_release_readiness,
+    reject_decision,
+    review_reuse_candidate,
+    run_scenario_analysis,
+)
 from .ecosystem import (
     analyse_portfolio,
     build_portfolio_snapshot,
@@ -196,6 +208,67 @@ def parser() -> argparse.ArgumentParser:
     decision_show = decision_sub.add_parser("show")
     decision_show.add_argument("decision_id")
     decision_show.add_argument("--format", choices=("text", "json"), default="json")
+    decision_intel = decision_sub.add_parser("intelligence")
+    decision_intel_sub = decision_intel.add_subparsers(dest="decision_intel_cmd", required=True)
+    decision_inbox = decision_intel_sub.add_parser("inbox")
+    decision_inbox.add_argument("--project-id", action="append")
+    decision_inbox.add_argument("--format", choices=("text", "json"), default="json")
+    decision_evaluate = decision_intel_sub.add_parser("evaluate")
+    decision_evaluate.add_argument("--title", required=True)
+    decision_evaluate.add_argument("--description", default="")
+    decision_evaluate.add_argument("--decision-type", default="engineering_next_action")
+    decision_evaluate.add_argument("--project-id")
+    decision_evaluate.add_argument("--project-ids", action="append")
+    decision_evaluate.add_argument("--scope", choices=("project", "portfolio"), default="project")
+    decision_evaluate.add_argument("--source", default="operator")
+    decision_evaluate.add_argument("--format", choices=("text", "json"), default="json")
+    decision_compare = decision_intel_sub.add_parser("compare")
+    decision_compare.add_argument("--question", required=True)
+    decision_compare.add_argument("--decision-type", default="architecture")
+    decision_compare.add_argument("--project-id")
+    decision_compare.add_argument("--project-ids", action="append")
+    decision_compare.add_argument("--options", required=True, help="JSON array of decision options")
+    decision_compare.add_argument("--format", choices=("text", "json"), default="json")
+    decision_next = decision_intel_sub.add_parser("next-actions")
+    decision_next.add_argument("--project-id", action="append")
+    decision_next.add_argument("--format", choices=("text", "json"), default="json")
+    decision_readiness = decision_intel_sub.add_parser("release-readiness")
+    decision_readiness.add_argument("project_id")
+    decision_readiness.add_argument("--format", choices=("text", "json"), default="json")
+    decision_reuse = decision_intel_sub.add_parser("reuse")
+    decision_reuse.add_argument("--project-id", action="append")
+    decision_reuse.add_argument("--format", choices=("text", "json"), default="json")
+    decision_test = decision_intel_sub.add_parser("test-priorities")
+    decision_test.add_argument("--project-id", action="append")
+    decision_test.add_argument("--format", choices=("text", "json"), default="json")
+    decision_debt = decision_intel_sub.add_parser("debt-priorities")
+    decision_debt.add_argument("--project-id", action="append")
+    decision_debt.add_argument("--format", choices=("text", "json"), default="json")
+    decision_scenario = decision_intel_sub.add_parser("scenario")
+    decision_scenario.add_argument("--scenario", required=True, help="JSON object describing the scenario")
+    decision_scenario.add_argument("--project-id", action="append")
+    decision_scenario.add_argument("--format", choices=("text", "json"), default="json")
+    decision_history_cmd = decision_intel_sub.add_parser("history")
+    decision_history_cmd.add_argument("--project-id", action="append")
+    decision_history_cmd.add_argument("--format", choices=("text", "json"), default="json")
+    decision_accept = decision_intel_sub.add_parser("accept")
+    decision_accept.add_argument("question_id")
+    decision_accept.add_argument("--operator", default="operator")
+    decision_accept.add_argument("--selected-option", default="")
+    decision_accept.add_argument("--notes", default="")
+    decision_accept.add_argument("--format", choices=("text", "json"), default="json")
+    decision_reject = decision_intel_sub.add_parser("reject")
+    decision_reject.add_argument("question_id")
+    decision_reject.add_argument("--operator", default="operator")
+    decision_reject.add_argument("--selected-option", default="")
+    decision_reject.add_argument("--notes", default="")
+    decision_reject.add_argument("--format", choices=("text", "json"), default="json")
+    decision_defer = decision_intel_sub.add_parser("defer")
+    decision_defer.add_argument("question_id")
+    decision_defer.add_argument("--operator", default="operator")
+    decision_defer.add_argument("--selected-option", default="")
+    decision_defer.add_argument("--notes", default="")
+    decision_defer.add_argument("--format", choices=("text", "json"), default="json")
     decisions = sub.add_parser("decisions")
     decisions.add_argument("project_id")
     decisions.add_argument("--entity-id")
@@ -544,6 +617,92 @@ def main(argv=None) -> int:
         if args.cmd == "decision":
             if args.decision_cmd == "show":
                 _print(decision_show(db, args.decision_id), args.format)
+            elif args.decision_cmd == "intelligence":
+                project_ids = getattr(args, "project_ids", None)
+                if args.decision_intel_cmd == "inbox":
+                    _print(decision_history(db, project_ids=project_ids), args.format)
+                elif args.decision_intel_cmd == "evaluate":
+                    options = None
+                    if getattr(args, "options", None):
+                        options = json.loads(args.options)
+                    _print(
+                        evaluate_decision_question(
+                            db,
+                            args.title,
+                            args.description,
+                            args.decision_type,
+                            project_id=getattr(args, "project_id", None),
+                            project_ids=project_ids,
+                            scope=args.scope,
+                            source=args.source,
+                            options=options,
+                        ),
+                        args.format,
+                    )
+                elif args.decision_intel_cmd == "compare":
+                    options = json.loads(args.options)
+                    _print(
+                        compare_options(
+                            db,
+                            args.question,
+                            args.decision_type,
+                            options,
+                            project_ids=project_ids,
+                        ),
+                        args.format,
+                    )
+                elif args.decision_intel_cmd == "next-actions":
+                    _print(get_next_actions(db, project_ids=project_ids), args.format)
+                elif args.decision_intel_cmd == "release-readiness":
+                    _print(get_release_readiness(db, args.project_id), args.format)
+                elif args.decision_intel_cmd == "reuse":
+                    _print(review_reuse_candidate(db, project_ids=project_ids), args.format)
+                elif args.decision_intel_cmd == "test-priorities":
+                    _print(
+                        evaluate_decision_question(
+                            db,
+                            "Test priority review",
+                            "Which tests should be prioritised next?",
+                            "test_priority",
+                            project_ids=project_ids,
+                            scope="portfolio" if project_ids else "project",
+                            source="cli",
+                        ),
+                        args.format,
+                    )
+                elif args.decision_intel_cmd == "debt-priorities":
+                    _print(
+                        evaluate_decision_question(
+                            db,
+                            "Technical debt review",
+                            "Which technical debt items should be prioritised next?",
+                            "technical_debt",
+                            project_ids=project_ids,
+                            scope="portfolio" if project_ids else "project",
+                            source="cli",
+                        ),
+                        args.format,
+                    )
+                elif args.decision_intel_cmd == "scenario":
+                    scenario = json.loads(args.scenario)
+                    _print(run_scenario_analysis(db, scenario, project_ids=project_ids), args.format)
+                elif args.decision_intel_cmd == "history":
+                    _print(decision_history(db, project_ids=project_ids), args.format)
+                elif args.decision_intel_cmd == "accept":
+                    _print(
+                        accept_decision(db, args.question_id, operator=args.operator, selected_option=args.selected_option, notes=args.notes),
+                        args.format,
+                    )
+                elif args.decision_intel_cmd == "reject":
+                    _print(
+                        reject_decision(db, args.question_id, operator=args.operator, selected_option=args.selected_option, notes=args.notes),
+                        args.format,
+                    )
+                elif args.decision_intel_cmd == "defer":
+                    _print(
+                        defer_decision(db, args.question_id, operator=args.operator, selected_option=args.selected_option, notes=args.notes),
+                        args.format,
+                    )
             return 0
         if args.cmd == "decisions":
             if args.entity_id:

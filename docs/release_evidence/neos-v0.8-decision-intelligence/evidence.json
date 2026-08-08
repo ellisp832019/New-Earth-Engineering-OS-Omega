@@ -1,0 +1,20 @@
+{
+  "release": "neos-v0.8-decision-intelligence",
+  "observed_at": "2026-08-08",
+  "validation": {
+    "python_pytest": "19 passed",
+    "ruff_check": "passed",
+    "mypy": "passed",
+    "flutter_analyze": "passed",
+    "flutter_test": "passed"
+  },
+  "implementation": {
+    "service_version": "0.8.0",
+    "schema_version": 9,
+    "desktop_surface": "Decision Centre"
+  },
+  "notes": [
+    "Decision intelligence remains deterministic and operator-controlled.",
+    "AI remains read-only and suggest-only."
+  ]
+}

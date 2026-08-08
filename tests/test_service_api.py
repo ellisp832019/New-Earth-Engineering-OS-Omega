@@ -98,9 +98,9 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         assert status == 200
         assert health["status"] == "healthy"
         assert health["service_name"] == "NEOS Local Service"
-        assert health["service_version"] == "0.7.0"
+        assert health["service_version"] == "0.8.0"
         assert health["api_version"] == "v1"
-        assert health["schema_version"] == 8
+        assert health["schema_version"] == 9
         assert health["instance_id"]
         assert health["ai"]["settings"]["provider_id"] == "mock"
 
@@ -137,6 +137,56 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         status, citations = _get_json(f"{base}/ai/requests/{ai_response['request_id']}/citations")
         assert status == 200
         assert citations["request_id"] == ai_response["request_id"]
+
+        status, inbox = _get_json(f"{base}/decisions/intelligence/inbox?project_id=demo")
+        assert status == 200
+        assert "items" in inbox
+
+        status, next_actions = _get_json(f"{base}/decisions/intelligence/next-actions?project_id=demo")
+        assert status == 200
+        assert "items" in next_actions
+
+        status, readiness = _get_json(f"{base}/decisions/intelligence/release-readiness?project_id=demo")
+        assert status == 200
+        assert readiness["project_id"] == "demo"
+
+        status, evaluate = _post_json(
+            f"{base}/decisions/intelligence/evaluate",
+            {
+                "project_id": "demo",
+                "title": "What should we do next?",
+                "description": "Prioritise the highest-impact work.",
+                "decision_type": "engineering_next_action",
+                "scope": "project",
+            },
+        )
+        assert status == 200
+        assert evaluate["recommendation"]["recommended_option"]
+
+        status, compare = _post_json(
+            f"{base}/decisions/intelligence/compare",
+            {
+                "question": "Compare architectures",
+                "decision_type": "architecture",
+                "options": [
+                    {"name": "Option A", "description": "Keep current architecture."},
+                    {"name": "Option B", "description": "Introduce a shared module."},
+                ],
+            },
+        )
+        assert status == 200
+        assert compare["recommendation"]["recommended_option"]
+
+        status, accept = _post_json(
+            f"{base}/decisions/intelligence/accept/{evaluate['question']['id']}",
+            {"operator": "tester", "selected_option": evaluate["recommendation"]["recommended_option"]},
+        )
+        assert status == 200
+        assert accept["status"] == "accepted"
+
+        status, history = _get_json(f"{base}/decisions/intelligence/history?project_id=demo")
+        assert status == 200
+        assert history["count"] >= 1
 
         status, registered = _post_json(f"{base}/projects/register", {"manifest_path": str(manifest)})
         assert status == 200

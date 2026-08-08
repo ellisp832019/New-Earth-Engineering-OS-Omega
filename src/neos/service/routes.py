@@ -22,6 +22,18 @@ from ..core import (
     why_entity,
 )
 from ..db import connect
+from ..decision_intelligence import (
+    accept_decision,
+    compare_options,
+    decision_history,
+    defer_decision,
+    evaluate_decision_question,
+    get_next_actions,
+    get_release_readiness,
+    reject_decision,
+    review_reuse_candidate,
+    run_scenario_analysis,
+)
 from ..ecosystem import (
     analyse_portfolio,
     ecosystem_diff,
@@ -101,6 +113,20 @@ def _empty_items(project_id: str) -> dict[str, Any]:
     return {"project_id": project_id, "count": 0, "items": []}
 
 
+def _query_values(query: dict[str, list[str]], key: str) -> list[str]:
+    return [item for item in query.get(key, []) if item]
+
+
+def _body_project_ids(body: dict[str, Any], query: dict[str, list[str]]) -> list[str] | None:
+    raw = body.get("project_ids")
+    if raw is None:
+        raw = query.get("project_ids", [])
+    if isinstance(raw, list):
+        values = [str(item).strip() for item in raw if str(item).strip()]
+        return values or None
+    return None
+
+
 def _project_repo_path(db_path: Path, project_id: str) -> Path:
     conn = connect(db_path)
     row = conn.execute("SELECT repo_path FROM projects WHERE project_id=?", (project_id,)).fetchone()
@@ -159,6 +185,49 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
         return 404, {"error": "not_found"}
     if segments[0] == "ai":
         return handle_ai_get(path, query, db_path, config)
+    if segments[:3] == ["decisions", "intelligence", "inbox"]:
+        project_ids = _query_values(query, "project_id")
+        history = decision_history(db_path, project_ids=project_ids or None)
+        pending = [item for item in history["items"] if item.get("question", {}).get("status") in {"draft", "review_pending"}]
+        return 200, {"count": len(pending), "items": pending, "history_count": history["count"]}
+    if segments[:3] == ["decisions", "intelligence", "next-actions"]:
+        project_ids = _query_values(query, "project_id")
+        return 200, get_next_actions(db_path, project_ids=project_ids or None)
+    if segments[:3] == ["decisions", "intelligence", "release-readiness"]:
+        project_id = query.get("project_id", [""])[0].strip()
+        if not project_id:
+            return 400, {"error": "missing_project_id"}
+        return 200, get_release_readiness(db_path, project_id)
+    if segments[:3] == ["decisions", "intelligence", "reuse"]:
+        project_ids = _query_values(query, "project_id")
+        return 200, review_reuse_candidate(db_path, project_ids=project_ids or None)
+    if segments[:3] == ["decisions", "intelligence", "test-priorities"]:
+        project_ids = _query_values(query, "project_id")
+        result = evaluate_decision_question(
+            db_path,
+            "Test priority review",
+            "Which tests should be prioritised next?",
+            "test_priority",
+            project_ids=project_ids or None,
+            scope="portfolio" if project_ids else "project",
+            source="service-route",
+        )
+        return 200, result
+    if segments[:3] == ["decisions", "intelligence", "debt-priorities"]:
+        project_ids = _query_values(query, "project_id")
+        result = evaluate_decision_question(
+            db_path,
+            "Technical debt review",
+            "Which technical debt items should be prioritised next?",
+            "technical_debt",
+            project_ids=project_ids or None,
+            scope="portfolio" if project_ids else "project",
+            source="service-route",
+        )
+        return 200, result
+    if segments[:3] == ["decisions", "intelligence", "history"]:
+        project_ids = _query_values(query, "project_id")
+        return 200, decision_history(db_path, project_ids=project_ids or None)
     if segments[0] == "ecosystem":
         if segments == ["ecosystem"]:
             analysis = analyse_portfolio(db_path)
@@ -306,6 +375,78 @@ def handle_post(
     segments = [segment for segment in path.strip("/").split("/") if segment]
     if segments and segments[0] == "ai":
         return handle_ai_post(path, query, body, db_path, config)
+    if segments[:3] == ["decisions", "intelligence", "evaluate"]:
+        decision_type = str(body.get("decision_type") or "engineering_next_action").strip() or "engineering_next_action"
+        title = str(body.get("title") or "Decision evaluation").strip() or "Decision evaluation"
+        description = str(body.get("description") or "").strip()
+        options = body.get("options")
+        constraints = body.get("constraints")
+        related_entities = body.get("related_entities")
+        project_ids = _body_project_ids(body, query)
+        if options is not None and not isinstance(options, list):
+            return 400, {"error": "invalid_options"}
+        if constraints is not None and not isinstance(constraints, list):
+            return 400, {"error": "invalid_constraints"}
+        if related_entities is not None and not isinstance(related_entities, list):
+            return 400, {"error": "invalid_related_entities"}
+        result = evaluate_decision_question(
+            db_path,
+            title,
+            description,
+            decision_type,
+            project_id=str(body.get("project_id") or query.get("project_id", [""])[0] or "").strip() or None,
+            project_ids=project_ids,
+            scope=str(body.get("scope") or ("portfolio" if project_ids else "project")),
+            source=str(body.get("source") or "operator"),
+            options=options,
+            constraints=[str(item) for item in constraints] if isinstance(constraints, list) else None,
+            related_entities=[str(item) for item in related_entities] if isinstance(related_entities, list) else None,
+        )
+        return 200, result
+    if segments[:3] == ["decisions", "intelligence", "compare"]:
+        question = str(body.get("question") or "Option comparison").strip()
+        decision_type = str(body.get("decision_type") or "architecture").strip() or "architecture"
+        options = body.get("options")
+        if not isinstance(options, list) or not options:
+            return 400, {"error": "invalid_options"}
+        project_ids = _body_project_ids(body, query)
+        return 200, compare_options(
+            db_path,
+            question,
+            decision_type,
+            options,
+            project_ids=project_ids,
+        )
+    if segments[:3] == ["decisions", "intelligence", "scenario"]:
+        scenario = body.get("scenario")
+        if not isinstance(scenario, dict):
+            scenario = body
+        project_ids = _body_project_ids(body, query)
+        return 200, run_scenario_analysis(db_path, scenario, project_ids=project_ids)
+    if len(segments) == 4 and segments[:3] == ["decisions", "intelligence", "accept"]:
+        return 200, accept_decision(
+            db_path,
+            segments[3],
+            operator=str(body.get("operator") or "operator"),
+            selected_option=str(body.get("selected_option") or ""),
+            notes=str(body.get("notes") or ""),
+        )
+    if len(segments) == 4 and segments[:3] == ["decisions", "intelligence", "reject"]:
+        return 200, reject_decision(
+            db_path,
+            segments[3],
+            operator=str(body.get("operator") or "operator"),
+            selected_option=str(body.get("selected_option") or ""),
+            notes=str(body.get("notes") or ""),
+        )
+    if len(segments) == 4 and segments[:3] == ["decisions", "intelligence", "defer"]:
+        return 200, defer_decision(
+            db_path,
+            segments[3],
+            operator=str(body.get("operator") or "operator"),
+            selected_option=str(body.get("selected_option") or ""),
+            notes=str(body.get("notes") or ""),
+        )
     if segments[:2] == ["ecosystem", "build"]:
         raw_project_ids = body.get("project_ids")
         if raw_project_ids is not None and not isinstance(raw_project_ids, list):

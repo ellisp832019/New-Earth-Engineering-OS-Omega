@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import 'decision_center.dart';
 import 'neos_client.dart';
 import 'portfolio_workspace.dart';
 
@@ -45,6 +46,7 @@ enum _Destination {
   home,
   projects,
   portfolio,
+  decisionCenter,
   intelligence,
   graph,
   features,
@@ -138,6 +140,7 @@ class _NeosShellState extends State<NeosShell> {
     _NavItem(_Destination.home, Icons.home_outlined, 'Home'),
     _NavItem(_Destination.projects, Icons.folder_outlined, 'Projects'),
     _NavItem(_Destination.portfolio, Icons.account_tree_outlined, 'Portfolio Workspace'),
+    _NavItem(_Destination.decisionCenter, Icons.rule_folder_outlined, 'Decision Centre'),
     _NavItem(_Destination.intelligence, Icons.schema_outlined, 'Repository Intelligence'),
     _NavItem(_Destination.graph, Icons.graphic_eq_outlined, 'Knowledge Graph'),
     _NavItem(_Destination.features, Icons.label_outline, 'Features & Requirements'),
@@ -1365,6 +1368,12 @@ class _NeosShellState extends State<NeosShell> {
         return _projectsView();
       case _Destination.portfolio:
         return PortfolioWorkspace(
+          client: widget.client,
+          serviceUri: _serviceUri,
+          selectedProjectId: _selectedProjectId,
+        );
+      case _Destination.decisionCenter:
+        return DecisionCentre(
           client: widget.client,
           serviceUri: _serviceUri,
           selectedProjectId: _selectedProjectId,

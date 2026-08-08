@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 SCHEMA = """
 PRAGMA foreign_keys=ON;
@@ -228,6 +228,92 @@ CREATE TABLE IF NOT EXISTS decision_evidence (
     provenance TEXT NOT NULL,
     metadata_json TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS decision_questions (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    decision_type TEXT NOT NULL,
+    status TEXT NOT NULL,
+    scope_json TEXT NOT NULL,
+    source TEXT NOT NULL,
+    related_entities_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    engine_version TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_questions_project_type ON decision_questions(project_id, decision_type);
+CREATE INDEX IF NOT EXISTS idx_decision_questions_status ON decision_questions(status);
+
+CREATE TABLE IF NOT EXISTS decision_options (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES decision_questions(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    source TEXT NOT NULL,
+    constraints_json TEXT NOT NULL,
+    affected_entities_json TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_options_question ON decision_options(question_id);
+
+CREATE TABLE IF NOT EXISTS decision_intelligence_evidence (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES decision_questions(id) ON DELETE CASCADE,
+    option_id TEXT NOT NULL REFERENCES decision_options(id) ON DELETE CASCADE,
+    evidence_type TEXT NOT NULL,
+    entity_id TEXT NOT NULL,
+    project_id TEXT NOT NULL,
+    source TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    supports_or_opposes TEXT NOT NULL,
+    weight_category TEXT NOT NULL,
+    provenance TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_intelligence_evidence_question ON decision_intelligence_evidence(question_id);
+
+CREATE TABLE IF NOT EXISTS decision_recommendations (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES decision_questions(id) ON DELETE CASCADE,
+    recommended_option TEXT NOT NULL,
+    strength TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    supporting_factors_json TEXT NOT NULL,
+    opposing_factors_json TEXT NOT NULL,
+    risks_json TEXT NOT NULL,
+    assumptions_json TEXT NOT NULL,
+    unknowns_json TEXT NOT NULL,
+    alternatives_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    engine_version TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_recommendations_question ON decision_recommendations(question_id);
+
+CREATE TABLE IF NOT EXISTS decision_reviews (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES decision_questions(id) ON DELETE CASCADE,
+    operator TEXT NOT NULL,
+    review_state TEXT NOT NULL,
+    selected_option TEXT NOT NULL,
+    notes TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_reviews_question ON decision_reviews(question_id);
+
+CREATE TABLE IF NOT EXISTS decision_outcomes (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES decision_questions(id) ON DELETE CASCADE,
+    outcome_state TEXT NOT NULL,
+    observed_result TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_outcomes_question ON decision_outcomes(question_id);
 
 CREATE TABLE IF NOT EXISTS api_endpoints (
     id TEXT PRIMARY KEY,
@@ -770,6 +856,13 @@ def _migrate(conn: sqlite3.Connection) -> None:
             conn,
             8,
             "Add ecosystem snapshots, project relationships, shared capabilities, reuse candidates, duplication findings, decision conflicts, portfolio risks, and attention records.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 9 or conn.execute("SELECT 1 FROM migrations WHERE version=9").fetchone() is None:
+        _record_migration(
+            conn,
+            9,
+            "Add deterministic decision intelligence tables for questions, options, evidence, recommendations, reviews, and outcomes.",
             applied_at,
         )
     conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version',?)", (str(SCHEMA_VERSION),))

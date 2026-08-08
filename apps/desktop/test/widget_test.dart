@@ -9,9 +9,9 @@ class FakeNeosClient implements NeosClient {
     return ServiceHealthInfo.fromJson({
       'status': 'healthy',
       'service_name': 'NEOS Local Service',
-      'service_version': '0.7.0',
+      'service_version': '0.8.0',
       'api_version': 'v1',
-      'schema_version': 8,
+      'schema_version': 9,
       'instance_id': 'fake-instance',
       'owner_pid': 0,
       'host': '127.0.0.1',
@@ -65,7 +65,7 @@ class FakeNeosClient implements NeosClient {
         'db_path': 'C:/neos.db',
         'database_size_bytes': 1024,
         'registered_projects': 1,
-        'schema': {'database_schema': 8},
+        'schema': {'database_schema': 9},
         'last_scan': {'created_at': '2026-08-07T00:00:00Z'},
       },
       projects: {
@@ -348,6 +348,161 @@ class FakeNeosClient implements NeosClient {
   @override
   Future<Map<String, dynamic>> loadAiRequestCitations(Uri baseUri, String requestId) async {
     return {'request_id': requestId, 'count': 0, 'citations': const []};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionInbox(Uri baseUri, {List<String>? projectIds}) async {
+    return {
+      'count': 1,
+      'items': [
+        {
+          'question': {
+            'id': 'decision-q-1',
+            'title': 'What should we do next?',
+            'description': 'Evaluate the portfolio evidence.',
+            'status': 'review_pending',
+          },
+          'recommendation': {
+            'recommended_option': 'address_now',
+            'strength': 'strong',
+          },
+          'review': const {},
+        },
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> evaluateDecision(Uri baseUri, Map<String, dynamic> payload) async {
+    return {
+      'question': {
+        'id': 'decision-q-2',
+        'title': payload['title'] ?? 'What should we do next?',
+        'description': payload['description'] ?? '',
+        'status': 'review_pending',
+      },
+      'criteria': const ['risk', 'reuse'],
+      'options': const [],
+      'evidence': const [],
+      'assessments': const [],
+      'recommendation': {
+        'id': 'decision-rec-1',
+        'question_id': 'decision-q-2',
+        'recommended_option': 'address_now',
+        'strength': 'strong',
+        'summary': 'Focus on the highest-attention evidence.',
+      },
+      'profile': const {'project_count': 1},
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> compareDecisionOptions(Uri baseUri, Map<String, dynamic> payload) async {
+    return {
+      'question': {
+        'id': 'decision-q-3',
+        'title': payload['question'] ?? 'Compare options',
+        'description': '',
+        'status': 'review_pending',
+      },
+      'criteria': const ['architecture'],
+      'options': payload['options'] ?? const [],
+      'assessments': const [],
+      'recommendation': {
+        'id': 'decision-rec-2',
+        'question_id': 'decision-q-3',
+        'recommended_option': 'Option A',
+        'strength': 'moderate',
+        'summary': 'Option A is the safest fit.',
+      },
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionNextActions(Uri baseUri, {List<String>? projectIds}) async {
+    return {
+      'question': 'What should I work on next?',
+      'scope': projectIds ?? const ['demo'],
+      'items': [
+        {'what': 'address_now', 'urgency': 'strong', 'score': 4.0},
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionReleaseReadiness(Uri baseUri, String projectId) async {
+    return {
+      'project_id': projectId,
+      'status': 'READY',
+      'blocking_criteria': const [],
+      'passed_criteria': const ['tests'],
+      'warnings': const [],
+      'unknowns': const [],
+      'evidence': const [],
+      'recommendation': {'recommended_option': 'READY'},
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionReuse(Uri baseUri, {List<String>? projectIds}) async {
+    return {
+      'status': 'REUSE_NOW',
+      'candidates': [
+        {'candidate_id': 'reuse-1', 'reason': 'Shared helper is stable.'},
+      ],
+      'recommendation': {'recommended_option': 'REUSE_NOW'},
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionTestPriorities(Uri baseUri, {List<String>? projectIds}) async {
+    return {'question': 'Test priority review', 'items': const []};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionDebtPriorities(Uri baseUri, {List<String>? projectIds}) async {
+    return {'question': 'Technical debt review', 'items': const []};
+  }
+
+  @override
+  Future<Map<String, dynamic>> runDecisionScenario(Uri baseUri, Map<String, dynamic> scenario, {List<String>? projectIds}) async {
+    return {
+      'scenario': scenario,
+      'expected_affected_areas': const [],
+      'known_required_changes': const [],
+      'possible_impacts': const [],
+      'unknown_impacts': const [],
+      'evidence_gaps': const [],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadDecisionHistory(Uri baseUri, {List<String>? projectIds}) async {
+    return {
+      'count': 1,
+      'items': [
+        {
+          'question': {'id': 'decision-q-1', 'title': 'What should we do next?', 'status': 'accepted'},
+          'recommendation': {'recommended_option': 'address_now'},
+          'review': {'review_state': 'accepted'},
+        },
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> acceptDecision(Uri baseUri, String questionId, {String operator = 'operator', String selectedOption = '', String notes = ''}) async {
+    return {'question_id': questionId, 'status': 'accepted'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> rejectDecision(Uri baseUri, String questionId, {String operator = 'operator', String selectedOption = '', String notes = ''}) async {
+    return {'question_id': questionId, 'status': 'rejected'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> deferDecision(Uri baseUri, String questionId, {String operator = 'operator', String selectedOption = '', String notes = ''}) async {
+    return {'question_id': questionId, 'status': 'deferred'};
   }
 }
 

@@ -8,6 +8,7 @@
 - `docs/user/SCANNING_A_PROJECT.md`
 - `docs/user/REFRESHING_PROJECT_INTELLIGENCE.md`
 - `docs/user/PORTFOLIO_WORKSPACE_GUIDE.md`
+- `docs/user/DECISION_CENTRE_GUIDE.md`
 - `docs/user/TROUBLESHOOTING_WINDOWS.md`
 - `docs/user/CREATING_DIAGNOSTICS.md`
 
@@ -34,3 +35,6 @@ Use the desktop Portfolio Workspace to compare capability matrices, technology o
 
 ## Portfolio AI
 The AI Assistant remains project-scoped by default. The Portfolio Workspace can send a selected project set to the deterministic portfolio AI path so multi-project citations stay explicit and auditable.
+
+## Decision Centre
+The Decision Centre surfaces deterministic recommendations for next actions, release readiness, reuse, architecture comparisons, test priorities, debt priorities, and scenario analysis. The AI assistant stays read-only unless you explicitly use it elsewhere.

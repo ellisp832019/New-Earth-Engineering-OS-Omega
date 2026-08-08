@@ -30,6 +30,9 @@ Cross-project dependencies, shared modules, technology and risk maps.
 ## NEOS v0.7 - Portfolio Completion
 Desktop portfolio workspace, ecosystem search, reuse workbench, overlap intelligence, portfolio AI scope, and release closeout evidence.
 
+## NEOS v0.8 - Engineering Decision Intelligence
+Deterministic decision engine, decision inbox, release readiness, reuse decisions, architecture comparison, scenario analysis, and operator acceptance workflows.
+
 ## Beta 0.8 - Living Documentation
 Generated docs, drift detection and review workflows.
 

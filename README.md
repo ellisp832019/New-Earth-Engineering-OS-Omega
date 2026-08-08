@@ -19,6 +19,7 @@ NEOS is designed to become the intelligence layer above engineering repositories
 - Engineering flight recorder snapshots, rewindable state diffs and replayable timelines
 - Portfolio workspace for cross-project capability, technology, reuse, overlap, risk and search views
 - Deterministic ecosystem search across the registered project portfolio
+- Deterministic decision intelligence for next actions, release readiness, reuse, architecture and scenarios
 - Plugin SDK contract and example plugin
 - Sample MicroGrow project manifest
 - Tests and validation scripts
@@ -95,6 +96,8 @@ The NEOS v0.4 MicroGrow engineering memory evidence bundle lives in `docs/releas
 The NEOS v0.5 MicroGrow flight-recorder evidence bundle lives in `docs/release_evidence/flight-recorder-v0.5/`.
 
 The NEOS v0.7 portfolio-intelligence completion evidence bundle lives in `docs/release_evidence/neos-v0.7-portfolio-completion/`.
+
+The NEOS v0.8 engineering decision-intelligence evidence bundle lives in `docs/release_evidence/neos-v0.8-decision-intelligence/`.
 
 ## Operator index
 
