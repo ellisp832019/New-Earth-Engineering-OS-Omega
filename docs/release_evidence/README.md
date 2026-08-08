@@ -21,3 +21,5 @@ For the Windows productionisation milestone A1 release, use `docs/release_eviden
 For the NEOS v0.7 portfolio completion pass, use `docs/release_evidence/neos-v0.7-portfolio-completion/` as the canonical evidence folder.
 
 For the NEOS v0.8 engineering decision-intelligence pass, use `docs/release_evidence/neos-v0.8-decision-intelligence/` as the canonical evidence folder.
+
+For the NEOS v0.9 requirements-and-architecture-intelligence pass, use `docs/release_evidence/neos-v0.9-requirements-architecture-intelligence/` as the canonical evidence folder.

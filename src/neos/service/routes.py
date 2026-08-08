@@ -70,6 +70,21 @@ from ..memory import (
     memory_milestones,
     memory_timeline,
 )
+from ..requirements_intelligence import (
+    architecture_without_requirement,
+    build_requirement_intelligence,
+    confirm_requirement,
+    defer_requirement,
+    reject_requirement,
+    requirement_gaps,
+    requirement_history,
+    requirement_inventory,
+    requirement_show,
+    requirement_trace,
+    unimplemented_requirements,
+    untested_requirements,
+    verification_readiness,
+)
 from .health import project_list, service_health
 from .models import ServiceConfig
 
@@ -173,6 +188,13 @@ def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
         "memory_milestones": memory_milestones(memory) if memory else _empty_items(project_id),
         "memory_gaps": memory_gaps(memory) if memory else _empty_items(project_id),
         "memory_contradictions": memory_contradictions(memory) if memory else _empty_items(project_id),
+        "requirements": requirement_inventory(db_path, [project_id]),
+        "requirement_gaps": requirement_gaps(db_path, [project_id]),
+        "requirement_verification": verification_readiness(db_path, [project_id]),
+        "requirement_architecture_gaps": architecture_without_requirement(db_path, [project_id]),
+        "requirement_unimplemented": unimplemented_requirements(db_path, [project_id]),
+        "requirement_untested": untested_requirements(db_path, [project_id]),
+        "requirement_history": requirement_history(db_path, [project_id]),
         "git_state": git_state_report(db_path, project_id),
         "why": why_entity(db_path, project_id),
         "impact": impact_entity(db_path, project_id),
@@ -228,6 +250,43 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
     if segments[:3] == ["decisions", "intelligence", "history"]:
         project_ids = _query_values(query, "project_id")
         return 200, decision_history(db_path, project_ids=project_ids or None)
+    if segments[:2] == ["requirements", "intelligence"] and len(segments) == 2:
+        project_ids = _query_values(query, "project_id")
+        return 200, build_requirement_intelligence(db_path, project_ids=project_ids or None)
+    if segments[:3] == ["requirements", "intelligence", "build"]:
+        project_ids = _query_values(query, "project_id")
+        return 200, build_requirement_intelligence(db_path, project_ids=project_ids or None)
+    if segments[:3] == ["requirements", "intelligence", "inventory"]:
+        project_ids = _query_values(query, "project_id")
+        return 200, requirement_inventory(db_path, project_ids=project_ids or None)
+    if segments[:3] == ["requirements", "intelligence", "gaps"]:
+        project_ids = _query_values(query, "project_id")
+        return 200, requirement_gaps(db_path, project_ids=project_ids or None)
+    if segments[:3] == ["requirements", "intelligence", "verification-readiness"]:
+        project_ids = _query_values(query, "project_id")
+        return 200, verification_readiness(db_path, project_ids=project_ids or None)
+    if segments[:3] == ["requirements", "intelligence", "architecture-without-requirement"]:
+        project_ids = _query_values(query, "project_id")
+        return 200, architecture_without_requirement(db_path, project_ids=project_ids or None)
+    if segments[:3] == ["requirements", "intelligence", "unimplemented"]:
+        project_ids = _query_values(query, "project_id")
+        return 200, unimplemented_requirements(db_path, project_ids=project_ids or None)
+    if segments[:3] == ["requirements", "intelligence", "untested"]:
+        project_ids = _query_values(query, "project_id")
+        return 200, untested_requirements(db_path, project_ids=project_ids or None)
+    if segments[:3] == ["requirements", "intelligence", "history"]:
+        project_ids = _query_values(query, "project_id")
+        return 200, requirement_history(db_path, project_ids=project_ids or None)
+    if len(segments) == 4 and segments[:3] == ["requirements", "intelligence", "show"]:
+        try:
+            return 200, requirement_show(db_path, segments[3])
+        except ValueError:
+            return 404, {"error": "not_found"}
+    if len(segments) == 4 and segments[:3] == ["requirements", "intelligence", "trace"]:
+        try:
+            return 200, requirement_trace(db_path, segments[3])
+        except ValueError:
+            return 404, {"error": "not_found"}
     if segments[0] == "ecosystem":
         if segments == ["ecosystem"]:
             analysis = analyse_portfolio(db_path)
@@ -447,6 +506,36 @@ def handle_post(
             selected_option=str(body.get("selected_option") or ""),
             notes=str(body.get("notes") or ""),
         )
+    if len(segments) == 4 and segments[:3] == ["requirements", "intelligence", "confirm"]:
+        try:
+            return 200, confirm_requirement(
+                db_path,
+                segments[3],
+                operator=str(body.get("operator") or "operator"),
+                notes=str(body.get("notes") or ""),
+            )
+        except ValueError:
+            return 404, {"error": "not_found"}
+    if len(segments) == 4 and segments[:3] == ["requirements", "intelligence", "reject"]:
+        try:
+            return 200, reject_requirement(
+                db_path,
+                segments[3],
+                operator=str(body.get("operator") or "operator"),
+                notes=str(body.get("notes") or ""),
+            )
+        except ValueError:
+            return 404, {"error": "not_found"}
+    if len(segments) == 4 and segments[:3] == ["requirements", "intelligence", "defer"]:
+        try:
+            return 200, defer_requirement(
+                db_path,
+                segments[3],
+                operator=str(body.get("operator") or "operator"),
+                notes=str(body.get("notes") or ""),
+            )
+        except ValueError:
+            return 404, {"error": "not_found"}
     if segments[:2] == ["ecosystem", "build"]:
         raw_project_ids = body.get("project_ids")
         if raw_project_ids is not None and not isinstance(raw_project_ids, list):

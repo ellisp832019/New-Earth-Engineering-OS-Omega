@@ -33,6 +33,9 @@ Desktop portfolio workspace, ecosystem search, reuse workbench, overlap intellig
 ## NEOS v0.8 - Engineering Decision Intelligence
 Deterministic decision engine, decision inbox, release readiness, reuse decisions, architecture comparison, scenario analysis, and operator acceptance workflows.
 
+## NEOS v0.9 - Requirements and Architecture Intelligence
+Deterministic requirement extraction, traceability, requirement gaps, verification readiness, architecture without requirement detection, and operator review workflows.
+
 ## Beta 0.8 - Living Documentation
 Generated docs, drift detection and review workflows.
 

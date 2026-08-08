@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 
 SCHEMA = """
 PRAGMA foreign_keys=ON;
@@ -314,6 +314,59 @@ CREATE TABLE IF NOT EXISTS decision_outcomes (
     metadata_json TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_decision_outcomes_question ON decision_outcomes(question_id);
+
+CREATE TABLE IF NOT EXISTS requirements (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    requirement_key TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    requirement_type TEXT NOT NULL,
+    status TEXT NOT NULL,
+    canonical_state TEXT NOT NULL,
+    source TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    source_line INTEGER,
+    confidence REAL NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    provenance TEXT NOT NULL,
+    related_feature_ids_json TEXT NOT NULL,
+    related_architecture_json TEXT NOT NULL,
+    related_test_paths_json TEXT NOT NULL,
+    related_validation_json TEXT NOT NULL,
+    related_release_json TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_requirements_project_status ON requirements(project_id, status);
+CREATE INDEX IF NOT EXISTS idx_requirements_project_type ON requirements(project_id, requirement_type);
+CREATE INDEX IF NOT EXISTS idx_requirements_project_source ON requirements(project_id, source_path);
+
+CREATE TABLE IF NOT EXISTS requirement_evidence (
+    id TEXT PRIMARY KEY,
+    requirement_id TEXT NOT NULL REFERENCES requirements(id) ON DELETE CASCADE,
+    link_type TEXT NOT NULL,
+    entity_id TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    source_line INTEGER,
+    confidence REAL NOT NULL,
+    supports_or_opposes TEXT NOT NULL,
+    provenance TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_requirement_evidence_requirement ON requirement_evidence(requirement_id);
+CREATE INDEX IF NOT EXISTS idx_requirement_evidence_type ON requirement_evidence(link_type);
+
+CREATE TABLE IF NOT EXISTS requirement_reviews (
+    id TEXT PRIMARY KEY,
+    requirement_id TEXT NOT NULL REFERENCES requirements(id) ON DELETE CASCADE,
+    operator TEXT NOT NULL,
+    review_state TEXT NOT NULL,
+    notes TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_requirement_reviews_requirement ON requirement_reviews(requirement_id);
 
 CREATE TABLE IF NOT EXISTS api_endpoints (
     id TEXT PRIMARY KEY,
@@ -863,6 +916,13 @@ def _migrate(conn: sqlite3.Connection) -> None:
             conn,
             9,
             "Add deterministic decision intelligence tables for questions, options, evidence, recommendations, reviews, and outcomes.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 10 or conn.execute("SELECT 1 FROM migrations WHERE version=10").fetchone() is None:
+        _record_migration(
+            conn,
+            10,
+            "Add requirements and architecture traceability tables for deterministic intent-to-implementation mapping.",
             applied_at,
         )
     conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version',?)", (str(SCHEMA_VERSION),))

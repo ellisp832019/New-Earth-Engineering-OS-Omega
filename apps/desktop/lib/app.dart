@@ -50,6 +50,7 @@ enum _Destination {
   intelligence,
   graph,
   features,
+  requirements,
   tests,
   releases,
   timeline,
@@ -144,6 +145,7 @@ class _NeosShellState extends State<NeosShell> {
     _NavItem(_Destination.intelligence, Icons.schema_outlined, 'Repository Intelligence'),
     _NavItem(_Destination.graph, Icons.graphic_eq_outlined, 'Knowledge Graph'),
     _NavItem(_Destination.features, Icons.label_outline, 'Features & Requirements'),
+    _NavItem(_Destination.requirements, Icons.rule_outlined, 'Requirements Intelligence'),
     _NavItem(_Destination.tests, Icons.fact_check_outlined, 'Tests & Evidence'),
     _NavItem(_Destination.releases, Icons.rocket_launch_outlined, 'Releases'),
     _NavItem(_Destination.timeline, Icons.timeline_outlined, 'Timeline'),
@@ -561,26 +563,29 @@ class _NeosShellState extends State<NeosShell> {
         color: Color(0xFFF8FAFC),
         border: Border(right: BorderSide(color: Color(0xFFE2E8F0))),
       ),
-      child: ListView(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
-            child: Text('Navigation', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          ),
-          for (final item in _items)
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                selected: _destination == item.destination,
-                selectedTileColor: const Color(0xFFD9F0EE),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                leading: Icon(item.icon, color: _destination == item.destination ? const Color(0xFF0F766E) : Colors.black54),
-                title: Text(item.label),
-                onTap: () => _selectDestination(item.destination),
-              ),
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
+              child: Text('Navigation', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
             ),
-        ],
+            for (final item in _items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  selected: _destination == item.destination,
+                  selectedTileColor: const Color(0xFFD9F0EE),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  leading: Icon(item.icon, color: _destination == item.destination ? const Color(0xFF0F766E) : Colors.black54),
+                  title: Text(item.label),
+                  onTap: () => _selectDestination(item.destination),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -869,6 +874,50 @@ class _NeosShellState extends State<NeosShell> {
           _jsonPanel('Trace', project.section('trace'), subtitle: 'Trace data for the selected project.'),
           const SizedBox(height: 16),
           _jsonPanel('Impact', project.section('impact'), subtitle: 'Impact data for the selected project.'),
+        ],
+      ),
+    );
+  }
+
+  Widget _requirementsView() {
+    final project = _project;
+    if (project == null) {
+      return const Center(child: Text('Select a project to inspect requirements traceability.'));
+    }
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _panel(
+            title: 'Requirements Intelligence',
+            subtitle: 'Deterministic intent, implementation and verification traceability for the selected project.',
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _chip(project.projectId),
+                _chip('Requirements ${_countOf(project.section('requirements'))}'),
+                _chip('Gaps ${_countOf(project.section('requirement_gaps'))}'),
+                _chip('Verification ${_countOf(project.section('requirement_verification'))}'),
+                _chip('Architecture gaps ${_countOf(project.section('requirement_architecture_gaps'))}'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _jsonPanel('Requirements intelligence', project.section('requirements'), subtitle: 'Combined extracted and persisted requirement records.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Requirement gaps', project.section('requirement_gaps'), subtitle: 'Requirements missing feature, architecture, test, validation, or release evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Verification readiness', project.section('requirement_verification'), subtitle: 'Requirements with complete traceability to implementation and validation evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Architecture without requirement', project.section('requirement_architecture_gaps'), subtitle: 'Architecture components that are not tied back to a requirement yet.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Unimplemented requirements', project.section('requirement_unimplemented'), subtitle: 'Requirements that do not yet link to a feature or architecture component.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Untested requirements', project.section('requirement_untested'), subtitle: 'Requirements without test evidence in the current trace set.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Requirement history', project.section('requirement_history'), subtitle: 'Review and operator history for the selected project.'),
         ],
       ),
     );
@@ -1392,6 +1441,8 @@ class _NeosShellState extends State<NeosShell> {
           subtitle: 'Feature inventory, decisions and configuration evidence.',
           keys: const ['features', 'decisions', 'configuration'],
         );
+      case _Destination.requirements:
+        return _requirementsView();
       case _Destination.tests:
         return _projectPayloadView(
           title: 'Tests & Evidence',

@@ -12,7 +12,7 @@ class ServiceConfig:
     port: int = 8765
     api_version: str = "v1"
     service_name: str = "NEOS Local Service"
-    service_version: str = "0.8.0"
+    service_version: str = "0.9.0"
     instance_id: str = ""
     owner_pid: int | None = None
     shutdown_token: str = ""

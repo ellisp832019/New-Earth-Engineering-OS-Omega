@@ -24,6 +24,7 @@ The recommended development sequence is:
 12. Add plugins and multi-project intelligence.
 13. Expose portfolio workspace views, deterministic ecosystem search and portfolio-scoped AI citations.
 14. Add deterministic decision intelligence with operator review and acceptance flows.
+15. Add deterministic requirements and architecture intelligence with traceability, gaps, verification readiness and operator review.
 
 ## Definition of Alpha
 
@@ -52,3 +53,5 @@ For the NEOS v0.5 flight-recorder release, the canonical evidence bundle lives a
 For the NEOS v0.7 portfolio completion pass, the canonical evidence bundle lives at `docs/release_evidence/neos-v0.7-portfolio-completion/`.
 
 For the NEOS v0.8 engineering decision-intelligence pass, the canonical evidence bundle lives at `docs/release_evidence/neos-v0.8-decision-intelligence/`.
+
+For the NEOS v0.9 requirements-and-architecture-intelligence pass, the canonical evidence bundle lives at `docs/release_evidence/neos-v0.9-requirements-architecture-intelligence/`.

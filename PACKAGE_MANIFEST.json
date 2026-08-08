@@ -1,8 +1,8 @@
 {
   "package": "New-Earth-Engineering-OS-Omega",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "generated": "2026-08-08",
-  "file_count": 374,
+  "file_count": 385,
   "files": [
     {
       "path": ".github/workflows/ci.yml",
@@ -21,13 +21,38 @@
     },
     {
       "path": ".neos/neos.db",
-      "sha256": "f6b4aeaa9ce857e5c6ebab2c1bb7a3a70e8b9e4c1434ac9551aa2cee65ed5e30",
-      "bytes": 581632
+      "sha256": "bdffb1e71a5851e9611b9248b3699ae0dd1fd32a0d1b4b6f558e1b0d419d3016",
+      "bytes": 716800
     },
     {
       "path": ".neos/phase2-microgrow.sqlite3",
       "sha256": "164899531d3fcb205d4940a0f6e2ae4bf13f12528c2446ed8f00b453b7b608c1",
       "bytes": 45756416
+    },
+    {
+      "path": ".pytest_cache/.gitignore",
+      "sha256": "e7c6bb30148cf667606dcd63e7ca77acaa3cfb0c8303bf09e6419e1e1669dc6d",
+      "bytes": 39
+    },
+    {
+      "path": ".pytest_cache/CACHEDIR.TAG",
+      "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4",
+      "bytes": 191
+    },
+    {
+      "path": ".pytest_cache/README.md",
+      "sha256": "420e808d79a6c25d3cda0af33bc4782314a14949866682c68ce8149e89b66b70",
+      "bytes": 310
+    },
+    {
+      "path": ".pytest_cache/v/cache/lastfailed",
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "bytes": 2
+    },
+    {
+      "path": ".pytest_cache/v/cache/nodeids",
+      "sha256": "b1cfa85f5b7111eb437fcf1839e9e19a6149156c63a5503ed55bf8b5aaf0ddd4",
+      "bytes": 1507
     },
     {
       "path": ".ruff_cache/.gitignore",
@@ -46,8 +71,8 @@
     },
     {
       "path": ".ruff_cache/0.16.1/3219282726996932908",
-      "sha256": "692309ae6ce5c2f03dd8ccf4985945736e728ec2e41243355f19d509c6366354",
-      "bytes": 812
+      "sha256": "5fcfc651f70f1b4b6b11f16d0cdfa525eb908665ec6980c5420fa3017345a95a",
+      "bytes": 908
     },
     {
       "path": ".ruff_cache/0.16.1/4452059130614130118",
@@ -56,8 +81,8 @@
     },
     {
       "path": ".ruff_cache/0.16.1/6169038014487648959",
-      "sha256": "157fed6e6c82ce7a063bd0d5dd0ba76f051c94f51c67821f3914190923c1f9b2",
-      "bytes": 1860
+      "sha256": "14edd3f5a8151429bfdfd4a93b5a096c77a38d91a07f344e0a40af5ae07cc350",
+      "bytes": 1948
     },
     {
       "path": ".ruff_cache/CACHEDIR.TAG",
@@ -81,12 +106,12 @@
     },
     {
       "path": "README.md",
-      "sha256": "bb8c45340553c4262d05dc4b55907a618884eed9b7d937730eb30ed970ed14c0",
-      "bytes": 5477
+      "sha256": "3dd4118db81246a0f23c242c27fc28e2eba9e7ae7b20fb74d7ce47909588f40b",
+      "bytes": 5745
     },
     {
       "path": "VERSION",
-      "sha256": "a66780da23103beaf12432b418508966b31a2a3a787f9468a5b6cdaa8667c1ef",
+      "sha256": "9d8c94f1ad3ea96b1e2ac4914fda4cb93c76b4a3e0d8cc6dd8976d6c0b227d15",
       "bytes": 6
     },
     {
@@ -141,8 +166,8 @@
     },
     {
       "path": "apps/desktop/lib/app.dart",
-      "sha256": "bcf49c8f5a5e6810590a8b12cd8b3297c28a03e56ea0170db17b7f68550101ac",
-      "bytes": 62345
+      "sha256": "3a8b5d80f3e273cb1beca81e9de9c8ec8d13de39afb2171f6e2ae4436cda9614",
+      "bytes": 65216
     },
     {
       "path": "apps/desktop/lib/bootstrap.dart",
@@ -166,8 +191,8 @@
     },
     {
       "path": "apps/desktop/lib/neos_client.dart",
-      "sha256": "ea006e3ef5ec52262229610906d9b23df063016bbcf425a49429428d90483c39",
-      "bytes": 25833
+      "sha256": "953c508b69c11c84e8dfa0f701a20ce8f11eb4fe90be6670f1a7c029e99f72fa",
+      "bytes": 32028
     },
     {
       "path": "apps/desktop/lib/portfolio_workspace.dart",
@@ -186,8 +211,8 @@
     },
     {
       "path": "apps/desktop/test/widget_test.dart",
-      "sha256": "935b091def350187921018e8a89fc5c79529891eed61a233f4c5f6fbde346ca2",
-      "bytes": 17330
+      "sha256": "d93fea1b0177cd19b24b3940983c64d3989e68bc0343ed1157af4fb622a43ecf",
+      "bytes": 21152
     },
     {
       "path": "apps/desktop/windows/.gitignore",
@@ -516,8 +541,8 @@
     },
     {
       "path": "docs/00_START_HERE.md",
-      "sha256": "5ec15085e6ee71a95c64c6d988deff67f8de2d554aba2e8da38bc90a06a6631c",
-      "bytes": 2770
+      "sha256": "d162643bfa3b7b1224b163f5f8e5ae7c1881fc14d2e7906ad8ae1b464893448d",
+      "bytes": 3086
     },
     {
       "path": "docs/01_VISION_AND_PRODUCT_STRATEGY.md",
@@ -561,8 +586,8 @@
     },
     {
       "path": "docs/09_ROADMAP.md",
-      "sha256": "844b24e5fc8b79c831074b072a568793ef6e4fbe8a07cb3d69816904260b2bac",
-      "bytes": 2471
+      "sha256": "10aecb586ad588922f099723f47c007c600cdbe4661be6c5a3df6dfba46507cb",
+      "bytes": 2699
     },
     {
       "path": "docs/10_OPERATING_MODEL.md",
@@ -626,8 +651,8 @@
     },
     {
       "path": "docs/USER_GUIDE.md",
-      "sha256": "59ebdfbdba356e81cdc3553d4947b35498466a405f0ee65c4d4c9d8352315ea5",
-      "bytes": 1696
+      "sha256": "34245a88637fad4589cdea1da1fc453338ade128bf444aa0984773bf8be1733e",
+      "bytes": 2028
     },
     {
       "path": "docs/adr/ADR-0001-local-first.md",
@@ -866,8 +891,8 @@
     },
     {
       "path": "docs/release_evidence/README.md",
-      "sha256": "e87c2a8a58db8f649dda7ec21272a863a64b6301df2d5c5628b9cd039ffcccd1",
-      "bytes": 1298
+      "sha256": "07e7ccc985ec8cc2466b2b506c676c8d9256404eee8a8f246bddd711e99495e8",
+      "bytes": 1478
     },
     {
       "path": "docs/release_evidence/ai-engineering-partner-v0.6/AI_EVALUATION_RESULTS.md",
@@ -1185,6 +1210,16 @@
       "bytes": 515
     },
     {
+      "path": "docs/release_evidence/neos-v0.9-requirements-architecture-intelligence/README.md",
+      "sha256": "d8475039b6fa151bf6c9d91c4da0a984d047a3c51123539d9d4f35d254fa773f",
+      "bytes": 810
+    },
+    {
+      "path": "docs/release_evidence/neos-v0.9-requirements-architecture-intelligence/evidence.json",
+      "sha256": "bf6aaee2dc1a90144d863011bf3553ffe9a140e5f188ffe173dda0caf2b34711",
+      "bytes": 674
+    },
+    {
       "path": "docs/release_evidence/project-genome-v0.3/GENOME_DIFF.json",
       "sha256": "8572d3b0817d3055b342c2479581b9b854396ab02a0eed3d0b6a5753676d9e99",
       "bytes": 97740
@@ -1380,6 +1415,11 @@
       "bytes": 1824
     },
     {
+      "path": "docs/requirements_intelligence/README.md",
+      "sha256": "4e9040582e7f0004dac87c281e6be582733ba2ce8a3a584cb4b81eb58eea61e5",
+      "bytes": 965
+    },
+    {
       "path": "docs/security/THREAT_MODEL.md",
       "sha256": "4c43e9073fecb631e2aa9793a72fcb78be34d271fafced7a6d86c75b897537d5",
       "bytes": 891
@@ -1500,6 +1540,11 @@
       "bytes": 390
     },
     {
+      "path": "docs/user/REQUIREMENTS_INTELLIGENCE_GUIDE.md",
+      "sha256": "c26c4064f5ddda9deb281b58ff4659c832a2f6c79d6e3c65c35100cd487a9f92",
+      "bytes": 1013
+    },
+    {
       "path": "docs/user/SCANNING_A_PROJECT.md",
       "sha256": "bbae20eb8e9d4083ef96def3e466ee1417e919151ce1e680926d1cb1bdd47fda",
       "bytes": 540
@@ -1531,7 +1576,7 @@
     },
     {
       "path": "neos/__init__.py",
-      "sha256": "d4dff6942a32b7d21a3c655ba6eff3c99e6475b12ee904486623d0ce2c59d8b1",
+      "sha256": "64624ed9975506616b8f0d362c4eac0edab190b743a5c7e3fa423c307750bba6",
       "bytes": 323
     },
     {
@@ -1586,8 +1631,8 @@
     },
     {
       "path": "scripts/package_windows.ps1",
-      "sha256": "c758e910a31e9beec552389002fb8ee7bf2e0bf0226e8203a017720e2989da1c",
-      "bytes": 4296
+      "sha256": "7e5019b3ce5afbe19ffead5717c36b87494142b1ab1259299283769d3b494dc4",
+      "bytes": 4297
     },
     {
       "path": "scripts/setup_windows.ps1",
@@ -1611,7 +1656,7 @@
     },
     {
       "path": "src/neos/__init__.py",
-      "sha256": "88f95809c233bb35bb4f61ca0e499894c911239d5d04b7cd4713cf896adfc3d5",
+      "sha256": "1fd3564596fb35b79144f2cffd5d5f01198b357ada9e8ad533e38e63ef3fdae8",
       "bytes": 22
     },
     {
@@ -1656,8 +1701,8 @@
     },
     {
       "path": "src/neos/cli.py",
-      "sha256": "c1dc158082e51908f2ef4dd68cd20ad9b14e98207fbd9527586908ebb4efc119",
-      "bytes": 44277
+      "sha256": "3e3298795c1fd2c282f1eefe87f7c5f100738887abcef72e59321c8eef8750e4",
+      "bytes": 50796
     },
     {
       "path": "src/neos/config.py",
@@ -1671,8 +1716,8 @@
     },
     {
       "path": "src/neos/db.py",
-      "sha256": "4852f631ada4df0ba564bc2ae0551a2884c15e532e37b5df29f79cefae7eb967",
-      "bytes": 34651
+      "sha256": "8ddab6de2a46dd2cac5ba1400cf67cd16e2e9d12cab83f2aec0de0f3f6213ca7",
+      "bytes": 37090
     },
     {
       "path": "src/neos/decision_intelligence.py",
@@ -1740,6 +1785,11 @@
       "bytes": 2098
     },
     {
+      "path": "src/neos/requirements_intelligence.py",
+      "sha256": "6142355435e399d2b5e4a7f238745ea501561055953a40cfc1f282159697a42b",
+      "bytes": 43783
+    },
+    {
       "path": "src/neos/scanner.py",
       "sha256": "70a209cf837a54818fc193f86cce580955e46cce469fd9f9e4cef4b8e515beb3",
       "bytes": 2327
@@ -1766,13 +1816,13 @@
     },
     {
       "path": "src/neos/service/models.py",
-      "sha256": "27d446520c223fcb57914ec02e1eeaf26f85c7c4db161bccc48e681c712edf69",
+      "sha256": "0428811c318d18749d7e5a83f0085c16ad9242729a1e83028496aae4b689353b",
       "bytes": 983
     },
     {
       "path": "src/neos/service/routes.py",
-      "sha256": "0337750c5ae1c54eeb2fb455647cfb9599d3c31585db325b5fcc2d1a0079870b",
-      "bytes": 22424
+      "sha256": "c6d1f5037b53b081385ad69f85346b1caf308b97cf22fcb92bf55094e9ea883a",
+      "bytes": 27048
     },
     {
       "path": "src/neos/service/serialization.py",
@@ -1865,14 +1915,19 @@
       "bytes": 782
     },
     {
+      "path": "tests/test_requirements_intelligence.py",
+      "sha256": "5c3e6837cd896b9a31ad3ffcd96d54c611737767aef329e51caa80d609caa50e",
+      "bytes": 2688
+    },
+    {
       "path": "tests/test_scanner.py",
       "sha256": "ea0d259dabef4d58bc6be2fd2c128fd9cf25d5ebe46da30fdc9136febe11bdab",
       "bytes": 350
     },
     {
       "path": "tests/test_service_api.py",
-      "sha256": "281f7336af6f14b6bdf0a5770062db1e1d222552539e70b6afcf50f29848aa9f",
-      "bytes": 8703
+      "sha256": "90e91b17376be247b07f297d06bddbc11b381786a0d02e51d9a7eb0471e96118",
+      "bytes": 9299
     }
   ]
 }

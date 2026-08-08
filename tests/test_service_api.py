@@ -98,9 +98,9 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         assert status == 200
         assert health["status"] == "healthy"
         assert health["service_name"] == "NEOS Local Service"
-        assert health["service_version"] == "0.8.0"
+        assert health["service_version"] == "0.9.0"
         assert health["api_version"] == "v1"
-        assert health["schema_version"] == 9
+        assert health["schema_version"] == 10
         assert health["instance_id"]
         assert health["ai"]["settings"]["provider_id"] == "mock"
 
@@ -187,6 +187,19 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         status, history = _get_json(f"{base}/decisions/intelligence/history?project_id=demo")
         assert status == 200
         assert history["count"] >= 1
+
+        status, requirements = _get_json(f"{base}/requirements/intelligence?project_id=demo")
+        assert status == 200
+        assert requirements["project_count"] == 1
+        assert requirements["requirement_count"] >= 0
+
+        status, requirement_inventory = _get_json(f"{base}/requirements/intelligence/inventory?project_id=demo")
+        assert status == 200
+        assert "items" in requirement_inventory
+
+        status, requirement_gaps = _get_json(f"{base}/requirements/intelligence/gaps?project_id=demo")
+        assert status == 200
+        assert "items" in requirement_gaps
 
         status, registered = _post_json(f"{base}/projects/register", {"manifest_path": str(manifest)})
         assert status == 200

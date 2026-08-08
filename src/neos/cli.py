@@ -99,6 +99,21 @@ from .memory import (
     memory_timeline,
     memory_trace_entity,
 )
+from .requirements_intelligence import (
+    architecture_without_requirement,
+    build_requirement_intelligence,
+    confirm_requirement,
+    defer_requirement,
+    reject_requirement,
+    requirement_gaps,
+    requirement_history,
+    requirement_inventory,
+    requirement_show,
+    requirement_trace,
+    unimplemented_requirements,
+    untested_requirements,
+    verification_readiness,
+)
 from .service.app import serve_service
 
 
@@ -269,6 +284,57 @@ def parser() -> argparse.ArgumentParser:
     decision_defer.add_argument("--selected-option", default="")
     decision_defer.add_argument("--notes", default="")
     decision_defer.add_argument("--format", choices=("text", "json"), default="json")
+
+    requirements = sub.add_parser("requirements")
+    requirements_sub = requirements.add_subparsers(dest="requirements_cmd", required=True)
+    requirements_intel = requirements_sub.add_parser("intelligence")
+    requirements_intel_sub = requirements_intel.add_subparsers(dest="requirements_intel_cmd", required=True)
+    requirements_build = requirements_intel_sub.add_parser("build")
+    requirements_build.add_argument("--project-id", action="append")
+    requirements_build.add_argument("--name", default="default")
+    requirements_build.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_inventory = requirements_intel_sub.add_parser("inventory")
+    requirements_inventory.add_argument("--project-id", action="append")
+    requirements_inventory.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_show = requirements_intel_sub.add_parser("show")
+    requirements_show.add_argument("requirement_id")
+    requirements_show.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_trace = requirements_intel_sub.add_parser("trace")
+    requirements_trace.add_argument("requirement_id")
+    requirements_trace.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_gaps = requirements_intel_sub.add_parser("gaps")
+    requirements_gaps.add_argument("--project-id", action="append")
+    requirements_gaps.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_ready = requirements_intel_sub.add_parser("verification-readiness")
+    requirements_ready.add_argument("--project-id", action="append")
+    requirements_ready.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_arch = requirements_intel_sub.add_parser("architecture-without-requirement")
+    requirements_arch.add_argument("--project-id", action="append")
+    requirements_arch.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_unimplemented = requirements_intel_sub.add_parser("unimplemented")
+    requirements_unimplemented.add_argument("--project-id", action="append")
+    requirements_unimplemented.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_untested = requirements_intel_sub.add_parser("untested")
+    requirements_untested.add_argument("--project-id", action="append")
+    requirements_untested.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_history = requirements_intel_sub.add_parser("history")
+    requirements_history.add_argument("--project-id", action="append")
+    requirements_history.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_confirm = requirements_intel_sub.add_parser("confirm")
+    requirements_confirm.add_argument("requirement_id")
+    requirements_confirm.add_argument("--operator", default="operator")
+    requirements_confirm.add_argument("--notes", default="")
+    requirements_confirm.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_reject = requirements_intel_sub.add_parser("reject")
+    requirements_reject.add_argument("requirement_id")
+    requirements_reject.add_argument("--operator", default="operator")
+    requirements_reject.add_argument("--notes", default="")
+    requirements_reject.add_argument("--format", choices=("text", "json"), default="json")
+    requirements_defer = requirements_intel_sub.add_parser("defer")
+    requirements_defer.add_argument("requirement_id")
+    requirements_defer.add_argument("--operator", default="operator")
+    requirements_defer.add_argument("--notes", default="")
+    requirements_defer.add_argument("--format", choices=("text", "json"), default="json")
     decisions = sub.add_parser("decisions")
     decisions.add_argument("project_id")
     decisions.add_argument("--entity-id")
@@ -603,6 +669,36 @@ def main(argv=None) -> int:
             return 0
         if args.cmd == "why":
             _print(why_entity(db, args.entity_id), "json" if args.json else args.format)
+            return 0
+        if args.cmd == "requirements":
+            project_ids = getattr(args, "project_id", None)
+            if args.requirements_cmd == "intelligence":
+                if args.requirements_intel_cmd == "build":
+                    _print(build_requirement_intelligence(db, project_ids=project_ids, name=args.name), args.format)
+                elif args.requirements_intel_cmd == "inventory":
+                    _print(requirement_inventory(db, project_ids=project_ids), args.format)
+                elif args.requirements_intel_cmd == "show":
+                    _print(requirement_show(db, args.requirement_id), args.format)
+                elif args.requirements_intel_cmd == "trace":
+                    _print(requirement_trace(db, args.requirement_id), args.format)
+                elif args.requirements_intel_cmd == "gaps":
+                    _print(requirement_gaps(db, project_ids=project_ids), args.format)
+                elif args.requirements_intel_cmd == "verification-readiness":
+                    _print(verification_readiness(db, project_ids=project_ids), args.format)
+                elif args.requirements_intel_cmd == "architecture-without-requirement":
+                    _print(architecture_without_requirement(db, project_ids=project_ids), args.format)
+                elif args.requirements_intel_cmd == "unimplemented":
+                    _print(unimplemented_requirements(db, project_ids=project_ids), args.format)
+                elif args.requirements_intel_cmd == "untested":
+                    _print(untested_requirements(db, project_ids=project_ids), args.format)
+                elif args.requirements_intel_cmd == "history":
+                    _print(requirement_history(db, project_ids=project_ids), args.format)
+                elif args.requirements_intel_cmd == "confirm":
+                    _print(confirm_requirement(db, args.requirement_id, operator=args.operator, notes=args.notes), args.format)
+                elif args.requirements_intel_cmd == "reject":
+                    _print(reject_requirement(db, args.requirement_id, operator=args.operator, notes=args.notes), args.format)
+                elif args.requirements_intel_cmd == "defer":
+                    _print(defer_requirement(db, args.requirement_id, operator=args.operator, notes=args.notes), args.format)
             return 0
         if args.cmd == "feature":
             if args.feature_cmd == "list":

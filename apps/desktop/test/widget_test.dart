@@ -9,9 +9,9 @@ class FakeNeosClient implements NeosClient {
     return ServiceHealthInfo.fromJson({
       'status': 'healthy',
       'service_name': 'NEOS Local Service',
-      'service_version': '0.8.0',
+      'service_version': '0.9.0',
       'api_version': 'v1',
-      'schema_version': 9,
+      'schema_version': 10,
       'instance_id': 'fake-instance',
       'owner_pid': 0,
       'host': '127.0.0.1',
@@ -33,6 +33,13 @@ class FakeNeosClient implements NeosClient {
       'genome': {'project_id': projectId, 'maturity': {'status': 'stable'}},
       'memory': {'project_id': projectId, 'summary': {'decisions': 1}},
       'flight': {'project_id': projectId, 'status': 'available'},
+      'requirements': {'count': 1, 'items': [{'id': 'req-1', 'title': 'Select a project'}]},
+      'requirement_gaps': {'count': 1, 'items': [{'requirement_id': 'req-1', 'gaps': ['no_test_evidence']}]},
+      'requirement_verification': {'count': 0, 'items': []},
+      'requirement_architecture_gaps': {'count': 0, 'items': []},
+      'requirement_unimplemented': {'count': 0, 'items': []},
+      'requirement_untested': {'count': 1, 'items': [{'requirement_id': 'req-1'}]},
+      'requirement_history': {'count': 1, 'items': [{'id': 'req-1', 'review_state': 'confirmed'}]},
       'dependencies': {'count': 1, 'items': ['demo -> core']},
       'documentation': {'count': 2, 'items': ['README.md', 'GUIDE.md']},
       'tests': {'count': 1, 'items': ['test_demo.py']},
@@ -65,7 +72,7 @@ class FakeNeosClient implements NeosClient {
         'db_path': 'C:/neos.db',
         'database_size_bytes': 1024,
         'registered_projects': 1,
-        'schema': {'database_schema': 9},
+        'schema': {'database_schema': 10},
         'last_scan': {'created_at': '2026-08-07T00:00:00Z'},
       },
       projects: {
@@ -351,6 +358,91 @@ class FakeNeosClient implements NeosClient {
   }
 
   @override
+  Future<Map<String, dynamic>> loadRequirementIntelligence(Uri baseUri, {List<String>? projectIds}) async {
+    return {
+      'project_count': 1,
+      'requirement_count': 1,
+      'requirements': [
+        {'id': 'req-1', 'project_id': 'demo', 'title': 'Select a project', 'status': 'verified'},
+      ],
+      'gaps': const [],
+      'architecture_without_requirement': const [],
+      'verification_ready': const [],
+      'summary': {'candidate_count': 1, 'evidence_count': 1},
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementInventory(Uri baseUri, {List<String>? projectIds}) async {
+    return {'count': 1, 'items': [{'id': 'req-1', 'project_id': 'demo', 'title': 'Select a project'}]};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementShow(Uri baseUri, String requirementId) async {
+    return {
+      'requirement': {'id': requirementId, 'project_id': 'demo', 'title': 'Select a project'},
+      'evidence': const [],
+      'review': const {},
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementTrace(Uri baseUri, String requirementId) async {
+    return {
+      'requirement': {'id': requirementId, 'project_id': 'demo', 'title': 'Select a project'},
+      'evidence': const [],
+      'links': const {},
+      'verification_ready': 'candidate',
+      'gaps': const ['no_test_evidence'],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementGaps(Uri baseUri, {List<String>? projectIds}) async {
+    return {'count': 1, 'items': [{'requirement_id': 'req-1', 'gaps': ['no_test_evidence']}]};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementVerificationReadiness(Uri baseUri, {List<String>? projectIds}) async {
+    return {'count': 0, 'items': const []};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementArchitectureGaps(Uri baseUri, {List<String>? projectIds}) async {
+    return {'count': 0, 'items': const []};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementUnimplemented(Uri baseUri, {List<String>? projectIds}) async {
+    return {'count': 0, 'items': const []};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementUntested(Uri baseUri, {List<String>? projectIds}) async {
+    return {'count': 1, 'items': [{'requirement_id': 'req-1'}]};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementHistory(Uri baseUri, {List<String>? projectIds}) async {
+    return {'count': 1, 'items': [{'id': 'req-1', 'review_state': 'confirmed'}]};
+  }
+
+  @override
+  Future<Map<String, dynamic>> confirmRequirement(Uri baseUri, String requirementId, {String operator = 'operator', String notes = ''}) async {
+    return {'requirement_id': requirementId, 'status': 'confirmed'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> rejectRequirement(Uri baseUri, String requirementId, {String operator = 'operator', String notes = ''}) async {
+    return {'requirement_id': requirementId, 'status': 'rejected'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> deferRequirement(Uri baseUri, String requirementId, {String operator = 'operator', String notes = ''}) async {
+    return {'requirement_id': requirementId, 'status': 'deferred'};
+  }
+
+  @override
   Future<Map<String, dynamic>> loadDecisionInbox(Uri baseUri, {List<String>? projectIds}) async {
     return {
       'count': 1,
@@ -515,5 +607,6 @@ void main() {
     expect(find.byIcon(Icons.home_outlined), findsOneWidget);
     expect(find.text('Demo Project'), findsWidgets);
     expect(find.text('Navigation'), findsOneWidget);
+    expect(find.text('Requirements Intelligence'), findsOneWidget);
   });
 }

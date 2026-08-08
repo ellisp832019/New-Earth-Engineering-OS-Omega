@@ -75,7 +75,7 @@ class ServiceHealthInfo {
 
   String get status => _string(raw['status'], 'unknown');
   String get serviceName => _string(raw['service_name'], 'NEOS Local Service');
-  String get serviceVersion => _string(raw['service_version'], '0.8.0');
+  String get serviceVersion => _string(raw['service_version'], '0.9.0');
   String get apiVersion => _string(raw['api_version'], 'v1');
   int get schemaVersion => _int(raw['schema_version'], _int(_map(raw['schema'])['database_schema'], 0));
   String get instanceId => _string(raw['instance_id']);
@@ -293,6 +293,19 @@ abstract class NeosClient {
   Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, List<String>? projectIds, String? conversationId, String? mode});
   Future<Map<String, dynamic>> loadAiRequest(Uri baseUri, String requestId);
   Future<Map<String, dynamic>> loadAiRequestCitations(Uri baseUri, String requestId);
+  Future<Map<String, dynamic>> loadRequirementIntelligence(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadRequirementInventory(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadRequirementShow(Uri baseUri, String requirementId);
+  Future<Map<String, dynamic>> loadRequirementTrace(Uri baseUri, String requirementId);
+  Future<Map<String, dynamic>> loadRequirementGaps(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadRequirementVerificationReadiness(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadRequirementArchitectureGaps(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadRequirementUnimplemented(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadRequirementUntested(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadRequirementHistory(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> confirmRequirement(Uri baseUri, String requirementId, {String operator, String notes});
+  Future<Map<String, dynamic>> rejectRequirement(Uri baseUri, String requirementId, {String operator, String notes});
+  Future<Map<String, dynamic>> deferRequirement(Uri baseUri, String requirementId, {String operator, String notes});
   Future<Map<String, dynamic>> loadDecisionInbox(Uri baseUri, {List<String>? projectIds});
   Future<Map<String, dynamic>> evaluateDecision(Uri baseUri, Map<String, dynamic> payload);
   Future<Map<String, dynamic>> compareDecisionOptions(Uri baseUri, Map<String, dynamic> payload);
@@ -510,6 +523,103 @@ class HttpNeosClient implements NeosClient {
   Future<Map<String, dynamic>> loadAiRequestCitations(Uri baseUri, String requestId) async {
     final normalized = _normalize(baseUri);
     return _getJson(normalized.resolve('ai/requests/$requestId/citations'));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementIntelligence(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'requirements/intelligence', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementInventory(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'requirements/intelligence/inventory', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementShow(Uri baseUri, String requirementId) async {
+    return _getJson(_normalize(baseUri).resolve('requirements/intelligence/show/$requirementId'));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementTrace(Uri baseUri, String requirementId) async {
+    return _getJson(_normalize(baseUri).resolve('requirements/intelligence/trace/$requirementId'));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementGaps(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'requirements/intelligence/gaps', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementVerificationReadiness(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'requirements/intelligence/verification-readiness', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementArchitectureGaps(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'requirements/intelligence/architecture-without-requirement', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementUnimplemented(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'requirements/intelligence/unimplemented', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementUntested(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'requirements/intelligence/untested', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRequirementHistory(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'requirements/intelligence/history', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> confirmRequirement(Uri baseUri, String requirementId, {String operator = 'operator', String notes = ''}) async {
+    return _postJson(_normalize(baseUri).resolve('requirements/intelligence/confirm/$requirementId'), {'operator': operator, 'notes': notes});
+  }
+
+  @override
+  Future<Map<String, dynamic>> rejectRequirement(Uri baseUri, String requirementId, {String operator = 'operator', String notes = ''}) async {
+    return _postJson(_normalize(baseUri).resolve('requirements/intelligence/reject/$requirementId'), {'operator': operator, 'notes': notes});
+  }
+
+  @override
+  Future<Map<String, dynamic>> deferRequirement(Uri baseUri, String requirementId, {String operator = 'operator', String notes = ''}) async {
+    return _postJson(_normalize(baseUri).resolve('requirements/intelligence/defer/$requirementId'), {'operator': operator, 'notes': notes});
   }
 
   Uri _withQuery(Uri baseUri, String path, [Map<String, String>? query]) {
