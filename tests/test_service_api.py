@@ -98,11 +98,12 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         assert status == 200
         assert health["status"] == "healthy"
         assert health["service_name"] == "NEOS Local Service"
-        assert health["service_version"] == "0.9.0"
+        assert health["service_version"] == "1.0.0"
         assert health["api_version"] == "v1"
-        assert health["schema_version"] == 10
+        assert health["schema_version"] == 11
         assert health["instance_id"]
         assert health["ai"]["settings"]["provider_id"] == "mock"
+        assert health["command_centre"]["open_work_items"] >= 0
 
         status, projects = _get_json(f"{base}/projects")
         assert status == 200
@@ -111,6 +112,18 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         status, ecosystem_search = _get_json(f"{base}/ecosystem/search?q=demo")
         assert status == 200
         assert ecosystem_search["count"] >= 1
+
+        status, today = _get_json(f"{base}/today")
+        assert status == 200
+        assert today["work_queue"]["count"] >= 0
+
+        status, queue = _get_json(f"{base}/work")
+        assert status == 200
+        assert "items" in queue
+
+        status, search = _get_json(f"{base}/search?q=demo")
+        assert status == 200
+        assert search["query"] == "demo"
 
         status, providers = _get_json(f"{base}/ai/providers")
         assert status == 200
@@ -192,6 +205,19 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         assert status == 200
         assert requirements["project_count"] == 1
         assert requirements["requirement_count"] >= 0
+
+        status, refresh = _post_json(f"{base}/projects/demo/refresh", {"scan": False, "requirements": True, "work_queue": True})
+        assert status == 200
+        assert refresh["project_id"] == "demo"
+        assert refresh["status"] == "completed"
+
+        status, refresh_job = _get_json(f"{base}/refresh/{refresh['job_id']}")
+        assert status == 200
+        assert refresh_job["job_id"] == refresh["job_id"]
+
+        status, session = _get_json(f"{base}/session")
+        assert status == 200
+        assert session["session_key"] == "workspace"
 
         status, requirement_inventory = _get_json(f"{base}/requirements/intelligence/inventory?project_id=demo")
         assert status == 200

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'decision_center.dart';
 import 'neos_client.dart';
@@ -43,20 +44,16 @@ bool _asBool(dynamic value, [bool fallback = false]) {
 }
 
 enum _Destination {
-  home,
+  today,
   projects,
   portfolio,
-  decisionCenter,
-  intelligence,
-  graph,
-  features,
   requirements,
-  tests,
-  releases,
+  architecture,
+  decisions,
+  evidence,
   timeline,
-  documentation,
+  workQueue,
   assistant,
-  plugins,
   health,
   settings,
 }
@@ -69,6 +66,14 @@ class _NavItem {
   final String label;
 }
 
+class _OpenCommandPaletteIntent extends Intent {
+  const _OpenCommandPaletteIntent();
+}
+
+class _RefreshWorkspaceIntent extends Intent {
+  const _RefreshWorkspaceIntent();
+}
+
 class NeosApp extends StatelessWidget {
   const NeosApp({super.key, required this.client});
 
@@ -78,7 +83,7 @@ class NeosApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'NEOS Windows Desktop',
+      title: 'NEOS Command Centre',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -109,6 +114,7 @@ class NeosShell extends StatefulWidget {
 class _NeosShellState extends State<NeosShell> {
   final TextEditingController _serviceController = TextEditingController();
   final TextEditingController _projectFilterController = TextEditingController();
+  final TextEditingController _commandSearchController = TextEditingController();
   final TextEditingController _assistantQuestionController = TextEditingController(text: 'What should I work on next?');
   final TextEditingController _aiProviderController = TextEditingController();
   final TextEditingController _aiModelController = TextEditingController();
@@ -117,13 +123,20 @@ class _NeosShellState extends State<NeosShell> {
   final TextEditingController _aiContextBudgetController = TextEditingController();
   final TextEditingController _aiMaxOutputController = TextEditingController();
 
-  _Destination _destination = _Destination.home;
+  _Destination _destination = _Destination.today;
   ServiceOverview? _overview;
   ProjectRecord? _project;
+  Map<String, dynamic>? _todayBrief;
+  Map<String, dynamic>? _workQueue;
+  Map<String, dynamic>? _sessionState;
+  List<Map<String, dynamic>> _searchResults = const [];
   String? _selectedProjectId;
   String? _error;
+  String? _commandError;
   bool _loadingOverview = true;
   bool _loadingProject = false;
+  bool _loadingCommandCentre = false;
+  bool _searchingCommandCentre = false;
   bool _loadingAi = false;
   bool _savingAiSettings = false;
   bool _askingAi = false;
@@ -138,20 +151,16 @@ class _NeosShellState extends State<NeosShell> {
   List<Map<String, dynamic>> _aiCitations = const [];
 
   static const List<_NavItem> _items = <_NavItem>[
-    _NavItem(_Destination.home, Icons.home_outlined, 'Home'),
+    _NavItem(_Destination.today, Icons.today_outlined, 'Today'),
     _NavItem(_Destination.projects, Icons.folder_outlined, 'Projects'),
-    _NavItem(_Destination.portfolio, Icons.account_tree_outlined, 'Portfolio Workspace'),
-    _NavItem(_Destination.decisionCenter, Icons.rule_folder_outlined, 'Decision Centre'),
-    _NavItem(_Destination.intelligence, Icons.schema_outlined, 'Repository Intelligence'),
-    _NavItem(_Destination.graph, Icons.graphic_eq_outlined, 'Knowledge Graph'),
-    _NavItem(_Destination.features, Icons.label_outline, 'Features & Requirements'),
-    _NavItem(_Destination.requirements, Icons.rule_outlined, 'Requirements Intelligence'),
-    _NavItem(_Destination.tests, Icons.fact_check_outlined, 'Tests & Evidence'),
-    _NavItem(_Destination.releases, Icons.rocket_launch_outlined, 'Releases'),
+    _NavItem(_Destination.portfolio, Icons.account_tree_outlined, 'Portfolio'),
+    _NavItem(_Destination.workQueue, Icons.inbox_outlined, 'Work Queue'),
+    _NavItem(_Destination.requirements, Icons.rule_outlined, 'Requirements'),
+    _NavItem(_Destination.architecture, Icons.graphic_eq_outlined, 'Architecture'),
+    _NavItem(_Destination.decisions, Icons.rule_folder_outlined, 'Decisions'),
+    _NavItem(_Destination.evidence, Icons.fact_check_outlined, 'Evidence'),
     _NavItem(_Destination.timeline, Icons.timeline_outlined, 'Timeline'),
-    _NavItem(_Destination.documentation, Icons.menu_book_outlined, 'Documentation'),
-    _NavItem(_Destination.assistant, Icons.psychology_outlined, 'AI Assistant'),
-    _NavItem(_Destination.plugins, Icons.extension_outlined, 'Plugins'),
+    _NavItem(_Destination.assistant, Icons.psychology_outlined, 'AI Partner'),
     _NavItem(_Destination.health, Icons.health_and_safety_outlined, 'System Health'),
     _NavItem(_Destination.settings, Icons.settings_outlined, 'Settings'),
   ];
@@ -172,6 +181,7 @@ class _NeosShellState extends State<NeosShell> {
   void dispose() {
     _serviceController.dispose();
     _projectFilterController.dispose();
+    _commandSearchController.dispose();
     _assistantQuestionController.dispose();
     _aiProviderController.dispose();
     _aiModelController.dispose();
@@ -204,6 +214,8 @@ class _NeosShellState extends State<NeosShell> {
           _selectedProjectId = null;
           _loadingProject = false;
         });
+        await _saveWorkspaceSession();
+        await _refreshCommandCentre();
       }
     } catch (error) {
       setState(() {
@@ -228,6 +240,8 @@ class _NeosShellState extends State<NeosShell> {
         _project = project;
         _loadingProject = false;
       });
+      await _saveWorkspaceSession();
+      await _refreshCommandCentre();
     } catch (error) {
       setState(() {
         _project = null;
@@ -241,9 +255,155 @@ class _NeosShellState extends State<NeosShell> {
     setState(() {
       _destination = destination;
     });
+    unawaited(_saveWorkspaceSession());
+    if (destination == _Destination.today || destination == _Destination.workQueue || destination == _Destination.projects) {
+      unawaited(_refreshCommandCentre());
+    }
     if (destination == _Destination.assistant || destination == _Destination.settings || destination == _Destination.health) {
       unawaited(_refreshAiWorkspace());
     }
+  }
+
+  Future<void> _saveWorkspaceSession() async {
+    try {
+      await widget.client.saveAppSession(_serviceUri, {
+        'selected_project_id': _selectedProjectId,
+        'destination': _destination.name,
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+    } catch (_) {
+      // Session persistence should not block the shell.
+    }
+  }
+
+  Future<void> _refreshCommandCentre() async {
+    setState(() {
+      _loadingCommandCentre = true;
+      _commandError = null;
+    });
+    try {
+      final results = await Future.wait([
+        widget.client.loadToday(_serviceUri, projectIds: _selectedProjectId == null ? null : <String>[_selectedProjectId!]),
+        widget.client.loadWorkQueue(_serviceUri, projectIds: _selectedProjectId == null ? null : <String>[_selectedProjectId!]),
+        widget.client.loadAppSession(_serviceUri),
+      ]);
+      setState(() {
+        _todayBrief = _asMap(results[0]);
+        _workQueue = _asMap(results[1]);
+        _sessionState = _asMap(results[2]);
+        _loadingCommandCentre = false;
+      });
+    } catch (error) {
+      setState(() {
+        _loadingCommandCentre = false;
+        _commandError = error.toString();
+      });
+    }
+  }
+
+  Future<void> _runCommandSearch(String query) async {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) {
+      setState(() {
+        _searchResults = const [];
+      });
+      return;
+    }
+    setState(() {
+      _searchingCommandCentre = true;
+      _commandError = null;
+    });
+    try {
+      final response = await widget.client.searchCommandCentre(
+        _serviceUri,
+        trimmed,
+        projectIds: _selectedProjectId == null ? null : <String>[_selectedProjectId!],
+        limit: 12,
+      );
+      setState(() {
+        _searchResults = _asList(response['items']).map((item) => _asMap(item)).toList(growable: false);
+        _searchingCommandCentre = false;
+      });
+    } catch (error) {
+      setState(() {
+        _searchingCommandCentre = false;
+        _commandError = error.toString();
+      });
+    }
+  }
+
+  Future<void> _openCommandPalette() async {
+    _commandSearchController.text = _commandSearchController.text.trim();
+    if (!mounted) {
+      return;
+    }
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 860, maxHeight: 720),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Command Palette', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _commandSearchController,
+                        autofocus: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Search commands or evidence',
+                          border: OutlineInputBorder(),
+                        ),
+                        onSubmitted: (value) async {
+                          await _runCommandSearch(value);
+                          setDialogState(() {});
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          OutlinedButton(onPressed: () => _selectDestination(_Destination.today), child: const Text('Today')),
+                          OutlinedButton(onPressed: () => _selectDestination(_Destination.workQueue), child: const Text('Work Queue')),
+                          OutlinedButton(onPressed: () => _selectDestination(_Destination.projects), child: const Text('Projects')),
+                          OutlinedButton(onPressed: () => _selectDestination(_Destination.assistant), child: const Text('AI Partner')),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (_searchingCommandCentre) const LinearProgressIndicator(),
+                      if (_commandError != null) ...[
+                        const SizedBox(height: 8),
+                        Text(_commandError!, style: const TextStyle(color: Colors.red)),
+                      ],
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: ListView(
+                          children: [
+                            for (final result in _searchResults)
+                              ListTile(
+                                leading: const Icon(Icons.search),
+                                title: Text(_asString(result['title'], 'Result')),
+                                subtitle: Text('${_asString(result['kind'])} · ${_asString(result['snippet'])}'),
+                                onTap: () => Navigator.of(context).pop(),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> _refreshAiWorkspace() async {
@@ -590,23 +750,40 @@ class _NeosShellState extends State<NeosShell> {
     );
   }
 
-  Widget _homeView() {
+  Widget _todayView() {
     final overview = _overview;
     final project = _project;
+    final today = _todayBrief;
+    final queue = _workQueue;
     if (_loadingOverview && overview == null) {
       return const Center(child: CircularProgressIndicator());
     }
+    final workItems = _asList(queue?['items']).map((item) => _asMap(item)).toList(growable: false);
+    final projectBriefs = _asList(today?['projects']).map((item) => _asMap(item)).toList(growable: false);
+    final highlights = _asList(today?['highlights']).map((item) => _asMap(item)).toList(growable: false);
+    final commandHealth = _asMap(today?['command_centre_health']);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _panel(
-            title: 'Home',
-            subtitle: 'Project health, latest scan activity, and next actions from the local NEOS service.',
-            trailing: IconButton(
-              onPressed: () => _refreshOverview(selectFirstProject: false),
-              icon: const Icon(Icons.refresh),
+            title: 'Today',
+            subtitle: 'Deterministic daily brief, open work, and command-centre controls.',
+            trailing: Wrap(
+              spacing: 8,
+              children: [
+                IconButton(
+                  onPressed: _openCommandPalette,
+                  icon: const Icon(Icons.search),
+                  tooltip: 'Command palette',
+                ),
+                IconButton(
+                  onPressed: () => _refreshOverview(selectFirstProject: false),
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Refresh',
+                ),
+              ],
             ),
             child: Wrap(
               spacing: 12,
@@ -620,21 +797,21 @@ class _NeosShellState extends State<NeosShell> {
                 ),
                 _metricCard(
                   title: 'Projects',
-                  value: (overview?.projects.length ?? 0).toString(),
+                  value: (overview?.projects.length ?? projectBriefs.length).toString(),
                   subtitle: 'Registered in the local database',
                   icon: Icons.folder_copy_outlined,
                 ),
                 _metricCard(
-                  title: 'Selected project',
-                  value: project?.projectId ?? 'none',
-                  subtitle: project?.summary['name']?.toString() ?? 'Choose a project from the sidebar',
-                  icon: Icons.hub_outlined,
+                  title: 'Open work',
+                  value: (queue?['count'] ?? workItems.length).toString(),
+                  subtitle: 'Active queue items',
+                  icon: Icons.inbox_outlined,
                 ),
                 _metricCard(
-                  title: 'Database',
-                  value: overview == null ? 'n/a' : '${(overview.databaseSizeBytes / 1024).round()} KB',
-                  subtitle: overview?.dbPath ?? 'Local SQLite store',
-                  icon: Icons.storage_outlined,
+                  title: 'Selected project',
+                  value: project?.projectId ?? _asString(today?['selected_project_id'], 'none'),
+                  subtitle: project?.summary['name']?.toString() ?? 'Choose a project from the sidebar',
+                  icon: Icons.hub_outlined,
                 ),
               ],
             ),
@@ -642,61 +819,299 @@ class _NeosShellState extends State<NeosShell> {
           const SizedBox(height: 16),
           LayoutBuilder(
             builder: (context, constraints) {
-              final split = constraints.maxWidth > 1100;
-              final actions = _panel(
-                title: 'Recommended next actions',
-                subtitle: 'Thin-client reminders based on what the local service can currently see.',
+              final split = constraints.maxWidth > 1180;
+              final brief = _panel(
+                title: 'Daily brief',
+                subtitle: 'Selected project, system freshness, and recommended focus.',
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    _Bullet(text: 'Refresh after a scan or build to keep the desktop view current.'),
-                    _Bullet(text: 'Switch projects to compare genome, memory, and flight evidence side by side.'),
-                    _Bullet(text: 'Use the JSON panes when you need the exact backend payload for a handoff or review.'),
-                    _Bullet(text: 'Keep the Python service on localhost; the desktop shell does not own project truth.'),
+                  children: [
+                    if (_commandError != null) ...[
+                      Text(_commandError!, style: const TextStyle(color: Colors.red)),
+                      const SizedBox(height: 8),
+                    ],
+                    _chip('Session ${_asString(_asMap(_sessionState)['session_key'], 'workspace')}'),
+                    const SizedBox(height: 12),
+                    for (final item in highlights)
+                      ListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.bolt_outlined),
+                        title: Text(_asString(item['title'], 'Work item')),
+                        subtitle: Text(_asString(item['why'], '')),
+                      ),
+                    if (highlights.isEmpty)
+                      const Text('No current highlights. Refresh the queue to generate deterministic next actions.'),
                   ],
                 ),
               );
-              final latestScan = _jsonPanel('Latest scan', overview?.lastScan, subtitle: 'Most recent scan row reported by the service.');
+              final health = _panel(
+                title: 'Command-centre health',
+                subtitle: 'Persistence, refresh jobs, and queue status.',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _chip('Open ${_asInt(commandHealth['open_work_items'], workItems.length)}'),
+                    _chip('Sessions ${_asInt(commandHealth['session_count'])}'),
+                    _chip('Refresh jobs ${_asInt(commandHealth['active_refresh_jobs'])}'),
+                    const SizedBox(height: 12),
+                    SelectableText(_prettyJson(commandHealth)),
+                  ],
+                ),
+              );
               if (split) {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: actions),
+                    Expanded(child: brief),
                     const SizedBox(width: 16),
-                    Expanded(child: latestScan),
+                    Expanded(child: health),
                   ],
                 );
               }
               return Column(
                 children: [
-                  actions,
+                  brief,
                   const SizedBox(height: 16),
-                  latestScan,
+                  health,
                 ],
               );
             },
           ),
           const SizedBox(height: 16),
-          if (overview != null)
+          _panel(
+            title: 'Open work',
+            subtitle: 'Active deterministic queue items generated from current project intelligence.',
+            trailing: TextButton.icon(
+              onPressed: () => _selectDestination(_Destination.workQueue),
+              icon: const Icon(Icons.open_in_new),
+              label: const Text('Open full queue'),
+            ),
+            child: workItems.isEmpty
+                ? const Text('No open queue items yet.')
+                : Column(
+                    children: [
+                      for (final item in workItems.take(5))
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(
+                            Icons.circle,
+                            size: 12,
+                            color: _asString(item['priority']) == 'high'
+                                ? const Color(0xFFDC2626)
+                                : _asString(item['priority']) == 'medium'
+                                    ? const Color(0xFFD97706)
+                                    : const Color(0xFF0F766E),
+                          ),
+                          title: Text(_asString(item['title'], 'Work item')),
+                          subtitle: Text(_asString(item['why'], '')),
+                          trailing: Text(_asString(item['status'], 'open')),
+                          onTap: () => _selectDestination(_Destination.workQueue),
+                        ),
+                    ],
+                  ),
+          ),
+          const SizedBox(height: 16),
+          if (projectBriefs.isNotEmpty)
             _panel(
-              title: 'Project inventory',
-              subtitle: 'Registered projects from the NEOS service.',
+              title: 'Project watchlist',
+              subtitle: 'Freshness and queue pressure across registered projects.',
               child: Column(
-                children: overview.projects
-                    .take(5)
-                    .map(
-                      (item) => ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        onTap: () => _loadProject(item.projectId),
-                        leading: const Icon(Icons.folder_outlined),
-                        title: Text(item.name),
-                        subtitle: Text(item.repoPath),
-                        trailing: Text(item.genomeStatus),
-                      ),
-                    )
-                    .toList(growable: false),
+                children: [
+                  for (final item in projectBriefs.take(6))
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      onTap: () => _loadProject(_asString(item['project_id'])),
+                      leading: const Icon(Icons.folder_outlined),
+                      title: Text(_asString(item['name'], _asString(item['project_id']))),
+                      subtitle: Text('Work ${_asInt(item['work_item_count'])} · Freshness ${_asString(item['scan_freshness'], 'unknown')}'),
+                      trailing: Text(_asString(item['status'], 'unknown')),
+                    ),
+                ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _workQueueView() {
+    final queue = _workQueue ?? const <String, dynamic>{};
+    final items = _asList(queue['items']).map((item) => _asMap(item)).toList(growable: false);
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _panel(
+            title: 'Work Queue',
+            subtitle: 'Deterministic, stateful work items derived from current project intelligence.',
+            trailing: Wrap(
+              spacing: 8,
+              children: [
+                IconButton(
+                  onPressed: () => _refreshCommandCentre(),
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Refresh queue',
+                ),
+                IconButton(
+                  onPressed: _openCommandPalette,
+                  icon: const Icon(Icons.search),
+                  tooltip: 'Search command centre',
+                ),
+              ],
+            ),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _chip('Open ${_asInt(_asMap(queue['summary'])['open_count'], items.length)}'),
+                _chip('High priority ${_asInt(_asMap(queue['summary'])['high_priority_count'])}'),
+                _chip('Projects ${_asInt(_asMap(queue['summary'])['project_count'])}'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (_loadingCommandCentre) const LinearProgressIndicator(),
+          if (items.isEmpty)
+            _panel(
+              title: 'Queue items',
+              subtitle: 'Nothing actionable is currently open.',
+              child: const Text('Refresh the queue after a scan or release to repopulate actionable items.'),
+            )
+          else
+            Column(
+              children: [
+                for (final item in items)
+                  Card(
+                    elevation: 0,
+                    color: const Color(0xFFF8FAFC),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(_asString(item['title'], 'Work item'), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                                    const SizedBox(height: 4),
+                                    Text(_asString(item['why'], ''), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              _chip(_asString(item['priority'], 'medium')),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          SelectableText(_prettyJson(item['evidence_json'])),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              OutlinedButton(
+                                onPressed: () async {
+                                  await widget.client.acknowledgeWorkItem(_serviceUri, _asString(item['id']));
+                                  await _refreshCommandCentre();
+                                },
+                                child: const Text('Acknowledge'),
+                              ),
+                              OutlinedButton(
+                                onPressed: () async {
+                                  await widget.client.deferWorkItem(_serviceUri, _asString(item['id']));
+                                  await _refreshCommandCentre();
+                                },
+                                child: const Text('Defer'),
+                              ),
+                              OutlinedButton(
+                                onPressed: () async {
+                                  await widget.client.dismissWorkItem(_serviceUri, _asString(item['id']));
+                                  await _refreshCommandCentre();
+                                },
+                                child: const Text('Dismiss'),
+                              ),
+                              FilledButton(
+                                onPressed: () async {
+                                  await widget.client.resolveWorkItem(_serviceUri, _asString(item['id']));
+                                  await _refreshCommandCentre();
+                                },
+                                child: const Text('Resolve'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _healthView() {
+    final overview = _overview;
+    final commandHealth = _asMap(_todayBrief?['command_centre_health']);
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _panel(
+            title: 'System Health',
+            subtitle: 'Service, storage, command-centre, and AI runtime status.',
+            trailing: IconButton(
+              onPressed: () {
+                _refreshOverview(selectFirstProject: false);
+                _refreshCommandCentre();
+                _refreshAiWorkspace();
+              },
+              icon: const Icon(Icons.refresh),
+            ),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                _metricCard(
+                  title: 'Service',
+                  value: overview?.status ?? 'offline',
+                  subtitle: overview == null ? 'Cannot reach the local service' : '${overview.serviceName} / ${overview.apiVersion}',
+                  icon: Icons.dns_outlined,
+                ),
+                _metricCard(
+                  title: 'Schema',
+                  value: _asString(overview?.schema['database_schema'], 'n/a'),
+                  subtitle: 'Database schema version',
+                  icon: Icons.data_object_outlined,
+                ),
+                _metricCard(
+                  title: 'Open work',
+                  value: _asString(commandHealth['open_work_items'], '0'),
+                  subtitle: 'Command-centre queue',
+                  icon: Icons.inbox_outlined,
+                ),
+                _metricCard(
+                  title: 'AI provider',
+                  value: _asString(_aiProviderHealth?['healthy'], 'false'),
+                  subtitle: _asString(_aiProviderHealth?['message'], 'Provider status unavailable'),
+                  icon: Icons.psychology_outlined,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _jsonPanel('Service health', overview?.health, subtitle: 'Raw backend health payload.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Command-centre health', commandHealth, subtitle: 'Queue, session, and refresh job status.'),
+          const SizedBox(height: 16),
+          _jsonPanel('AI provider health', _aiProviderHealth, subtitle: 'Current provider status and capabilities.'),
         ],
       ),
     );
@@ -1411,8 +1826,8 @@ class _NeosShellState extends State<NeosShell> {
 
   Widget _pageForDestination() {
     switch (_destination) {
-      case _Destination.home:
-        return _homeView();
+      case _Destination.today:
+        return _todayView();
       case _Destination.projects:
         return _projectsView();
       case _Destination.portfolio:
@@ -1421,39 +1836,23 @@ class _NeosShellState extends State<NeosShell> {
           serviceUri: _serviceUri,
           selectedProjectId: _selectedProjectId,
         );
-      case _Destination.decisionCenter:
+      case _Destination.workQueue:
+        return _workQueueView();
+      case _Destination.requirements:
+        return _requirementsView();
+      case _Destination.architecture:
+        return _graphView();
+      case _Destination.decisions:
         return DecisionCentre(
           client: widget.client,
           serviceUri: _serviceUri,
           selectedProjectId: _selectedProjectId,
         );
-      case _Destination.intelligence:
+      case _Destination.evidence:
         return _projectPayloadView(
-          title: 'Repository Intelligence',
-          subtitle: 'Genome, memory and build intelligence from the local service.',
-          keys: const ['genome', 'memory', 'build', 'configuration'],
-        );
-      case _Destination.graph:
-        return _graphView();
-      case _Destination.features:
-        return _projectPayloadView(
-          title: 'Features & Requirements',
-          subtitle: 'Feature inventory, decisions and configuration evidence.',
-          keys: const ['features', 'decisions', 'configuration'],
-        );
-      case _Destination.requirements:
-        return _requirementsView();
-      case _Destination.tests:
-        return _projectPayloadView(
-          title: 'Tests & Evidence',
-          subtitle: 'Tests, documentation and APIs reported by the local service.',
+          title: 'Evidence',
+          subtitle: 'Tests, documentation, APIs, and symbols reported by the local service.',
           keys: const ['tests', 'documentation', 'apis', 'symbols'],
-        );
-      case _Destination.releases:
-        return _projectPayloadView(
-          title: 'Releases',
-          subtitle: 'Flight snapshots, incidents and regressions for the selected project.',
-          keys: const ['flight', 'flight_timeline', 'flight_snapshots', 'flight_incidents', 'flight_regressions'],
         );
       case _Destination.timeline:
         return _projectPayloadView(
@@ -1461,18 +1860,10 @@ class _NeosShellState extends State<NeosShell> {
           subtitle: 'Memory and flight history side by side.',
           keys: const ['memory_timeline', 'flight_timeline'],
         );
-      case _Destination.documentation:
-        return _projectPayloadView(
-          title: 'Documentation',
-          subtitle: 'Documentation inventory and related structural evidence.',
-          keys: const ['documentation', 'build'],
-        );
       case _Destination.assistant:
         return _assistantView();
-      case _Destination.plugins:
-        return const Center(child: Text('Plugin surface is reserved for future integrations.'));
       case _Destination.health:
-        return _settingsView();
+        return _healthView();
       case _Destination.settings:
         return _settingsView();
     }
@@ -1492,8 +1883,8 @@ class _NeosShellState extends State<NeosShell> {
           final title = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('NEOS', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
-              Text('Windows desktop engineering shell', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
+              Text('NEOS Command Centre', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+              Text('Windows desktop engineering cockpit', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
             ],
           );
           final controls = compact
@@ -1516,6 +1907,12 @@ class _NeosShellState extends State<NeosShell> {
                       icon: const Icon(Icons.refresh),
                       label: const Text('Refresh'),
                     ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: _openCommandPalette,
+                      icon: const Icon(Icons.search),
+                      label: const Text('Command palette'),
+                    ),
                   ],
                 )
               : Row(
@@ -1537,6 +1934,12 @@ class _NeosShellState extends State<NeosShell> {
                       onPressed: () => _refreshOverview(selectFirstProject: false),
                       icon: const Icon(Icons.refresh),
                       label: const Text('Refresh'),
+                    ),
+                    const SizedBox(width: 12),
+                    OutlinedButton.icon(
+                      onPressed: _openCommandPalette,
+                      icon: const Icon(Icons.search),
+                      label: const Text('Command palette'),
                     ),
                   ],
                 );
@@ -1604,45 +2007,43 @@ class _NeosShellState extends State<NeosShell> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _topBar(context),
-            Expanded(
-              child: Row(
-                children: [
-                  _navigationPane(),
-                  Expanded(child: _contentArea(context)),
-                ],
-              ),
+    return Shortcuts(
+      shortcuts: <ShortcutActivator, Intent>{
+        const SingleActivator(LogicalKeyboardKey.keyK, control: true): const _OpenCommandPaletteIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyR, control: true): const _RefreshWorkspaceIntent(),
+      },
+      child: Actions(
+        actions: <Type, Action<Intent>>{
+          _OpenCommandPaletteIntent: CallbackAction<_OpenCommandPaletteIntent>(onInvoke: (_) {
+            unawaited(_openCommandPalette());
+            return null;
+          }),
+          _RefreshWorkspaceIntent: CallbackAction<_RefreshWorkspaceIntent>(onInvoke: (_) {
+            unawaited(_refreshOverview(selectFirstProject: false));
+            unawaited(_refreshCommandCentre());
+            if (_destination == _Destination.assistant || _destination == _Destination.settings || _destination == _Destination.health) {
+              unawaited(_refreshAiWorkspace());
+            }
+            return null;
+          }),
+        },
+        child: Scaffold(
+          body: SafeArea(
+            child: Column(
+              children: [
+                _topBar(context),
+                Expanded(
+                  child: Row(
+                    children: [
+                      _navigationPane(),
+                      Expanded(child: _contentArea(context)),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Bullet extends StatelessWidget {
-  const _Bullet({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 7),
-            child: Icon(Icons.circle, size: 8, color: Color(0xFF0F766E)),
           ),
-          const SizedBox(width: 10),
-          Expanded(child: Text(text)),
-        ],
+        ),
       ),
     );
   }

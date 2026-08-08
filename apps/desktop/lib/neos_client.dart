@@ -75,7 +75,7 @@ class ServiceHealthInfo {
 
   String get status => _string(raw['status'], 'unknown');
   String get serviceName => _string(raw['service_name'], 'NEOS Local Service');
-  String get serviceVersion => _string(raw['service_version'], '0.9.0');
+  String get serviceVersion => _string(raw['service_version'], '1.0.0');
   String get apiVersion => _string(raw['api_version'], 'v1');
   int get schemaVersion => _int(raw['schema_version'], _int(_map(raw['schema'])['database_schema'], 0));
   String get instanceId => _string(raw['instance_id']);
@@ -293,6 +293,18 @@ abstract class NeosClient {
   Future<Map<String, dynamic>> askAi(Uri baseUri, {required String projectId, required String question, List<String>? projectIds, String? conversationId, String? mode});
   Future<Map<String, dynamic>> loadAiRequest(Uri baseUri, String requestId);
   Future<Map<String, dynamic>> loadAiRequestCitations(Uri baseUri, String requestId);
+  Future<Map<String, dynamic>> loadToday(Uri baseUri, {List<String>? projectIds});
+  Future<Map<String, dynamic>> loadWorkQueue(Uri baseUri, {List<String>? projectIds, bool includeClosed});
+  Future<Map<String, dynamic>> loadWorkItem(Uri baseUri, String workItemId);
+  Future<Map<String, dynamic>> acknowledgeWorkItem(Uri baseUri, String workItemId, {String operator, String notes});
+  Future<Map<String, dynamic>> deferWorkItem(Uri baseUri, String workItemId, {String operator, String notes});
+  Future<Map<String, dynamic>> dismissWorkItem(Uri baseUri, String workItemId, {String operator, String notes});
+  Future<Map<String, dynamic>> resolveWorkItem(Uri baseUri, String workItemId, {String operator, String notes});
+  Future<Map<String, dynamic>> refreshProjectIntelligence(Uri baseUri, String projectId, {Map<String, dynamic>? options});
+  Future<Map<String, dynamic>> loadRefreshJob(Uri baseUri, String jobId);
+  Future<Map<String, dynamic>> loadAppSession(Uri baseUri, {String sessionKey});
+  Future<Map<String, dynamic>> saveAppSession(Uri baseUri, Map<String, dynamic> state, {String sessionKey});
+  Future<Map<String, dynamic>> searchCommandCentre(Uri baseUri, String query, {List<String>? projectIds, int limit});
   Future<Map<String, dynamic>> loadRequirementIntelligence(Uri baseUri, {List<String>? projectIds});
   Future<Map<String, dynamic>> loadRequirementInventory(Uri baseUri, {List<String>? projectIds});
   Future<Map<String, dynamic>> loadRequirementShow(Uri baseUri, String requirementId);
@@ -523,6 +535,87 @@ class HttpNeosClient implements NeosClient {
   Future<Map<String, dynamic>> loadAiRequestCitations(Uri baseUri, String requestId) async {
     final normalized = _normalize(baseUri);
     return _getJson(normalized.resolve('ai/requests/$requestId/citations'));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadToday(Uri baseUri, {List<String>? projectIds}) async {
+    final queryParts = (projectIds ?? const <String>[])
+        .where((value) => value.trim().isNotEmpty)
+        .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}')
+        .toList(growable: false);
+    return _getJson(_withRepeatedQuery(baseUri, 'today', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkQueue(Uri baseUri, {List<String>? projectIds, bool includeClosed = false}) async {
+    final queryParts = <String>[
+      if (includeClosed) 'include_closed=true',
+      ...(projectIds ?? const <String>[])
+          .where((value) => value.trim().isNotEmpty)
+          .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}'),
+    ];
+    return _getJson(_withRepeatedQuery(baseUri, 'work', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkItem(Uri baseUri, String workItemId) async {
+    return _getJson(_normalize(baseUri).resolve('work/$workItemId'));
+  }
+
+  @override
+  Future<Map<String, dynamic>> acknowledgeWorkItem(Uri baseUri, String workItemId, {String operator = 'operator', String notes = ''}) async {
+    return _postJson(_normalize(baseUri).resolve('work/$workItemId/acknowledge'), {'operator': operator, 'notes': notes});
+  }
+
+  @override
+  Future<Map<String, dynamic>> deferWorkItem(Uri baseUri, String workItemId, {String operator = 'operator', String notes = ''}) async {
+    return _postJson(_normalize(baseUri).resolve('work/$workItemId/defer'), {'operator': operator, 'notes': notes});
+  }
+
+  @override
+  Future<Map<String, dynamic>> dismissWorkItem(Uri baseUri, String workItemId, {String operator = 'operator', String notes = ''}) async {
+    return _postJson(_normalize(baseUri).resolve('work/$workItemId/dismiss'), {'operator': operator, 'notes': notes});
+  }
+
+  @override
+  Future<Map<String, dynamic>> resolveWorkItem(Uri baseUri, String workItemId, {String operator = 'operator', String notes = ''}) async {
+    return _postJson(_normalize(baseUri).resolve('work/$workItemId/resolve'), {'operator': operator, 'notes': notes});
+  }
+
+  @override
+  Future<Map<String, dynamic>> refreshProjectIntelligence(Uri baseUri, String projectId, {Map<String, dynamic>? options}) async {
+    final normalized = _normalize(baseUri);
+    return _postJson(normalized.resolve('projects/$projectId/refresh'), options ?? const <String, dynamic>{});
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRefreshJob(Uri baseUri, String jobId) async {
+    return _getJson(_normalize(baseUri).resolve('refresh/$jobId'));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadAppSession(Uri baseUri, {String sessionKey = 'workspace'}) async {
+    final normalized = _normalize(baseUri);
+    return _getJson(normalized.resolve('session?session_key=${Uri.encodeQueryComponent(sessionKey)}'));
+  }
+
+  @override
+  Future<Map<String, dynamic>> saveAppSession(Uri baseUri, Map<String, dynamic> state, {String sessionKey = 'workspace'}) async {
+    final normalized = _normalize(baseUri);
+    return _postJson(normalized.resolve('session'), {'session_key': sessionKey, 'state': state});
+  }
+
+  @override
+  Future<Map<String, dynamic>> searchCommandCentre(Uri baseUri, String query, {List<String>? projectIds, int limit = 20}) async {
+    final normalized = _normalize(baseUri);
+    final queryParts = <String>[
+      'q=${Uri.encodeQueryComponent(query)}',
+      'limit=$limit',
+      ...(projectIds ?? const <String>[])
+          .where((value) => value.trim().isNotEmpty)
+          .map((value) => 'project_id=${Uri.encodeQueryComponent(value)}'),
+    ];
+    return _getJson(_withRepeatedQuery(normalized, 'search', queryParts));
   }
 
   @override

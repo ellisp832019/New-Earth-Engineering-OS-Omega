@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 11
 
 SCHEMA = """
 PRAGMA foreign_keys=ON;
@@ -367,6 +367,51 @@ CREATE TABLE IF NOT EXISTS requirement_reviews (
     metadata_json TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_requirement_reviews_requirement ON requirement_reviews(requirement_id);
+
+CREATE TABLE IF NOT EXISTS app_sessions (
+    session_key TEXT PRIMARY KEY,
+    value_json TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS work_items (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scope TEXT NOT NULL,
+    category TEXT NOT NULL,
+    priority TEXT NOT NULL,
+    title TEXT NOT NULL,
+    why TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    recommended_action TEXT NOT NULL,
+    status TEXT NOT NULL,
+    source TEXT NOT NULL,
+    source_fingerprint TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_work_items_project_status ON work_items(project_id, status);
+CREATE INDEX IF NOT EXISTS idx_work_items_category_priority ON work_items(category, priority);
+CREATE INDEX IF NOT EXISTS idx_work_items_source_fingerprint ON work_items(source_fingerprint);
+
+CREATE TABLE IF NOT EXISTS refresh_jobs (
+    job_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    status TEXT NOT NULL,
+    current_stage TEXT NOT NULL,
+    stage_index INTEGER NOT NULL,
+    stage_total INTEGER NOT NULL,
+    stages_json TEXT NOT NULL,
+    options_json TEXT NOT NULL,
+    result_json TEXT NOT NULL,
+    error_text TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_refresh_jobs_project_status ON refresh_jobs(project_id, status);
+CREATE INDEX IF NOT EXISTS idx_refresh_jobs_status ON refresh_jobs(status);
 
 CREATE TABLE IF NOT EXISTS api_endpoints (
     id TEXT PRIMARY KEY,
@@ -923,6 +968,13 @@ def _migrate(conn: sqlite3.Connection) -> None:
             conn,
             10,
             "Add requirements and architecture traceability tables for deterministic intent-to-implementation mapping.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 11 or conn.execute("SELECT 1 FROM migrations WHERE version=11").fetchone() is None:
+        _record_migration(
+            conn,
+            11,
+            "Add engineering command-centre tables for work items, session metadata, and refresh jobs.",
             applied_at,
         )
     conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version',?)", (str(SCHEMA_VERSION),))

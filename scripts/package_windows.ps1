@@ -71,7 +71,7 @@ if (-not (Test-Path $backendExe)) {
 Copy-Item $backendExe (Join-Path $packageRoot 'neos_engine.exe') -Force
 Copy-Item $backendExe (Join-Path $packageRuntime 'neos_engine.exe') -Force
 
-Set-Content -Path (Join-Path $packageRoot 'VERSION') -Value "0.9.0"
+Set-Content -Path (Join-Path $packageRoot 'VERSION') -Value "1.0.0"
 Set-Content -Path (Join-Path $packageRoot 'README.txt') -Value @"
 New Earth Engineering OS
 
@@ -104,14 +104,14 @@ $hashes = foreach ($relative in $fileList) {
 }
 
 $manifest = [pscustomobject]@{
-    neos_version = '0.9.0'
+    neos_version = '1.0.0'
     git_sha = $gitSha
     git_branch = $gitBranch
     build_timestamp_utc = $timestamp
     flutter_version = $flutterVersion.frameworkVersion
     dart_version = $flutterVersion.dartSdkVersion
     python_version = ($pythonVersion -replace '^Python ', '')
-    database_schema = 10
+    database_schema = 11
     api_version = 'v1'
     files = $hashes
 }

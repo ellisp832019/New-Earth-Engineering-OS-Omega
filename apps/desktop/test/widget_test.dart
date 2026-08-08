@@ -1,6 +1,5 @@
 import 'package:desktop/app.dart';
 import 'package:desktop/neos_client.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FakeNeosClient implements NeosClient {
@@ -9,9 +8,9 @@ class FakeNeosClient implements NeosClient {
     return ServiceHealthInfo.fromJson({
       'status': 'healthy',
       'service_name': 'NEOS Local Service',
-      'service_version': '0.9.0',
+      'service_version': '1.0.0',
       'api_version': 'v1',
-      'schema_version': 10,
+      'schema_version': 11,
       'instance_id': 'fake-instance',
       'owner_pid': 0,
       'host': '127.0.0.1',
@@ -72,7 +71,7 @@ class FakeNeosClient implements NeosClient {
         'db_path': 'C:/neos.db',
         'database_size_bytes': 1024,
         'registered_projects': 1,
-        'schema': {'database_schema': 10},
+        'schema': {'database_schema': 11},
         'last_scan': {'created_at': '2026-08-07T00:00:00Z'},
       },
       projects: {
@@ -358,6 +357,125 @@ class FakeNeosClient implements NeosClient {
   }
 
   @override
+  Future<Map<String, dynamic>> loadToday(Uri baseUri, {List<String>? projectIds}) async {
+    return {
+      'generated_at': '2026-08-08T00:00:00Z',
+      'selected_project_id': 'demo',
+      'projects': [
+        {
+          'project_id': 'demo',
+          'name': 'Demo Project',
+          'status': 'healthy',
+          'scan_freshness': 'fresh',
+          'work_item_count': 1,
+        },
+      ],
+      'work_queue': {
+        'count': 1,
+        'summary': {'open_count': 1, 'high_priority_count': 1, 'project_count': 1},
+        'items': [
+          {
+            'id': 'work-1',
+            'project_id': 'demo',
+            'scope': 'project',
+            'category': 'requirements',
+            'priority': 'high',
+            'title': 'Close requirement gap',
+            'why': 'Demo work item',
+            'evidence_json': '{}',
+            'recommended_action': 'Review the gap',
+            'status': 'open',
+            'source': 'command-centre',
+            'source_fingerprint': 'work-1',
+            'created_at': '2026-08-08T00:00:00Z',
+            'updated_at': '2026-08-08T00:00:00Z',
+            'metadata_json': '{}',
+          },
+        ],
+      },
+      'highlights': [
+        {'title': 'Close requirement gap', 'why': 'Demo work item'},
+      ],
+      'command_centre_health': {
+        'status': 'healthy',
+        'project_count': 1,
+        'open_work_items': 1,
+        'active_refresh_jobs': 0,
+        'session_count': 1,
+        'last_refresh_job': null,
+      },
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkQueue(Uri baseUri, {List<String>? projectIds, bool includeClosed = false}) async {
+    final today = await loadToday(baseUri, projectIds: projectIds);
+    return {
+      'generated_at': '2026-08-08T00:00:00Z',
+      'project_ids': projectIds ?? ['demo'],
+      'count': 1,
+      'summary': {'open_count': 1, 'high_priority_count': 1, 'project_count': 1},
+      'items': today['work_queue']['items'],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkItem(Uri baseUri, String workItemId) async {
+    return {'id': workItemId, 'project_id': 'demo', 'status': 'open'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> acknowledgeWorkItem(Uri baseUri, String workItemId, {String operator = 'operator', String notes = ''}) async {
+    return {'id': workItemId, 'status': 'acknowledged'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> deferWorkItem(Uri baseUri, String workItemId, {String operator = 'operator', String notes = ''}) async {
+    return {'id': workItemId, 'status': 'deferred'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> dismissWorkItem(Uri baseUri, String workItemId, {String operator = 'operator', String notes = ''}) async {
+    return {'id': workItemId, 'status': 'dismissed'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> resolveWorkItem(Uri baseUri, String workItemId, {String operator = 'operator', String notes = ''}) async {
+    return {'id': workItemId, 'status': 'done'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> refreshProjectIntelligence(Uri baseUri, String projectId, {Map<String, dynamic>? options}) async {
+    return {'job_id': 'job-1', 'project_id': projectId, 'status': 'completed', 'outputs': const {}};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRefreshJob(Uri baseUri, String jobId) async {
+    return {'job_id': jobId, 'project_id': 'demo', 'status': 'completed'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadAppSession(Uri baseUri, {String sessionKey = 'workspace'}) async {
+    return {'session_key': sessionKey, 'state': {'selected_project_id': 'demo'}, 'updated_at': '2026-08-08T00:00:00Z'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> saveAppSession(Uri baseUri, Map<String, dynamic> state, {String sessionKey = 'workspace'}) async {
+    return {'session_key': sessionKey, 'state': state, 'updated_at': '2026-08-08T00:00:00Z'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> searchCommandCentre(Uri baseUri, String query, {List<String>? projectIds, int limit = 20}) async {
+    return {
+      'query': query,
+      'count': 1,
+      'items': [
+        {'kind': 'work_item', 'project_id': 'demo', 'title': 'Close requirement gap', 'snippet': 'Demo work item', 'source': 'work_items', 'score': 10},
+      ],
+    };
+  }
+
+  @override
   Future<Map<String, dynamic>> loadRequirementIntelligence(Uri baseUri, {List<String>? projectIds}) async {
     return {
       'project_count': 1,
@@ -603,10 +721,11 @@ void main() {
     await tester.pumpWidget(NeosApp(client: FakeNeosClient()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Windows desktop engineering shell'), findsOneWidget);
-    expect(find.byIcon(Icons.home_outlined), findsOneWidget);
+    expect(find.text('NEOS Command Centre'), findsOneWidget);
+    expect(find.text('Today'), findsWidgets);
+    expect(find.text('Work Queue'), findsOneWidget);
     expect(find.text('Demo Project'), findsWidgets);
     expect(find.text('Navigation'), findsOneWidget);
-    expect(find.text('Requirements Intelligence'), findsOneWidget);
+    expect(find.text('AI Partner'), findsOneWidget);
   });
 }

@@ -6,6 +6,7 @@ from typing import Any
 
 from ..ai.providers import provider_from_settings
 from ..ai.store import load_ai_settings
+from ..command_centre import command_centre_health
 from ..db import connect, schema_info
 from ..ecosystem import analyse_portfolio, project_registry_v2
 from .models import ServiceConfig
@@ -86,5 +87,6 @@ def service_health(db_path: Path, config: ServiceConfig) -> dict[str, Any]:
             "provider": provider.info(ai_settings).to_dict() if provider is not None else None,
             "provider_health": provider_health,
         },
+        "command_centre": command_centre_health(db_path),
         "python": sys.version.split()[0],
     }

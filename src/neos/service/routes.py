@@ -4,6 +4,20 @@ from pathlib import Path
 from typing import Any
 
 from ..ai.service import handle_ai_get, handle_ai_post
+from ..command_centre import (
+    acknowledge_work_item,
+    defer_work_item,
+    dismiss_work_item,
+    get_app_session,
+    load_refresh_job,
+    load_today_brief,
+    load_work_item,
+    load_work_queue,
+    refresh_project_intelligence,
+    resolve_work_item,
+    search_command_centre,
+    set_app_session,
+)
 from ..core import (
     api_inventory,
     build_inventory,
@@ -142,6 +156,11 @@ def _body_project_ids(body: dict[str, Any], query: dict[str, list[str]]) -> list
     return None
 
 
+def _query_project_ids(query: dict[str, list[str]]) -> list[str] | None:
+    values = _query_values(query, "project_id")
+    return values or None
+
+
 def _project_repo_path(db_path: Path, project_id: str) -> Path:
     conn = connect(db_path)
     row = conn.execute("SELECT repo_path FROM projects WHERE project_id=?", (project_id,)).fetchone()
@@ -207,6 +226,28 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
         return 404, {"error": "not_found"}
     if segments[0] == "ai":
         return handle_ai_get(path, query, db_path, config)
+    if segments == ["today"]:
+        return 200, load_today_brief(db_path, project_ids=_query_project_ids(query))
+    if segments == ["work"]:
+        include_closed = query.get("include_closed", ["false"])[0].lower() in {"1", "true", "yes", "on"}
+        return 200, load_work_queue(db_path, project_ids=_query_project_ids(query), include_closed=include_closed)
+    if segments == ["search"]:
+        query_text = query.get("q", [""])[0].strip()
+        limit = int(query.get("limit", ["20"])[0] or 20)
+        return 200, search_command_centre(db_path, query_text, project_ids=_query_project_ids(query), limit=limit)
+    if segments == ["session"]:
+        session_key = query.get("session_key", ["workspace"])[0] or "workspace"
+        return 200, get_app_session(db_path, session_key=session_key)
+    if len(segments) == 2 and segments[0] == "work":
+        try:
+            return 200, load_work_item(db_path, segments[1])
+        except ValueError:
+            return 404, {"error": "not_found"}
+    if len(segments) == 2 and segments[0] == "refresh":
+        try:
+            return 200, load_refresh_job(db_path, segments[1])
+        except ValueError:
+            return 404, {"error": "not_found"}
     if segments[:3] == ["decisions", "intelligence", "inbox"]:
         project_ids = _query_values(query, "project_id")
         history = decision_history(db_path, project_ids=project_ids or None)
@@ -434,15 +475,41 @@ def handle_post(
     segments = [segment for segment in path.strip("/").split("/") if segment]
     if segments and segments[0] == "ai":
         return handle_ai_post(path, query, body, db_path, config)
+    if segments == ["session"]:
+        state = body.get("state")
+        if not isinstance(state, dict):
+            state = {key: value for key, value in body.items() if key != "session_key"}
+        session_key = str(body.get("session_key") or "workspace")
+        return 200, set_app_session(db_path, state, session_key=session_key)
+    if len(segments) == 3 and segments[0] == "projects" and segments[2] == "refresh":
+        project_id = segments[1]
+        options = body if isinstance(body, dict) else {}
+        try:
+            return 200, refresh_project_intelligence(db_path, project_id, options)
+        except ValueError:
+            return 404, {"error": "not_found"}
+    if len(segments) == 3 and segments[0] == "work" and segments[2] in {"acknowledge", "defer", "dismiss", "resolve"}:
+        try:
+            operator = str(body.get("operator") or "operator")
+            notes = str(body.get("notes") or "")
+            if segments[2] == "acknowledge":
+                return 200, acknowledge_work_item(db_path, segments[1], operator=operator, notes=notes)
+            if segments[2] == "defer":
+                return 200, defer_work_item(db_path, segments[1], operator=operator, notes=notes)
+            if segments[2] == "dismiss":
+                return 200, dismiss_work_item(db_path, segments[1], operator=operator, notes=notes)
+            return 200, resolve_work_item(db_path, segments[1], operator=operator, notes=notes)
+        except ValueError:
+            return 404, {"error": "not_found"}
     if segments[:3] == ["decisions", "intelligence", "evaluate"]:
         decision_type = str(body.get("decision_type") or "engineering_next_action").strip() or "engineering_next_action"
         title = str(body.get("title") or "Decision evaluation").strip() or "Decision evaluation"
         description = str(body.get("description") or "").strip()
-        options = body.get("options")
+        raw_options: Any = body.get("options")
         constraints = body.get("constraints")
         related_entities = body.get("related_entities")
         project_ids = _body_project_ids(body, query)
-        if options is not None and not isinstance(options, list):
+        if raw_options is not None and not isinstance(raw_options, list):
             return 400, {"error": "invalid_options"}
         if constraints is not None and not isinstance(constraints, list):
             return 400, {"error": "invalid_constraints"}
@@ -457,7 +524,7 @@ def handle_post(
             project_ids=project_ids,
             scope=str(body.get("scope") or ("portfolio" if project_ids else "project")),
             source=str(body.get("source") or "operator"),
-            options=options,
+            options=raw_options,
             constraints=[str(item) for item in constraints] if isinstance(constraints, list) else None,
             related_entities=[str(item) for item in related_entities] if isinstance(related_entities, list) else None,
         )
@@ -465,15 +532,15 @@ def handle_post(
     if segments[:3] == ["decisions", "intelligence", "compare"]:
         question = str(body.get("question") or "Option comparison").strip()
         decision_type = str(body.get("decision_type") or "architecture").strip() or "architecture"
-        options = body.get("options")
-        if not isinstance(options, list) or not options:
+        compare_options_payload: Any = body.get("options")
+        if not isinstance(compare_options_payload, list) or not compare_options_payload:
             return 400, {"error": "invalid_options"}
         project_ids = _body_project_ids(body, query)
         return 200, compare_options(
             db_path,
             question,
             decision_type,
-            options,
+            compare_options_payload,
             project_ids=project_ids,
         )
     if segments[:3] == ["decisions", "intelligence", "scenario"]:
