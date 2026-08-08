@@ -49,6 +49,7 @@ enum _Destination {
   portfolio,
   requirements,
   architecture,
+  hardware,
   decisions,
   evidence,
   timeline,
@@ -157,6 +158,7 @@ class _NeosShellState extends State<NeosShell> {
     _NavItem(_Destination.workQueue, Icons.inbox_outlined, 'Work Queue'),
     _NavItem(_Destination.requirements, Icons.rule_outlined, 'Requirements'),
     _NavItem(_Destination.architecture, Icons.graphic_eq_outlined, 'Architecture'),
+    _NavItem(_Destination.hardware, Icons.precision_manufacturing_outlined, 'Hardware Centre'),
     _NavItem(_Destination.decisions, Icons.rule_folder_outlined, 'Decisions'),
     _NavItem(_Destination.evidence, Icons.fact_check_outlined, 'Evidence'),
     _NavItem(_Destination.timeline, Icons.timeline_outlined, 'Timeline'),
@@ -258,6 +260,9 @@ class _NeosShellState extends State<NeosShell> {
     unawaited(_saveWorkspaceSession());
     if (destination == _Destination.today || destination == _Destination.workQueue || destination == _Destination.projects) {
       unawaited(_refreshCommandCentre());
+    }
+    if (destination == _Destination.hardware) {
+      unawaited(_saveWorkspaceSession());
     }
     if (destination == _Destination.assistant || destination == _Destination.settings || destination == _Destination.health) {
       unawaited(_refreshAiWorkspace());
@@ -372,6 +377,7 @@ class _NeosShellState extends State<NeosShell> {
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.today), child: const Text('Today')),
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.workQueue), child: const Text('Work Queue')),
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.projects), child: const Text('Projects')),
+                          OutlinedButton(onPressed: () => _selectDestination(_Destination.hardware), child: const Text('Hardware Centre')),
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.assistant), child: const Text('AI Partner')),
                         ],
                       ),
@@ -1338,6 +1344,62 @@ class _NeosShellState extends State<NeosShell> {
     );
   }
 
+  Widget _hardwareView() {
+    final project = _project;
+    if (project == null) {
+      return const Center(child: Text('Select a project to inspect hardware intelligence.'));
+    }
+    final hardware = _asMap(project.section('hardware'));
+    final summary = _asMap(hardware['summary']);
+    final boards = _asList(hardware['boards']).map((item) => _asMap(item)).toList(growable: false);
+    final components = _asList(hardware['components']).map((item) => _asMap(item)).toList(growable: false);
+    final pins = _asList(hardware['pins']).map((item) => _asMap(item)).toList(growable: false);
+    final validations = _asList(hardware['validations']).map((item) => _asMap(item)).toList(growable: false);
+    final gaps = _asList(hardware['gaps']).map((item) => _asMap(item)).toList(growable: false);
+    final risks = _asList(hardware['risks']).map((item) => _asMap(item)).toList(growable: false);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _panel(
+            title: 'Hardware Centre',
+            subtitle: 'Evidence-backed physical engineering snapshot for the selected project.',
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _chip(project.projectId),
+                _chip('Boards ${_asInt(summary['board_count'])}'),
+                _chip('Components ${_asInt(summary['component_count'])}'),
+                _chip('Pins ${_asInt(summary['pin_mapping_count'])}'),
+                _chip('Validation ${_asString(summary['validation_state'], 'unknown')}'),
+                _chip('Gaps ${_asInt(summary['gap_count'])}'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _jsonPanel('Hardware summary', summary, subtitle: 'Conservative derived summary for the selected repository evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Boards', boards, subtitle: 'Discovered board and board revision evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Components', components, subtitle: 'Physical part identity evidence derived from BOM and related files.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Pin mappings', pins, subtitle: 'Explicit firmware-to-hardware pin evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Validation', validations, subtitle: 'Hardware validation and bring-up evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Risks', risks, subtitle: 'Conservative hardware risks and review items.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Gaps', gaps, subtitle: 'Missing or incomplete physical engineering evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Raw hardware payload', hardware, subtitle: 'Full hardware snapshot returned by the backend.'),
+        ],
+      ),
+    );
+  }
+
   Widget _assistantView() {
     final project = _project;
     final response = _aiResponse;
@@ -1842,6 +1904,8 @@ class _NeosShellState extends State<NeosShell> {
         return _requirementsView();
       case _Destination.architecture:
         return _graphView();
+      case _Destination.hardware:
+        return _hardwareView();
       case _Destination.decisions:
         return DecisionCentre(
           client: widget.client,

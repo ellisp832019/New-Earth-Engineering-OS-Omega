@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +27,7 @@ from ..core import (
     documentation_inventory,
     feature_inventory,
     git_state_report,
+    hardware_inventory,
     impact_entity,
     init_project,
     project_summary,
@@ -190,6 +192,7 @@ def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
         "apis": api_inventory(db_path, project_id),
         "tests": test_inventory(db_path, project_id),
         "documentation": documentation_inventory(db_path, project_id),
+        "hardware": hardware_inventory(db_path, project_id),
         "memory": memory,
         "memory_timeline": memory_timeline(memory) if memory else _empty_items(project_id),
         "decisions": decision_inventory(db_path, project_id),
@@ -238,6 +241,38 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
     if segments == ["session"]:
         session_key = query.get("session_key", ["workspace"])[0] or "workspace"
         return 200, get_app_session(db_path, session_key=session_key)
+    if segments and segments[0] == "hardware" and len(segments) >= 2:
+        project_id = segments[1]
+        try:
+            hardware = hardware_inventory(db_path, project_id)
+        except ValueError:
+            return 404, {"error": "not_found"}
+        if len(segments) == 2:
+            return 200, hardware
+        tail = segments[2:]
+        if tail == ["boards"]:
+            return 200, {"project_id": project_id, **hardware, "boards": hardware.get("boards", [])}
+        if tail == ["components"]:
+            return 200, {"project_id": project_id, **hardware, "components": hardware.get("components", [])}
+        if tail == ["bom"]:
+            return 200, {"project_id": project_id, **hardware, "component_instances": hardware.get("component_instances", [])}
+        if tail == ["pins"]:
+            return 200, {"project_id": project_id, **hardware, "pins": hardware.get("pins", [])}
+        if tail == ["validation"]:
+            return 200, {"project_id": project_id, **hardware, "validations": hardware.get("validations", [])}
+        if tail == ["gaps"]:
+            return 200, {"project_id": project_id, **hardware, "gaps": hardware.get("gaps", [])}
+        if tail == ["risks"]:
+            return 200, {"project_id": project_id, **hardware, "risks": hardware.get("risks", [])}
+        if tail == ["history"]:
+            return 200, {"project_id": project_id, "history": {"latest_snapshot": hardware.get("summary", {}), "validation_state": hardware.get("validation_state", "unknown")}}
+        if len(tail) == 2 and tail[0] == "impact":
+            entity_id = tail[1]
+            matches = [item for item in hardware.get("boards", []) if entity_id in json.dumps(item, sort_keys=True)]
+            matches.extend(item for item in hardware.get("components", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in hardware.get("component_instances", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in hardware.get("pins", []) if entity_id in json.dumps(item, sort_keys=True))
+            return 200, {"entity_id": entity_id, "count": len(matches), "items": matches, "summary": hardware.get("summary", {})}
     if len(segments) == 2 and segments[0] == "work":
         try:
             return 200, load_work_item(db_path, segments[1])
@@ -419,6 +454,40 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
             return 200, test_inventory(db_path, project_id)
         if tail == ["documentation"]:
             return 200, documentation_inventory(db_path, project_id)
+        if tail == ["hardware"]:
+            return 200, hardware_inventory(db_path, project_id)
+        if tail == ["hardware", "boards"]:
+            hardware = hardware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **hardware, "boards": hardware.get("boards", [])}
+        if tail == ["hardware", "components"]:
+            hardware = hardware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **hardware, "components": hardware.get("components", [])}
+        if tail == ["hardware", "bom"]:
+            hardware = hardware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **hardware, "component_instances": hardware.get("component_instances", [])}
+        if tail == ["hardware", "pins"]:
+            hardware = hardware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **hardware, "pins": hardware.get("pins", [])}
+        if tail == ["hardware", "validation"]:
+            hardware = hardware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **hardware, "validations": hardware.get("validations", [])}
+        if tail == ["hardware", "gaps"]:
+            hardware = hardware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **hardware, "gaps": hardware.get("gaps", [])}
+        if tail == ["hardware", "risks"]:
+            hardware = hardware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **hardware, "risks": hardware.get("risks", [])}
+        if tail == ["hardware", "history"]:
+            hardware = hardware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, "history": {"latest_snapshot": hardware.get("summary", {}), "validation_state": hardware.get("validation_state", "unknown")}}
+        if len(tail) == 2 and tail[0] == "hardware" and tail[1] == "impact":
+            entity_id = query.get("entity", [project_id])[0]
+            hardware = hardware_inventory(db_path, project_id)
+            matches = [item for item in hardware.get("boards", []) if entity_id in json.dumps(item, sort_keys=True)]
+            matches.extend(item for item in hardware.get("components", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in hardware.get("component_instances", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in hardware.get("pins", []) if entity_id in json.dumps(item, sort_keys=True))
+            return 200, {"entity_id": entity_id, "count": len(matches), "items": matches, "summary": hardware.get("summary", {})}
         if tail == ["memory"]:
             memory = latest_project_memory(db_path, project_id)
             return 200, {"project_id": project_id, "memory": memory, "summary": memory.get("summary", {}) if memory else {}}

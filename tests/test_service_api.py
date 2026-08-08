@@ -80,6 +80,18 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
     (repo / "src" / "app.py").write_text("def run():\n    return True\n")
     (repo / "tests").mkdir()
     (repo / "tests" / "test_app.py").write_text("def test_run():\n    assert True\n")
+    hardware = repo / "hardware"
+    hardware.mkdir()
+    (hardware / "demo_board.kicad_pro").write_text("{\"board\": \"Demo Board\"}")
+    (hardware / "demo_board.kicad_sch").write_text("(kicad_sch (version 20211014) (generator eeschema))")
+    (hardware / "demo_board.kicad_pcb").write_text("(kicad_pcb (version 20211014) (generator pcbnew))")
+    (hardware / "demo_bom.csv").write_text(
+        "reference,manufacturer,mpn,description,footprint,value\n"
+        "U1,ST,STM32F401,MCU,QFN-48,STM32F401\n"
+        "J1,Amphenol,124015,Connector,USB-C,USB-C\n"
+    )
+    (hardware / "pin_map.md").write_text("GPIO21 -> I2C_SDA\nGPIO22 -> I2C_SCL\n")
+    (hardware / "bringup.md").write_text("Hardware validation passed after bench test and power-on verification.\n")
     _commit(repo, "feat: initial demo")
 
     db = tmp_path / "neos.db"
@@ -98,7 +110,7 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         assert status == 200
         assert health["status"] == "healthy"
         assert health["service_name"] == "NEOS Local Service"
-        assert health["service_version"] == "1.0.0"
+        assert health["service_version"] == "1.1.0"
         assert health["api_version"] == "v1"
         assert health["schema_version"] == 11
         assert health["instance_id"]
@@ -247,6 +259,23 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         status, project = _get_json(f"{base}/projects/demo")
         assert status == 200
         assert project["project"]["project_id"] == "demo"
+        assert project["hardware"]["summary"]["board_count"] >= 1
+
+        status, hardware_payload = _get_json(f"{base}/hardware/demo")
+        assert status == 200
+        assert hardware_payload["summary"]["board_count"] >= 1
+
+        status, hardware_boards = _get_json(f"{base}/hardware/demo/boards")
+        assert status == 200
+        assert hardware_boards["boards"]
+
+        status, hardware_pins = _get_json(f"{base}/hardware/demo/pins")
+        assert status == 200
+        assert hardware_pins["pins"]
+
+        status, hardware_validation = _get_json(f"{base}/hardware/demo/validation")
+        assert status == 200
+        assert hardware_validation["validation_state"] in {"validated", "partial", "not_run", "unknown"}
 
         status, memory = _get_json(f"{base}/projects/demo/memory")
         assert status == 200

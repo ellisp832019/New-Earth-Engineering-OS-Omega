@@ -10,6 +10,7 @@ from typing import Any
 
 from .db import connect
 from .flight import flight_temporal_context
+from .hardware import build_hardware_intelligence
 from .manifest import load_manifest
 from .memory import latest_project_memory, memory_timeline, memory_why
 from .models import Finding
@@ -75,6 +76,11 @@ def _project_row(conn, project_id: str):
     if not row:
         raise ValueError(f"Unknown project: {project_id}")
     return row
+
+
+def _project_repo_path(conn, project_id: str) -> Path:
+    row = _project_row(conn, project_id)
+    return Path(row["repo_path"])
 
 
 def _latest_scan_row(conn, project_id: str):
@@ -358,6 +364,10 @@ def _inventory_rows(conn, project_id: str, kinds: set[str]) -> list[dict[str, An
             }
         )
     return items
+
+
+def hardware_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    return build_hardware_intelligence(db_path, project_id)
 
 
 def project_summary(db_path: Path, project_id: str) -> dict[str, Any]:

@@ -8,7 +8,7 @@ class FakeNeosClient implements NeosClient {
     return ServiceHealthInfo.fromJson({
       'status': 'healthy',
       'service_name': 'NEOS Local Service',
-      'service_version': '1.0.0',
+      'service_version': '1.1.0',
       'api_version': 'v1',
       'schema_version': 11,
       'instance_id': 'fake-instance',
@@ -32,6 +32,34 @@ class FakeNeosClient implements NeosClient {
       'genome': {'project_id': projectId, 'maturity': {'status': 'stable'}},
       'memory': {'project_id': projectId, 'summary': {'decisions': 1}},
       'flight': {'project_id': projectId, 'status': 'available'},
+      'hardware': {
+        'project_id': projectId,
+        'summary': {
+          'board_count': 1,
+          'component_count': 2,
+          'pin_mapping_count': 2,
+          'validation_state': 'validated',
+          'gap_count': 1,
+        },
+        'boards': [
+          {
+            'id': 'board-1',
+            'name': 'Demo Board',
+            'revision': 'A',
+          },
+        ],
+        'components': [
+          {'id': 'component-1', 'description': 'MCU'},
+        ],
+        'pins': [
+          {'hardware_pin': 'GPIO21', 'signal': 'I2C_SDA'},
+        ],
+        'validations': [
+          {'validation_type': 'bench test', 'result': 'pass'},
+        ],
+        'risks': const [],
+        'gaps': const [],
+      },
       'requirements': {'count': 1, 'items': [{'id': 'req-1', 'title': 'Select a project'}]},
       'requirement_gaps': {'count': 1, 'items': [{'requirement_id': 'req-1', 'gaps': ['no_test_evidence']}]},
       'requirement_verification': {'count': 0, 'items': []},
@@ -122,6 +150,34 @@ class FakeNeosClient implements NeosClient {
       'portfolio_risks': const [],
       'unknown_surface': const [],
       'attention': const [],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadHardware(Uri baseUri, String projectId) async {
+    return {
+      'project_id': projectId,
+      'summary': {
+        'board_count': 1,
+        'component_count': 2,
+        'pin_mapping_count': 2,
+        'validation_state': 'validated',
+        'gap_count': 1,
+      },
+      'boards': [
+        {'id': 'board-1', 'name': 'Demo Board', 'revision': 'A'},
+      ],
+      'components': [
+        {'id': 'component-1', 'description': 'MCU'},
+      ],
+      'pins': [
+        {'hardware_pin': 'GPIO21', 'signal': 'I2C_SDA'},
+      ],
+      'validations': [
+        {'validation_type': 'bench test', 'result': 'pass'},
+      ],
+      'risks': const [],
+      'gaps': const [],
     };
   }
 
@@ -727,5 +783,6 @@ void main() {
     expect(find.text('Demo Project'), findsWidgets);
     expect(find.text('Navigation'), findsOneWidget);
     expect(find.text('AI Partner'), findsOneWidget);
+    expect(find.text('Hardware Centre'), findsOneWidget);
   });
 }

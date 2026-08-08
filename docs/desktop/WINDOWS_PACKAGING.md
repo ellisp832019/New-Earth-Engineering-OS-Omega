@@ -13,7 +13,7 @@ The script performs these steps:
 1. Run backend tests and static checks.
 2. Run Flutter analyze, Flutter tests, and a Windows release build.
 3. Build the frozen backend executable.
-4. Assemble the portable package under `dist\New-Earth-Engineering-OS-Windows-v1.0.0`.
+4. Assemble the portable package under `dist\New-Earth-Engineering-OS-Windows-v1.1.0`.
 5. Copy the desktop shell and backend into the package.
 6. Write release metadata files.
 7. Optionally produce a zip archive.

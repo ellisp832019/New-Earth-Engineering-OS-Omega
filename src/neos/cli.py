@@ -85,6 +85,19 @@ from .genome import (
     latest_project_genome,
     render_project_report,
 )
+from .hardware import (
+    build_hardware_intelligence,
+    hardware_boards,
+    hardware_bom,
+    hardware_components,
+    hardware_gaps,
+    hardware_impact,
+    hardware_pins,
+    hardware_risks,
+    hardware_summary,
+    hardware_trace,
+    hardware_validation,
+)
 from .memory import (
     build_project_memory,
     latest_project_memory,
@@ -335,6 +348,45 @@ def parser() -> argparse.ArgumentParser:
     requirements_defer.add_argument("--operator", default="operator")
     requirements_defer.add_argument("--notes", default="")
     requirements_defer.add_argument("--format", choices=("text", "json"), default="json")
+
+    hardware = sub.add_parser("hardware")
+    hardware_sub = hardware.add_subparsers(dest="hardware_cmd", required=True)
+    hardware_summary_cmd = hardware_sub.add_parser("summary")
+    hardware_summary_cmd.add_argument("project_id")
+    hardware_summary_cmd.add_argument("--format", choices=("text", "json"), default="json")
+    hardware_boards_cmd = hardware_sub.add_parser("boards")
+    hardware_boards_cmd.add_argument("project_id")
+    hardware_boards_cmd.add_argument("--format", choices=("text", "json"), default="json")
+    hardware_components_cmd = hardware_sub.add_parser("components")
+    hardware_components_cmd.add_argument("project_id")
+    hardware_components_cmd.add_argument("--format", choices=("text", "json"), default="json")
+    hardware_bom_cmd = hardware_sub.add_parser("bom")
+    hardware_bom_cmd.add_argument("project_id")
+    hardware_bom_cmd.add_argument("--format", choices=("text", "json"), default="json")
+    hardware_pins_cmd = hardware_sub.add_parser("pins")
+    hardware_pins_cmd.add_argument("project_id")
+    hardware_pins_cmd.add_argument("--format", choices=("text", "json"), default="json")
+    hardware_validation_cmd = hardware_sub.add_parser("validation")
+    hardware_validation_cmd.add_argument("project_id")
+    hardware_validation_cmd.add_argument("--format", choices=("text", "json"), default="json")
+    hardware_gaps_cmd = hardware_sub.add_parser("gaps")
+    hardware_gaps_cmd.add_argument("project_id")
+    hardware_gaps_cmd.add_argument("--format", choices=("text", "json"), default="json")
+    hardware_risks_cmd = hardware_sub.add_parser("risks")
+    hardware_risks_cmd.add_argument("project_id")
+    hardware_risks_cmd.add_argument("--format", choices=("text", "json"), default="json")
+    hardware_trace_cmd = hardware_sub.add_parser("trace")
+    hardware_trace_cmd.add_argument("project_id")
+    hardware_trace_cmd.add_argument("entity_id")
+    hardware_trace_cmd.add_argument("--format", choices=("text", "json"), default="json")
+    hardware_impact_cmd = hardware_sub.add_parser("impact")
+    hardware_impact_cmd.add_argument("project_id")
+    hardware_impact_cmd.add_argument("entity_id")
+    hardware_impact_cmd.add_argument("--format", choices=("text", "json"), default="json")
+    hardware_diff_cmd = hardware_sub.add_parser("diff")
+    hardware_diff_cmd.add_argument("project_id")
+    hardware_diff_cmd.add_argument("--other-project-id")
+    hardware_diff_cmd.add_argument("--format", choices=("text", "json"), default="json")
     decisions = sub.add_parser("decisions")
     decisions.add_argument("project_id")
     decisions.add_argument("--entity-id")
@@ -595,6 +647,10 @@ def _memory_or_build(db: Path, project_id: str) -> dict[str, Any]:
     return build_project_memory(db, project_id)["memory"]
 
 
+def _hardware_or_build(db: Path, project_id: str) -> dict[str, Any]:
+    return build_hardware_intelligence(db, project_id)
+
+
 def main(argv=None) -> int:
     args = parser().parse_args(argv)
     db = Path(args.db)
@@ -699,6 +755,43 @@ def main(argv=None) -> int:
                     _print(reject_requirement(db, args.requirement_id, operator=args.operator, notes=args.notes), args.format)
                 elif args.requirements_intel_cmd == "defer":
                     _print(defer_requirement(db, args.requirement_id, operator=args.operator, notes=args.notes), args.format)
+            return 0
+        if args.cmd == "hardware":
+            hardware = _hardware_or_build(db, args.project_id)
+            if args.hardware_cmd == "summary":
+                _print(hardware_summary(hardware), args.format)
+            elif args.hardware_cmd == "boards":
+                _print(hardware_boards(hardware), args.format)
+            elif args.hardware_cmd == "components":
+                _print(hardware_components(hardware), args.format)
+            elif args.hardware_cmd == "bom":
+                _print(hardware_bom(hardware), args.format)
+            elif args.hardware_cmd == "pins":
+                _print(hardware_pins(hardware), args.format)
+            elif args.hardware_cmd == "validation":
+                _print(hardware_validation(hardware), args.format)
+            elif args.hardware_cmd == "gaps":
+                _print(hardware_gaps(hardware), args.format)
+            elif args.hardware_cmd == "risks":
+                _print(hardware_risks(hardware), args.format)
+            elif args.hardware_cmd == "trace":
+                _print(hardware_trace(hardware, args.entity_id), args.format)
+            elif args.hardware_cmd == "impact":
+                _print(hardware_impact(hardware, args.entity_id), args.format)
+            elif args.hardware_cmd == "diff":
+                other = _hardware_or_build(db, args.other_project_id or args.project_id)
+                _print(
+                    {
+                        "from_project_id": args.project_id,
+                        "to_project_id": args.other_project_id or args.project_id,
+                        "from_summary": hardware_summary(hardware),
+                        "to_summary": hardware_summary(other),
+                        "board_count_delta": hardware_summary(other).get("board_count", 0) - hardware_summary(hardware).get("board_count", 0),
+                        "component_count_delta": hardware_summary(other).get("component_count", 0) - hardware_summary(hardware).get("component_count", 0),
+                        "pin_mapping_count_delta": hardware_summary(other).get("pin_mapping_count", 0) - hardware_summary(hardware).get("pin_mapping_count", 0),
+                    },
+                    args.format,
+                )
             return 0
         if args.cmd == "feature":
             if args.feature_cmd == "list":

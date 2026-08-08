@@ -75,7 +75,7 @@ class ServiceHealthInfo {
 
   String get status => _string(raw['status'], 'unknown');
   String get serviceName => _string(raw['service_name'], 'NEOS Local Service');
-  String get serviceVersion => _string(raw['service_version'], '1.0.0');
+  String get serviceVersion => _string(raw['service_version'], '1.1.0');
   String get apiVersion => _string(raw['api_version'], 'v1');
   int get schemaVersion => _int(raw['schema_version'], _int(_map(raw['schema'])['database_schema'], 0));
   String get instanceId => _string(raw['instance_id']);
@@ -267,6 +267,7 @@ abstract class NeosClient {
   Future<ServiceHealthInfo> probeHealth(Uri baseUri);
   Future<ServiceOverview> loadOverview(Uri baseUri);
   Future<ProjectRecord> loadProject(Uri baseUri, String projectId);
+  Future<Map<String, dynamic>> loadHardware(Uri baseUri, String projectId);
   Future<Map<String, dynamic>> loadEcosystem(Uri baseUri);
   Future<Map<String, dynamic>> loadEcosystemProjects(Uri baseUri);
   Future<Map<String, dynamic>> loadEcosystemCapabilities(Uri baseUri);
@@ -383,6 +384,12 @@ class HttpNeosClient implements NeosClient {
     final normalized = _normalize(baseUri);
     final json = await _getJson(normalized.resolve('projects/$projectId'));
     return ProjectRecord.fromJson(json);
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadHardware(Uri baseUri, String projectId) async {
+    final normalized = _normalize(baseUri);
+    return _getJson(normalized.resolve('projects/$projectId/hardware'));
   }
 
   @override
