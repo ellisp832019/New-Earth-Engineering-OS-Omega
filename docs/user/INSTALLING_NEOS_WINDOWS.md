@@ -4,7 +4,7 @@ Observed on 2026-08-07.
 
 ## What to download
 
-Use the Windows release bundle from `dist\New-Earth-Engineering-OS-Windows-Milestone-A1` or the equivalent zipped package.
+Use the Windows release bundle from `dist\New-Earth-Engineering-OS-Windows-v1.0.0` or the equivalent zipped package.
 
 ## Install steps
 

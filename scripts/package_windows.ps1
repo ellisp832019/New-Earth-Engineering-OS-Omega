@@ -10,14 +10,14 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $desktopRoot = Join-Path $root 'apps\desktop'
 $releaseRoot = Join-Path $desktopRoot 'build\windows\x64\runner\Release'
 $backendRoot = Join-Path $root 'build\backend'
-$packageRoot = Join-Path $root 'dist\New-Earth-Engineering-OS-Windows-Milestone-A1'
+$packageRoot = Join-Path $root 'dist\New-Earth-Engineering-OS-Windows-v1.0.0'
 $packageRuntime = Join-Path $packageRoot 'runtime'
 $packageData = Join-Path $packageRoot 'data'
 $packageAssets = Join-Path $packageRoot 'assets'
 $manifestPath = Join-Path $packageRoot 'BUILD_MANIFEST.json'
 $checksumsPath = Join-Path $packageRoot 'CHECKSUMS.json'
 $metricsPath = Join-Path $packageRoot 'BUILD_METRICS.json'
-$zipPath = Join-Path $root 'dist\New-Earth-Engineering-OS-Windows-Milestone-A1.zip'
+$zipPath = Join-Path $root 'dist\New-Earth-Engineering-OS-Windows-v1.0.0.zip'
 
 function Get-JsonVersionInfo {
     param([string]$Command, [string[]]$Args)

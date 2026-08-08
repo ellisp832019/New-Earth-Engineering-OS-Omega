@@ -1,5 +1,5 @@
 param(
-    [string]$PackageRoot = (Join-Path $PSScriptRoot '..\dist\New-Earth-Engineering-OS-Windows-Milestone-A1'),
+    [string]$PackageRoot = (Join-Path $PSScriptRoot '..\dist\New-Earth-Engineering-OS-Windows-v1.0.0'),
     [int]$TimeoutSeconds = 60
 )
 

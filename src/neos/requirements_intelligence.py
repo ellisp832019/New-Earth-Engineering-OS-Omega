@@ -11,7 +11,7 @@ from typing import Any
 from .db import connect
 from .genome import build_project_genome, latest_project_genome
 
-ENGINE_VERSION = "0.9.0"
+ENGINE_VERSION = "1.0.0"
 
 REQUIREMENT_STATES = {
     "candidate",

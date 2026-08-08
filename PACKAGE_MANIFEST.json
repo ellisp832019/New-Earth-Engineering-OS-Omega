@@ -1,1933 +1,1588 @@
 {
-  "package": "New-Earth-Engineering-OS-Omega",
-  "version": "0.9.0",
-  "generated": "2026-08-08",
-  "file_count": 385,
-  "files": [
-    {
-      "path": ".github/workflows/ci.yml",
-      "sha256": "354304c278db58ebe48da6b4db9780b59b931811e52c25c8540e195210bc86dc",
-      "bytes": 385
-    },
-    {
-      "path": ".gitignore",
-      "sha256": "e97cb86bd258f1e1062b65e30aff39e9df5240551092f8e020bb92c62517fbd0",
-      "bytes": 132
-    },
-    {
-      "path": ".neos/alpha-microgrow.sqlite3",
-      "sha256": "6badfeb15468037bbf2723bcc5334bb291e11ce3791c71469b1aabaf7b203de9",
-      "bytes": 2904064
-    },
-    {
-      "path": ".neos/neos.db",
-      "sha256": "bdffb1e71a5851e9611b9248b3699ae0dd1fd32a0d1b4b6f558e1b0d419d3016",
-      "bytes": 716800
-    },
-    {
-      "path": ".neos/phase2-microgrow.sqlite3",
-      "sha256": "164899531d3fcb205d4940a0f6e2ae4bf13f12528c2446ed8f00b453b7b608c1",
-      "bytes": 45756416
-    },
-    {
-      "path": ".pytest_cache/.gitignore",
-      "sha256": "e7c6bb30148cf667606dcd63e7ca77acaa3cfb0c8303bf09e6419e1e1669dc6d",
-      "bytes": 39
-    },
-    {
-      "path": ".pytest_cache/CACHEDIR.TAG",
-      "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4",
-      "bytes": 191
-    },
-    {
-      "path": ".pytest_cache/README.md",
-      "sha256": "420e808d79a6c25d3cda0af33bc4782314a14949866682c68ce8149e89b66b70",
-      "bytes": 310
-    },
-    {
-      "path": ".pytest_cache/v/cache/lastfailed",
-      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-      "bytes": 2
-    },
-    {
-      "path": ".pytest_cache/v/cache/nodeids",
-      "sha256": "b1cfa85f5b7111eb437fcf1839e9e19a6149156c63a5503ed55bf8b5aaf0ddd4",
-      "bytes": 1507
-    },
-    {
-      "path": ".ruff_cache/.gitignore",
-      "sha256": "9e3a60f1e6ec4ae60215c11d54b171392745ec25e9dded433d5bd921363af316",
-      "bytes": 35
-    },
-    {
-      "path": ".ruff_cache/0.16.1/1668642916374293413",
-      "sha256": "fd54f17e1e661f4597244601e73f899797eefae91e4002ba74023e1475c84f9a",
-      "bytes": 236
-    },
-    {
-      "path": ".ruff_cache/0.16.1/2553452770466871901",
-      "sha256": "4bce015c32b018a330ca8c55f899c18c72e97101626668afda92eb5f3008b414",
-      "bytes": 212
-    },
-    {
-      "path": ".ruff_cache/0.16.1/3219282726996932908",
-      "sha256": "5fcfc651f70f1b4b6b11f16d0cdfa525eb908665ec6980c5420fa3017345a95a",
-      "bytes": 908
-    },
-    {
-      "path": ".ruff_cache/0.16.1/4452059130614130118",
-      "sha256": "a54746d0222d6a270977b43490028a03d935c12946b0426042fcf9420b9b9906",
-      "bytes": 324
-    },
-    {
-      "path": ".ruff_cache/0.16.1/6169038014487648959",
-      "sha256": "14edd3f5a8151429bfdfd4a93b5a096c77a38d91a07f344e0a40af5ae07cc350",
-      "bytes": 1948
-    },
-    {
-      "path": ".ruff_cache/CACHEDIR.TAG",
-      "sha256": "5953156d7e0c564a427251316eaf26f8870e6483ae2197f916b630e4f93e31ae",
-      "bytes": 43
-    },
-    {
-      "path": "CHANGELOG.md",
-      "sha256": "a255504adeef9c530b27e82465fa17388b412bb2b9932dc87a4cb7c7da819fa9",
-      "bytes": 323
-    },
-    {
-      "path": "CODEX_OMEGA_BUILD_PROMPT.md",
-      "sha256": "c7c0ee6ebce6b3798073e7d654379e9a9b4b12b0516cdaccd32c8afc2bd75699",
-      "bytes": 6122
-    },
-    {
-      "path": "LICENSE.md",
-      "sha256": "7213313e010adfcdd5bc2dccbdf41568f6ed372d801b140bbc083a5d2bbd6e82",
-      "bytes": 256
-    },
-    {
-      "path": "README.md",
-      "sha256": "3dd4118db81246a0f23c242c27fc28e2eba9e7ae7b20fb74d7ce47909588f40b",
-      "bytes": 5745
-    },
-    {
-      "path": "VERSION",
-      "sha256": "9d8c94f1ad3ea96b1e2ac4914fda4cb93c76b4a3e0d8cc6dd8976d6c0b227d15",
-      "bytes": 6
-    },
-    {
-      "path": "apps/desktop/.gitignore",
-      "sha256": "1e725ca8cb4e6c2a19dc889d0cebb497d954f091aba3b08d53df20edd0a98cdb",
-      "bytes": 748
-    },
-    {
-      "path": "apps/desktop/.idea/libraries/Dart_SDK.xml",
-      "sha256": "a0cc3d495742ec426617dcffef06cd8335aef2b3fda99f9af377b935a01e0ce7",
-      "bytes": 1058
-    },
-    {
-      "path": "apps/desktop/.idea/libraries/KotlinJavaRuntime.xml",
-      "sha256": "124b21c81c4a853e4dab5e4aa40c6502d5c09f4a9b2a6fdba540e10f67e43738",
-      "bytes": 614
-    },
-    {
-      "path": "apps/desktop/.idea/modules.xml",
-      "sha256": "526d7cb474511e829a06254291888ee3d0273f8e87306ae159ebeb54d54183b1",
-      "bytes": 393
-    },
-    {
-      "path": "apps/desktop/.idea/runConfigurations/main_dart.xml",
-      "sha256": "75188212480010c08797294663d15f00fd5ca1f474173a5d919493b17b6d9518",
-      "bytes": 276
-    },
-    {
-      "path": "apps/desktop/.idea/workspace.xml",
-      "sha256": "5a51b5c6f5c6600657ffe1142a4604838d68311f9dcf0a4c3703b76fc6fbe0f3",
-      "bytes": 1553
-    },
-    {
-      "path": "apps/desktop/.metadata",
-      "sha256": "adf6d1a331b1921285179adf11985c1f87687882b5a7fe67c1b96a33f8a73fcb",
-      "bytes": 998
-    },
-    {
-      "path": "apps/desktop/README.md",
-      "sha256": "ec38b28ce460f6c67fd77b010506da29f9c0d00b5181a38fbf25d6b2ea6f8e54",
-      "bytes": 646
-    },
-    {
-      "path": "apps/desktop/analysis_options.yaml",
-      "sha256": "b63207cf529949ec4727b68c23dbb38ce255b6f6f4ae1effcb5c1dcf2852d238",
-      "bytes": 1448
-    },
-    {
-      "path": "apps/desktop/desktop.iml",
-      "sha256": "d2052ef022de364483e3823043cb6a5be1c3f33217cae65c1a40b48b17669199",
-      "bytes": 859
-    },
-    {
-      "path": "apps/desktop/lib/app.dart",
-      "sha256": "3a8b5d80f3e273cb1beca81e9de9c8ec8d13de39afb2171f6e2ae4436cda9614",
-      "bytes": 65216
-    },
-    {
-      "path": "apps/desktop/lib/bootstrap.dart",
-      "sha256": "af33ca14fced4dfb7ecb447e3a4fa6621c9ad2fbf8b6d9ca071aa457e70963bb",
-      "bytes": 6017
-    },
-    {
-      "path": "apps/desktop/lib/decision_center.dart",
-      "sha256": "cd5b430887dbb7e6d48a01dedcbcec6af5aa931dbda970b26327af875b10e8dc",
-      "bytes": 25263
-    },
-    {
-      "path": "apps/desktop/lib/engine_manager.dart",
-      "sha256": "ece4859f20af57b09f0a5a035effd07d4b92f6c24ce0341010ee23bb05bd7bce",
-      "bytes": 17182
-    },
-    {
-      "path": "apps/desktop/lib/main.dart",
-      "sha256": "f3164fd915de453658560782935a3f3af9ab0d025be4f13ff781549629d48e9f",
-      "bytes": 215
-    },
-    {
-      "path": "apps/desktop/lib/neos_client.dart",
-      "sha256": "953c508b69c11c84e8dfa0f701a20ce8f11eb4fe90be6670f1a7c029e99f72fa",
-      "bytes": 32028
-    },
-    {
-      "path": "apps/desktop/lib/portfolio_workspace.dart",
-      "sha256": "54409327c6cae10abd1a3815453845e0cadc28037f388cc0ca2b5cff153e4caa",
-      "bytes": 22490
-    },
-    {
-      "path": "apps/desktop/pubspec.lock",
-      "sha256": "9a213df2d6b1726fe32834c4ebc68efa3324c865a1d8971fda77f41fc37384e5",
-      "bytes": 7230
-    },
-    {
-      "path": "apps/desktop/pubspec.yaml",
-      "sha256": "31acc7f56dac8f0e929caa59fe51467293a53a71d65563eaf1bc8ee41e2e7028",
-      "bytes": 3942
-    },
-    {
-      "path": "apps/desktop/test/widget_test.dart",
-      "sha256": "d93fea1b0177cd19b24b3940983c64d3989e68bc0343ed1157af4fb622a43ecf",
-      "bytes": 21152
-    },
-    {
-      "path": "apps/desktop/windows/.gitignore",
-      "sha256": "955e3110cb16494ee76e1cd5df47e2c212309eb94a49a123fe87f718de413cb8",
-      "bytes": 308
-    },
-    {
-      "path": "apps/desktop/windows/CMakeLists.txt",
-      "sha256": "6cd8928ea92e00e603e20af2525c9a2b2de1439669fee9a897fb0ac8b42afe37",
-      "bytes": 4258
-    },
-    {
-      "path": "apps/desktop/windows/flutter/CMakeLists.txt",
-      "sha256": "bd05e3268b2f246bcbafdb778165fe67a7bafdba04eb73599502563a67b8ae7e",
-      "bytes": 3851
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/binary_messenger_impl.h",
-      "sha256": "e88a83b20f44a2454594d0bd6d9ac158a9beb30b40bbce10ddbef482053d9c7f",
-      "bytes": 1651
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/byte_buffer_streams.h",
-      "sha256": "b6cf6e45871ab2fac6ba6f50fefc68b4bd377c16345ac06f8d196aa2800f7b57",
-      "bytes": 2946
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/core_implementations.cc",
-      "sha256": "3d6157197edfe8996358739a2adcfb25dc8fa5786571ce9e5d60d2a42943e1c8",
-      "bytes": 10693
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/engine_method_result.cc",
-      "sha256": "53794963d2397e381492b04298c6b8b31e2243f9e6fb2c4153689640f50ef4c8",
-      "bytes": 529
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/flutter_engine.cc",
-      "sha256": "68c5c465429594be184b81b403d91cc5c460b75b0ee0ffa880d3479884e22d1d",
-      "bytes": 4030
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/flutter_view_controller.cc",
-      "sha256": "ea67ebea6a75638512d39d09160a8ec3fe1d66bee7212146457d45cfda74f7db",
-      "bytes": 1726
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/basic_message_channel.h",
-      "sha256": "2b483d016862c88e403137c77e28cb290213901b806670b970b9fb5606d3d25d",
-      "bytes": 5866
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/binary_messenger.h",
-      "sha256": "a9c148126433a73cf45bee50a830047f5c54cbe9f97e6d0ff1236691246f7964",
-      "bytes": 1947
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/byte_streams.h",
-      "sha256": "5b4852d2dc1bfbe58187d9bc262a01042845510c7029d044b64d71309b128e83",
-      "bytes": 2908
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/dart_project.h",
-      "sha256": "21acdafdd7a339c9bd5d9eb234b3413f973a231b61a3cd3656767542f61f071b",
-      "bytes": 5718
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/encodable_value.h",
-      "sha256": "2672440b287ebf0551a4475a54bc0e8f888a1c8be556bfcd9f4b3d9c15e1fd37",
-      "bytes": 11663
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/engine_method_result.h",
-      "sha256": "3300d3fe6ac2282de919076e17dfad9c014832e8ce1fd0794897bdfad60bccfd",
-      "bytes": 2933
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/event_channel.h",
-      "sha256": "eaf20bae4076a3645de7fa4f0d6803d3599c43983cdb4197923a8bd0bfa60daf",
-      "bytes": 7606
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/event_sink.h",
-      "sha256": "206eefcdc44c679b3944eccecfab55817b681ee01eb2876744c92dcb4befd5cc",
-      "bytes": 2167
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/event_stream_handler.h",
-      "sha256": "6500dc235b0756f316794d31409894b95e0a3932fd0590ed011522e1017814b9",
-      "bytes": 2954
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/event_stream_handler_functions.h",
-      "sha256": "14eb1da5c1b8dce313d363bddd560c4db1f3dbcb43bb91c8a11889e51f531de2",
-      "bytes": 2654
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/flutter_engine.h",
-      "sha256": "bd057a1026c24054942fdc20286df172f06b79cccf44e2006f0e38efe7707fd3",
-      "bytes": 5085
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/flutter_view.h",
-      "sha256": "2785b219b1f4bb430bd97b8737e7511da2d54efaa163336f2323d4ac58384fca",
-      "bytes": 1388
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/flutter_view_controller.h",
-      "sha256": "f8e58f453c1af8892e452d259c6a9405b7847e2b49dc95c6dcdf883f6d7f7a9f",
-      "bytes": 2719
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/message_codec.h",
-      "sha256": "3186a27f7d5073bb52f3ed2e1ad1f0d5d23c5cffc0bdebdf833354470bf232f1",
-      "bytes": 2305
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/method_call.h",
-      "sha256": "951b7bb05c0d7335d1d8929fce451fe4a5815cd83b9bb6f7fb70f0080c4215e9",
-      "bytes": 1402
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/method_channel.h",
-      "sha256": "560bd71ef4c34b302f32747cdbc42f27db0f3310ba9af3837bae0b41b06ff87b",
-      "bytes": 5949
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/method_codec.h",
-      "sha256": "361e3c353d2f32b5781375b5bc6a930da994aa4ac5c86f27bd95db302d6cd8f4",
-      "bytes": 4381
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/method_result.h",
-      "sha256": "906538745431284e00f2857ddff03666fd61422f704518baabb860d75df4fa81",
-      "bytes": 2860
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/method_result_functions.h",
-      "sha256": "ec341cf21ccd93b04725a564d2a9ed0d05aac088e1fe153de2b529bb2c061dd4",
-      "bytes": 2800
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/plugin_registrar.h",
-      "sha256": "ef4be66c6da2efa835e6cfdfcde3b09e8ffa714f7579783cf470c0e95744cb69",
-      "bytes": 4812
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/plugin_registrar_windows.h",
-      "sha256": "4bbf64581e6a84586b7896ba5b845b222a71946b5369340525623b638eb73c44",
-      "bytes": 5957
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/plugin_registry.h",
-      "sha256": "45ca53f15f1e7bd5a41e9358f586c5fa76aa2ef39b5383f38086dbacf43c50a3",
-      "bytes": 1225
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/standard_codec_serializer.h",
-      "sha256": "eb20d05f9bf201125fea8332bd1216f773976ad4b2c2e0d0bf8931f2bded68c2",
-      "bytes": 2957
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/standard_message_codec.h",
-      "sha256": "178070c1353c533f7ab082ddd4018923629e345963a72d9ffab71d555b17d732",
-      "bytes": 2108
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/standard_method_codec.h",
-      "sha256": "de3ee98c8f1d13a5685f442914caa8820c024959419bc70049484c8e54dd10be",
-      "bytes": 2688
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/include/flutter/texture_registrar.h",
-      "sha256": "5083efbb90d1c0999a4a64330880c08d0e3d9f354cc6ace04ab332a79cd5c2df",
-      "bytes": 4341
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/plugin_registrar.cc",
-      "sha256": "1e1a5242ac2dbdebb2e3da99bb34d5fd9beb003c8621e1a155931b3342e7d7a0",
-      "bytes": 1783
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/readme",
-      "sha256": "3af2c979e3aafd0999bee2c37a0f79ccb906d489b06f9d20c054c4142f2dfc2f",
-      "bytes": 496
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/standard_codec.cc",
-      "sha256": "3d75b7f17d482e0047672ea5e3cb7adf309976e7877fd3c5cc04d293ba671641",
-      "bytes": 15447
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/cpp_client_wrapper/texture_registrar_impl.h",
-      "sha256": "b61f467d683d8c43f9bfb59da797f23b33e397398e31b9960b4bd1751e6f5d41",
-      "bytes": 1543
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/flutter_export.h",
-      "sha256": "dc37c1d36f5410374dc93c1780809ff03e456cbcf0efe2d07205f3e541e29cdb",
-      "bytes": 838
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/flutter_messenger.h",
-      "sha256": "0bc7adeb55fe45c555135b17a02f9d357d4006658df633873d705ad253599619",
-      "bytes": 5204
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/flutter_plugin_registrar.h",
-      "sha256": "0c39b36d8b0ff7d307afa58c97f9c4607d9e8673b2f85969ce2a0bf3e50532b8",
-      "bytes": 1638
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/flutter_texture_registrar.h",
-      "sha256": "f5ca8a82f76e5de09d5f9a68599cb4baed2cd866e98af8c6ec45f14f66a87e96",
-      "bytes": 7332
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/flutter_windows.dll",
-      "sha256": "c0304beba5fe98477177e151c673adad98d0442f50efa25d03ff5f207cc21056",
-      "bytes": 20803584
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/flutter_windows.dll.exp",
-      "sha256": "186862ff62933ff75e75e796ad48911aa0c0af66efdf978d6131b0f6db98a0bd",
-      "bytes": 20732
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/flutter_windows.dll.lib",
-      "sha256": "26bae8669f51e8c68d230b2bd6999c4bf61352ecf1121b1105f0c24a3475c60c",
-      "bytes": 35656
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/flutter_windows.dll.pdb",
-      "sha256": "61d3fc55935e55ced8feceb3c3104c7c6f6dcbe356acf2aea517f864480698e5",
-      "bytes": 246460416
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/flutter_windows.h",
-      "sha256": "5ded0ea1a99fc330fddb63d607ebca189901d32d9a602c2b8756b337f26603bf",
-      "bytes": 14140
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/generated_config.cmake",
-      "sha256": "3d71d1c2d25425059b4af5cf2418a6baf3f5b5b55b6a3e39d00460c1aaf9db81",
-      "bytes": 1586
-    },
-    {
-      "path": "apps/desktop/windows/flutter/ephemeral/icudtl.dat",
-      "sha256": "998367809a821d595928089c197b3f7959f0420f81f79d4d0daee53378492ed5",
-      "bytes": 862304
-    },
-    {
-      "path": "apps/desktop/windows/flutter/generated_plugin_registrant.cc",
-      "sha256": "82e02567f2faf5e732dc92a2fb0d01104f7ba8c48973f8cfd41a860b4fac3f3b",
-      "bytes": 164
-    },
-    {
-      "path": "apps/desktop/windows/flutter/generated_plugin_registrant.h",
-      "sha256": "dbc11635d7b1ba1887adf40df5b83d634e9c3ab0bee34510c71528bb4d73602a",
-      "bytes": 302
-    },
-    {
-      "path": "apps/desktop/windows/flutter/generated_plugins.cmake",
-      "sha256": "286346b0d5303dc6b41072f9582d4c52bca35255b85b27b310f858e264dfdc56",
-      "bytes": 743
-    },
-    {
-      "path": "apps/desktop/windows/runner/CMakeLists.txt",
-      "sha256": "d765fdd05f63ad099e585a2cced0cbff13ec3229b7de68c8681b2107db850089",
-      "bytes": 1836
-    },
-    {
-      "path": "apps/desktop/windows/runner/Runner.rc",
-      "sha256": "22c2b8e4bae33f8397c1f12f8dbe3922c3883ea97db96c496c14245af126746c",
-      "bytes": 3146
-    },
-    {
-      "path": "apps/desktop/windows/runner/flutter_window.cpp",
-      "sha256": "9e9ec88234285499e2c364b0e3804245c20d3300ed469bc7eab466dcd2384cb3",
-      "bytes": 3199
-    },
-    {
-      "path": "apps/desktop/windows/runner/flutter_window.h",
-      "sha256": "c50992fb2e61b237842ab824b987d73353faf4729ec27f312f6594fdb11efd5d",
-      "bytes": 1228
-    },
-    {
-      "path": "apps/desktop/windows/runner/main.cpp",
-      "sha256": "2aa60a8fc61e4ecb3220c9eaf064296cd84ef1e32bb6d9530830391c73a29ac0",
-      "bytes": 1316
-    },
-    {
-      "path": "apps/desktop/windows/runner/resource.h",
-      "sha256": "d0e8bf7835468b4b6b1f8f0747f2e8f25c19841f2df2ac60aaa584ddae3aa7c6",
-      "bytes": 448
-    },
-    {
-      "path": "apps/desktop/windows/runner/resources/app_icon.ico",
-      "sha256": "c098d3fc85cacff98b8e69811b48e9f0d852fcee278132d794411d978869cbf8",
-      "bytes": 33772
-    },
-    {
-      "path": "apps/desktop/windows/runner/runner.exe.manifest",
-      "sha256": "639a56233fcd8cbcb8bbefcd93e4680ec2664f32d9acfb3d2ec1d8726a96e090",
-      "bytes": 616
-    },
-    {
-      "path": "apps/desktop/windows/runner/utils.cpp",
-      "sha256": "fbb18524c22593d0ce7869b0733e237be38e668fe045e3023bcf2d0b31784fa3",
-      "bytes": 1862
-    },
-    {
-      "path": "apps/desktop/windows/runner/utils.h",
-      "sha256": "832e246b6758253f89016fb0374b30791242e97ad950d27fc678b3d9feacfdc4",
-      "bytes": 691
-    },
-    {
-      "path": "apps/desktop/windows/runner/win32_window.cpp",
-      "sha256": "4e4f4dcf8e86ea6e097562cb3476039e693449bd8045367538afee579c017511",
-      "bytes": 8822
-    },
-    {
-      "path": "apps/desktop/windows/runner/win32_window.h",
-      "sha256": "d154cf89ba85f820631a9b5bedacbe64fc5815e428fe6bc5da579ce649f69841",
-      "bytes": 3624
-    },
-    {
-      "path": "docs/00_START_HERE.md",
-      "sha256": "d162643bfa3b7b1224b163f5f8e5ae7c1881fc14d2e7906ad8ae1b464893448d",
-      "bytes": 3086
-    },
-    {
-      "path": "docs/01_VISION_AND_PRODUCT_STRATEGY.md",
-      "sha256": "fde20d4a07828b28cad77ac40d1d4a59e74d575c7a7b98439b6bd856594cbcf5",
-      "bytes": 2206
-    },
-    {
-      "path": "docs/02_SYSTEM_ARCHITECTURE.md",
-      "sha256": "07f3864a4da935a59234d35c2406e1f13056eb9db20e46e37fc123c6bf86990e",
-      "bytes": 2427
-    },
-    {
-      "path": "docs/03_ALPHA_IMPLEMENTATION_PLAN.md",
-      "sha256": "119a5495949c93b910a86c70810496abe91a7a468efb11cd6dd19f79c31319b8",
-      "bytes": 1550
-    },
-    {
-      "path": "docs/04_DATA_MODEL_AND_KNOWLEDGE_GRAPH.md",
-      "sha256": "cfde5ebb35b92475372adc2d8c8fdfb9d3ff42d40bc9e1578882e76ee46e186e",
-      "bytes": 1620
-    },
-    {
-      "path": "docs/05_PLUGIN_ARCHITECTURE.md",
-      "sha256": "92c2727d19c7397f0bdd6d1f7cecfafe844e08bf23fa053852c4bf1b9bce47bc",
-      "bytes": 1154
-    },
-    {
-      "path": "docs/06_DESKTOP_APP_SPECIFICATION.md",
-      "sha256": "11e68a69f075152aa4a22b379f8935fecb2d6d4d199efd2d85fdc7ce441190fa",
-      "bytes": 1348
-    },
-    {
-      "path": "docs/07_SECURITY_AND_LOCAL_FIRST.md",
-      "sha256": "88ac01a68f1441a55ec6ccb1f7d8a0b123469f2792bd38deac83622b5cc03a1d",
-      "bytes": 1096
-    },
-    {
-      "path": "docs/08_TESTING_AND_VALIDATION.md",
-      "sha256": "289085c882da63efa2feac76dd4368fa78ecf93b139c291d5c70477fda77c479",
-      "bytes": 1086
-    },
-    {
-      "path": "docs/09_ROADMAP.md",
-      "sha256": "10aecb586ad588922f099723f47c007c600cdbe4661be6c5a3df6dfba46507cb",
-      "bytes": 2699
-    },
-    {
-      "path": "docs/10_OPERATING_MODEL.md",
-      "sha256": "38c5df8019f2116d2ce7ffbe5af9a330ca0b35c53379257bf4df9495c7f2e087",
-      "bytes": 667
-    },
-    {
-      "path": "docs/11_PROJECT_GENOME_CONCEPT.md",
-      "sha256": "162d6e7415b7d7b46cd8794510c683561c1cf505bd1d5f4e763d6fd170609b5b",
-      "bytes": 720
-    },
-    {
-      "path": "docs/12_ENGINEERING_FLIGHT_RECORDER.md",
-      "sha256": "fe42a9622f1068e3a4ce28ddfe32be1cd6bd287ab857f48637bea42f346f44d1",
-      "bytes": 580
-    },
-    {
-      "path": "docs/13_AI_ENGINEERING_ASSISTANT.md",
-      "sha256": "7e3aa684772aec403890b218f021beeae92d44286ca03f6d875d21456c73ea27",
-      "bytes": 668
-    },
-    {
-      "path": "docs/14_RELEASE_AND_VERSIONING.md",
-      "sha256": "b819dde6dcc22437c8857db865fb8ba71918618bdcc0ec30a913a6a346828b19",
-      "bytes": 455
-    },
-    {
-      "path": "docs/15_BACKUP_AND_RECOVERY.md",
-      "sha256": "977c202cd40f7e577103eaf9278d379ce90f4a4557e01ca4cec3b1ea0f9e44c4",
-      "bytes": 445
-    },
-    {
-      "path": "docs/16_GLOSSARY.md",
-      "sha256": "a4d38e503c4dedbb45927127b06e29cd117581e3bcf408d25f69ac6aea9501b8",
-      "bytes": 626
-    },
-    {
-      "path": "docs/CLI_REFERENCE.md",
-      "sha256": "91cbb88da7e080ca6e5ab84def29e2f8a962b51c09d0d7febd3a7590ae87d9f5",
-      "bytes": 6622
-    },
-    {
-      "path": "docs/DEVELOPER_GUIDE.md",
-      "sha256": "82703982032eff682aa3e7cc77897b11492a134000f86a026e995067e2e7a547",
-      "bytes": 3061
-    },
-    {
-      "path": "docs/MICROGROW_INTEGRATION_GUIDE.md",
-      "sha256": "20511c9f15aa22443964b5d0c0dcb11500edca5e75ed5e684383c463c4c16fdb",
-      "bytes": 588
-    },
-    {
-      "path": "docs/New-Earth-Engineering-OS-Omega.code-workspace",
-      "sha256": "a5006f74d5bda846cca77a982a1bce81ddcd6283bbbea9e76cf321e07f28a7f6",
-      "bytes": 44
-    },
-    {
-      "path": "docs/TROUBLESHOOTING.md",
-      "sha256": "7fb4bd13b0a8082432ffb95b495f205c41887aa26affb46bd15920a50ccf127e",
-      "bytes": 432
-    },
-    {
-      "path": "docs/USER_GUIDE.md",
-      "sha256": "34245a88637fad4589cdea1da1fc453338ade128bf444aa0984773bf8be1733e",
-      "bytes": 2028
-    },
-    {
-      "path": "docs/adr/ADR-0001-local-first.md",
-      "sha256": "f907eeddaf821507993a92cd11f8e554c0dbb8e4fee56c8feee69eb8e4c19909",
-      "bytes": 298
-    },
-    {
-      "path": "docs/adr/ADR-0002-sqlite-alpha.md",
-      "sha256": "4faa5b333daa770f024e81b6962f070d3d588a0e0820a5213b27e54780d99ff3",
-      "bytes": 285
-    },
-    {
-      "path": "docs/adr/ADR-0003-ui-not-source-of-truth.md",
-      "sha256": "f9e9000c38486df09f09c58e8f83e4a8f02b15db1e37293257434f3328a08d30",
-      "bytes": 187
-    },
-    {
-      "path": "docs/adr/ADR-0004-derived-vs-canonical.md",
-      "sha256": "45ae71be62b5907d834e4cd8b32f4fbbd51175e600ce57308b7e0c8ab8d8dba7",
-      "bytes": 189
-    },
-    {
-      "path": "docs/ai/AI_ENGINEERING_PARTNER_ARCHITECTURE.md",
-      "sha256": "9e3a841eb4937411e583e8bc0e91a9b280cb7695a0c7b91670a340f6982bd978",
-      "bytes": 837
-    },
-    {
-      "path": "docs/ai/AI_EVALUATION.md",
-      "sha256": "f5c68a93d8e529da797d280ce220a945b1b315d7913a01826dadb3e44c30e78f",
-      "bytes": 303
-    },
-    {
-      "path": "docs/ai/AI_PROVENANCE.md",
-      "sha256": "958ee1b633e5aefaf0e567349b6d96b994df213690aa6941da6731415d926024",
-      "bytes": 241
-    },
-    {
-      "path": "docs/ai/AI_SECURITY.md",
-      "sha256": "5618005618d40bd1313011abf11848257aa356a7100389540df107ff56a1aade",
-      "bytes": 373
-    },
-    {
-      "path": "docs/ai/CONTEXT_ENGINE.md",
-      "sha256": "3be1eb961ef7b3ce2867db4279f21661933610f70f57c1fe9d9d91293abe4961",
-      "bytes": 517
-    },
-    {
-      "path": "docs/ai/EVIDENCE_RETRIEVAL.md",
-      "sha256": "2707d744406bf9e57eb85549a74a4f96dc3b9a0fdf17e312e7f61cfa1a6f046d",
-      "bytes": 453
-    },
-    {
-      "path": "docs/ai/LOCAL_AI_PROVIDERS.md",
-      "sha256": "a39bbb253eac26e56185215d5f1a9cd33312f0b22441e1babe97439428f2e786",
-      "bytes": 448
-    },
-    {
-      "path": "docs/ai/PROMPT_CONSTRUCTION.md",
-      "sha256": "7dd93c6ee0510c68128255343fcb2deaad259a2f177fb4691f0286adb15b523c",
-      "bytes": 269
-    },
-    {
-      "path": "docs/ai/PROMPT_INJECTION_DEFENCE.md",
-      "sha256": "fe0853ac51e43fc27046dcf6d8e4a6defa268962ab5fa75e3347252713f77d34",
-      "bytes": 302
-    },
-    {
-      "path": "docs/ai/PROVIDER_ABSTRACTION.md",
-      "sha256": "0083d69c394169128d01ab05740b9a702efc823cdc940c4fbd0b940170fc8dfd",
-      "bytes": 623
-    },
-    {
-      "path": "docs/ai/TOOL_PERMISSION_MODEL.md",
-      "sha256": "1a108addab4a1a6b7e468f1216942402fa7a197c2af7e7dd3969d61f21e5cdab",
-      "bytes": 199
-    },
-    {
-      "path": "docs/architecture/ASSUMPTION_MEMORY.md",
-      "sha256": "108a523ed76d2b21a80476fc9369bcf4d4f3ed450851935c231b2567ecb8db09",
-      "bytes": 440
-    },
-    {
-      "path": "docs/architecture/CHANGE_MEMORY.md",
-      "sha256": "f1879fab3c42662dfcb330222e1aa4d2eb523c494b04e34f7fa9a6f7cffab82c",
-      "bytes": 387
-    },
-    {
-      "path": "docs/architecture/DECISION_EVOLUTION.md",
-      "sha256": "178db0a03e1098c86b333b6787a6f785fc64df0dcfc621d4ecffc44d70ef6306",
-      "bytes": 635
-    },
-    {
-      "path": "docs/architecture/ENGINEERING_FLIGHT_RECORDER.md",
-      "sha256": "6e60f3bfdbf28d736708ec06b81d4b5b0e9ed2e1deb5100f5f2ffa348fcd0435",
-      "bytes": 1158
-    },
-    {
-      "path": "docs/architecture/ENGINEERING_MEMORY_V2.md",
-      "sha256": "241d72b06c26ca9dce95e5b238232e20c4dbb857119db88dbb7f2911edf5a31e",
-      "bytes": 1008
-    },
-    {
-      "path": "docs/architecture/EXPERIMENT_MEMORY.md",
-      "sha256": "58725ea98f6783c9020761a1890a5b76c590247c1c8447bebaa9a64623b99032",
-      "bytes": 430
-    },
-    {
-      "path": "docs/architecture/FLIGHT_EVENTS.md",
-      "sha256": "61cdac537f302a76e88f5ba55c0e7e1e7212a033d752e1e6f317ff1d5bbe57d5",
-      "bytes": 714
-    },
-    {
-      "path": "docs/architecture/FLIGHT_SNAPSHOTS.md",
-      "sha256": "fee39792bed69c1625e660c1efc5f3be1d6b88c494b2d2cde08856bf756025d6",
-      "bytes": 621
-    },
-    {
-      "path": "docs/architecture/FLIGHT_TRANSITIONS.md",
-      "sha256": "277f1a4881a65db8ba88c785f5e492ecb101afa499bf76cb1787dcecbf0768b2",
-      "bytes": 532
-    },
-    {
-      "path": "docs/architecture/HISTORICAL_RECONSTRUCTION.md",
-      "sha256": "2d68eb962f60872e1e4c13d42177c6a4a56a435f53acb1d8e66d5d0e900cce4d",
-      "bytes": 568
-    },
-    {
-      "path": "docs/architecture/MEMORY_GAPS.md",
-      "sha256": "31b577257da7faa79e38baba2afd0479532e9c8805512a5427926ce758eb08e7",
-      "bytes": 423
-    },
-    {
-      "path": "docs/architecture/PROJECT_GENOME.md",
-      "sha256": "6f06aab0558f5bf38a3c04bfcb463788714173e9ed721c94205b799e0bfe5419",
-      "bytes": 1214
-    },
-    {
-      "path": "docs/architecture/REGRESSION_INTELLIGENCE.md",
-      "sha256": "f5cf3bf2b31df89ac03b0c465b0468325f8d05504b17745aea987a1cd2ce9334",
-      "bytes": 542
-    },
-    {
-      "path": "docs/decision_intelligence/README.md",
-      "sha256": "de88b76e3af1a2338b7dadcb488a353143925ec8ebfc2bc5f0552f6fc7100af8",
-      "bytes": 411
-    },
-    {
-      "path": "docs/desktop/BACKEND_LIFECYCLE.md",
-      "sha256": "47051594db2f926c99fec0f73181cb3b3347e6123ff600cfe597868b49656d31",
-      "bytes": 1315
-    },
-    {
-      "path": "docs/desktop/BACKEND_PACKAGING.md",
-      "sha256": "0407425b737e9de12f6ed5d029d7f3efb3355dcc08b9589408009f1c55cbbfd2",
-      "bytes": 1195
-    },
-    {
-      "path": "docs/desktop/DIAGNOSTICS.md",
-      "sha256": "01b3608697a363cee3c252283649baf5573c1f2f06f005f91274d10b27e9694f",
-      "bytes": 936
-    },
-    {
-      "path": "docs/desktop/FIRST_RUN_EXPERIENCE.md",
-      "sha256": "af62597eb4d6ab54618b2f8c580d8539c589c085681e3fc4af8c51d84f66d6cf",
-      "bytes": 1107
-    },
-    {
-      "path": "docs/desktop/SETTINGS.md",
-      "sha256": "6c272963397af4368a3df615e6127a2e8f35a61971c738482137e470b2e98c04",
-      "bytes": 993
-    },
-    {
-      "path": "docs/desktop/WINDOWS_PACKAGING.md",
-      "sha256": "935dc76d635c887b2d0898c4434aef879131fb6eb064ee8ad7470c6275254c16",
-      "bytes": 1263
-    },
-    {
-      "path": "docs/desktop/WINDOWS_PRODUCTION_ARCHITECTURE.md",
-      "sha256": "158342b89de66768a9f8ffc43b8057bbd53a13f9abe5ef84ef64ba14b5e0acc4",
-      "bytes": 1979
-    },
-    {
-      "path": "docs/ecosystem/PORTFOLIO_WORKSPACE.md",
-      "sha256": "237fcab2ec0ade1333f2433edc28ba467fb73c728c87be054525544f8efd6cd8",
-      "bytes": 545
-    },
-    {
-      "path": "docs/ecosystem/README.md",
-      "sha256": "5de11fa6909eef062f030937a405733c1b54622a0ca2fbeae1ad3e45fcef04bc",
-      "bytes": 340
-    },
-    {
-      "path": "docs/ecosystem/SEARCH_AND_SCOPE.md",
-      "sha256": "f8b8583b8211d88a744a425fe26e776fc146f11313048835eb101ed6b7a95fb2",
-      "bytes": 565
-    },
-    {
-      "path": "docs/governance/CONTRIBUTING.md",
-      "sha256": "fb699c73f192670dc41ef09e3746a223acf7b4fc5aa2b74ff5647c97a125126a",
-      "bytes": 262
-    },
-    {
-      "path": "docs/governance/DEFINITION_OF_DONE.md",
-      "sha256": "fb5862cdec5e4b65d844c867c86b754d83382f2f03cf7643ea8ae8d614bd5501",
-      "bytes": 355
-    },
-    {
-      "path": "docs/governance/ENGINEERING_PRINCIPLES.md",
-      "sha256": "e70ef98b8cb25bd05d2ad29a8615ae120aac093fa21dd8a114e40242008bb520",
-      "bytes": 464
-    },
-    {
-      "path": "docs/project_control/ACCEPTANCE_CRITERIA_ALPHA.md",
-      "sha256": "aec69bc25fae0a1b0990646b9fcb3d2a113ee6f0a5337c5f81e64f3650f9da2a",
-      "bytes": 525
-    },
-    {
-      "path": "docs/project_control/DECISIONS_LOG.md",
-      "sha256": "d4ea02085e71974caa317e73239278b91b4294c05080163085036fd0dc21f03a",
-      "bytes": 381
-    },
-    {
-      "path": "docs/project_control/FEATURE_MATRIX.md",
-      "sha256": "0a2cc1336b8d2817e6d9126a9880d61eb7ffdadac2e74f2ffba5d3962ea24705",
-      "bytes": 556
-    },
-    {
-      "path": "docs/project_control/MILESTONES.md",
-      "sha256": "1fb2b6ab46f5439a6027339f7194fb47511fdd4efa4d8df10335c9a450a56ae5",
-      "bytes": 518
-    },
-    {
-      "path": "docs/project_control/RISK_REGISTER.md",
-      "sha256": "d85086a350ce856332e7ba897dcac8053cfd7c7842b51a04896147af0901cc69",
-      "bytes": 807
-    },
-    {
-      "path": "docs/release_evidence/README.md",
-      "sha256": "07e7ccc985ec8cc2466b2b506c676c8d9256404eee8a8f246bddd711e99495e8",
-      "bytes": 1478
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/AI_EVALUATION_RESULTS.md",
-      "sha256": "aeccb11f397e3a2e655f7c1d00c8126a1966e6641d5bda243c61c8d5dbecc073",
-      "bytes": 258
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/ARCHITECTURE_EVIDENCE.md",
-      "sha256": "6dce0f954851c4ed0df1aeccef382ad11d4e505d8a489a7993d97ece6febc46e",
-      "bytes": 267
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/CITATION_EVIDENCE.md",
-      "sha256": "e48b538dbbac8533cbff22547927be3d22d7a81c07600d384925dfa84241b077",
-      "bytes": 187
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/CONTEXT_ENGINE_EVIDENCE.md",
-      "sha256": "54a4d1c78b8be278076776fb08edecf7737373be65b40856c0abf21e13223ddf",
-      "bytes": 179
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/KNOWN_LIMITATIONS.md",
-      "sha256": "5d6abdff280e7dceb9cfc89fb8d60e8d47327ca5cfe3f07a2fc42ba6f0f107f9",
-      "bytes": 289
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/LOCAL_PROVIDER_EVIDENCE.md",
-      "sha256": "5877bbccfd8b2d26b93776a501047c9b992c818e1a3e10a0c97bdf41af45979e",
-      "bytes": 206
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/MICROGROW_GOLDEN_QUESTIONS.md",
-      "sha256": "5daeb4bda8291e61ca1174b1130bb0995bf7f1e6335797e20070ea7cef25c764",
-      "bytes": 390
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/PERFORMANCE.md",
-      "sha256": "16a15afa5c17454dfd8f1b7a352ed57ad0928f41607c343c48a25986f6d115d6",
-      "bytes": 219
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/PROMPT_INJECTION_EVIDENCE.md",
-      "sha256": "ce4ae3e454b9cdba8f27c74c2cfec25ad9ffd5764cee800ac92b2d92d687df14",
-      "bytes": 257
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/PROVIDER_EVIDENCE.md",
-      "sha256": "3f6607e846feae3184d0034104355a1671bad7cbdff26cfa2d0378c192506189",
-      "bytes": 171
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/README.md",
-      "sha256": "b2e0e9cbda817d05659e21a93e08044259282a685ba90506415b6fa13ee6ac63",
-      "bytes": 380
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/SECURITY_REVIEW.md",
-      "sha256": "7e84738893dac2e15a66fd8f2100b783dd13001f40eddff4f8374224c32c9a16",
-      "bytes": 267
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/TEST_RESULTS.md",
-      "sha256": "7494764fa4ab40e64f1116752ae5b6de02351600bd7371f7ddbe76dd256bf26c",
-      "bytes": 790
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/TOOL_PERMISSION_EVIDENCE.md",
-      "sha256": "00e2e6a6d38d206bbd63351a346180406bc06d02534a6c66f36675105255ca0a",
-      "bytes": 120
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/V06_ACCEPTANCE.md",
-      "sha256": "811f25c1a86d93bd6c617da1a0b621b9fc3666d86b7e9b34fe9057886bcd5e7f",
-      "bytes": 301
-    },
-    {
-      "path": "docs/release_evidence/ai-engineering-partner-v0.6/evidence.json",
-      "sha256": "4c94db7be9d8cce8b2d71d76376c93e4993a9cc949715dc5b9b9a185280c7203",
-      "bytes": 623
-    },
-    {
-      "path": "docs/release_evidence/alpha-microgrow/README.md",
-      "sha256": "5c131d4698ab5f7f51c6890fd66b903b536b5b810e74c1f0b9b5c9a5a3d7d493",
-      "bytes": 1062
-    },
-    {
-      "path": "docs/release_evidence/alpha-microgrow/evidence.json",
-      "sha256": "4015cd2774ba30140c7f0aad28f5477fcd387b53c50fab4eafc5c2e257bb5193",
-      "bytes": 1317
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/AI_CONTEXT_V2_EVIDENCE.md",
-      "sha256": "c5d866a171f36f3c2b47c0642200c7abeff1279b44bb540a12ca1c60e9d23875",
-      "bytes": 743
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/ARCHITECTURE_DELTA.md",
-      "sha256": "1c33ead3a989ef22964cfb1473a6203eea879e518f698135aa4e2e91f72aca18",
-      "bytes": 1063
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/CLI_EVIDENCE.md",
-      "sha256": "52bcf35de9341317f3fab535c9d33e8263bcbf3b0ff53737f84c35d835839c84",
-      "bytes": 1429
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/DATABASE_MIGRATION_EVIDENCE.md",
-      "sha256": "b00c82cce3a655078f8cd71f2777ab727f414d4fb19a8aaf216067894cbb619c",
-      "bytes": 458
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/KNOWN_LIMITATIONS.md",
-      "sha256": "8abff3ce9f6002a6ade87d96f55cf455f32edcbf24feda61b1cb87077450c984",
-      "bytes": 735
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/MICROGROW_FEATURE_ATLAS.md",
-      "sha256": "6fb28cf9eb4a4830837ca5b9ff0219a0ea4f617418a8180378345e2a6b76d7dc",
-      "bytes": 1111
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/MICROGROW_READ_ONLY_PROOF.md",
-      "sha256": "062e8610377b8c5f96d15cbcf97dec1882329fbffdfa00248d28072a9025378a",
-      "bytes": 744
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/PHASE_2_ACCEPTANCE.md",
-      "sha256": "2026ce1a311b19c3f434404a67b8f5bec010d32f2effd200fa071f79df67aaaf",
-      "bytes": 1237
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/README.md",
-      "sha256": "3353f3099520c986246eccbb6a76574b56f5ba5f5e836d2b96ec321b3ad73461",
-      "bytes": 291
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/SEMANTIC_SCAN_METRICS.json",
-      "sha256": "0d5bac0f87570cbea31bf2d60833752663d2bfdc0da919bb6e44aadcdb33a3aa",
-      "bytes": 1502
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/TEST_RESULTS.md",
-      "sha256": "f7446676987cfea180cd8445ecf37fd060d60db90fc4b14768e15d7f3637b083",
-      "bytes": 615
-    },
-    {
-      "path": "docs/release_evidence/alpha-phase-2/microgrow_feature_atlas.json",
-      "sha256": "118a0c0273a33d5cb99c78e67a4ad7167849ae8aacbdd86df82da3c35aaa0b10",
-      "bytes": 13391
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/MEMORY_METRICS.json",
-      "sha256": "40e2d85805ed1e181b3360d66e03f55488ccd0d20b6f9865485100dedf656cd8",
-      "bytes": 631
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/MICROGROW_ASSUMPTIONS.md",
-      "sha256": "4a675642c41f1e607dc429f3d05ad768fd2d91c1464bcb6f83907ad4d1aca08c",
-      "bytes": 23010
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/MICROGROW_CHANGE_MEMORY.md",
-      "sha256": "88c218ba4f21a3b883402c7a25d50e57b9a9945368e4752bc10f1f768a9e2a36",
-      "bytes": 1503
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/MICROGROW_CONTRADICTIONS.md",
-      "sha256": "8291271853acd4a76d6e4d676939ff7f3a78e2d3e17a57d624e451a7617c7090",
-      "bytes": 253
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/MICROGROW_DECISION_HISTORY.md",
-      "sha256": "f6ceba3a96be30d5684d7e66ff7c761af4533a5909da6d1d3dd3e85c55a9401b",
-      "bytes": 14766
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/MICROGROW_ENGINEERING_MEMORY.md",
-      "sha256": "b9b806bbdf0e224ea18286ac7e7f666bfdbc92a96b2cd5fcdc60683eaaaf1d11",
-      "bytes": 981
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/MICROGROW_EXPERIMENT_HISTORY.md",
-      "sha256": "c3e9b141e0c45db1f2258285611fcacf5dea1ed5215d5e967302daa828e06a57",
-      "bytes": 67392
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/MICROGROW_LESSONS.md",
-      "sha256": "ccd3b19e1f9af20428ac2821a545fa6ecdad3fcb9531788e87dbfcd084d430af",
-      "bytes": 122307
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/MICROGROW_MEMORY_GAPS.md",
-      "sha256": "a1b5a6556ad34f590a1ffe5ba01886a5fe3e8c209192b8e4eb1169b46e54d26e",
-      "bytes": 131908
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/MICROGROW_MILESTONE_TIMELINE.md",
-      "sha256": "f31565f8c312dbff1016d18b7b447aff20f0ac5e971ff3b90192e3e1e5af665d",
-      "bytes": 3398
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/MICROGROW_WHY_EXAMPLES.md",
-      "sha256": "cb47fb95f95b1de5ba32f0bc4d902d5bce0234b40d6c47ac260a227780d12f22",
-      "bytes": 59650
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/README.md",
-      "sha256": "19fda21fbe51c194e29ceb1a0bbb1144f9c11903c82e398807377f3e301176eb",
-      "bytes": 373
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/READ_ONLY_PROOF.md",
-      "sha256": "896a5039b055eae31a7c72300e610595b1314e1454b25980e86d0becb39f7b11",
-      "bytes": 483
-    },
-    {
-      "path": "docs/release_evidence/engineering-memory-v0.4/microgrow_engineering_memory.json",
-      "sha256": "74642e6a7543ad25bea5c3549b2eae379b078585aecf36f4d7de222d67d9eaf7",
-      "bytes": 3364498
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/FLIGHT_METRICS.json",
-      "sha256": "fc3a7caf84a91658d2614fea4483bfbf397fe1e06065e3c1101cab436e8d4679",
-      "bytes": 296
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/MICROGROW_CHECKPOINTS.md",
-      "sha256": "6a03700eca13242db06405a0c1619e05965624b340ec0000d1b4939ebab68269",
-      "bytes": 239
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/MICROGROW_DECISION_TIMELINE.md",
-      "sha256": "21702faed5278545ea65b1f7d4778e0be61402f25b272524ce46594bd914c9b3",
-      "bytes": 346
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/MICROGROW_FEATURE_HISTORY.md",
-      "sha256": "f9af00c5689f88e6e41d9c5515b2f04cdce188216cdf951a0f4d2a9f3a3aa0bf",
-      "bytes": 178
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/MICROGROW_FLIGHT_RECORDER.md",
-      "sha256": "e523cce4043da094a0d92ad1139fe9c70dd34828fbfa9549dc9419ed2853736b",
-      "bytes": 253
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/MICROGROW_INCIDENTS.md",
-      "sha256": "240f3be68a38cb8d7a63e4fb948e4b42e33bc59bc48ad3c2de05b741495e0717",
-      "bytes": 92
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/MICROGROW_MATURITY_HISTORY.md",
-      "sha256": "b9f6dad00acd6909555ff3d3561d06fcd6256b5f337f06d3ecd12a283976e487",
-      "bytes": 105
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/MICROGROW_REGRESSION_INDICATORS.md",
-      "sha256": "37538f77553c073a51e7f1a6aa9977f37980a8eda525c1a8bc1df3bad53e9e7d",
-      "bytes": 104
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/MICROGROW_REPLAY_EXAMPLE.md",
-      "sha256": "c1491f459fb5d4cf2b7ed0510ba2798c8e7d1a11038e7d5e5e390bb92b557368",
-      "bytes": 3974
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/MICROGROW_RISK_HISTORY.md",
-      "sha256": "03a701cc94febb1c5af7a00f170388e06f872df898a4e2a9adbabd591d95fb4e",
-      "bytes": 83
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/MICROGROW_TIMELINE.md",
-      "sha256": "8524ebdb8c0be1a683a639f23a3cdedf00d6bf9deace6ea0dae616830dd151ec",
-      "bytes": 5508
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/MICROGROW_TRANSITIONS.md",
-      "sha256": "3dde6d609d8852591b79d2f82fb6ee2d31b04fcaa72d9c05bb5d256efe04f251",
-      "bytes": 6254279
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/README.md",
-      "sha256": "0b418920e6185a7539cb48f8b55d4df2b7ba8a7207a07b467e7307cbe6731474",
-      "bytes": 463
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/READ_ONLY_PROOF.md",
-      "sha256": "8cb3fdd70873c0c616afdd8003ce826f4ce6079d1fe914e566b1e8922de1d33b",
-      "bytes": 492
-    },
-    {
-      "path": "docs/release_evidence/flight-recorder-v0.5/microgrow_flight_recorder.json",
-      "sha256": "99a493e10127d8384d393fa6018a98070db89a9bb76383afc90dabfb381de910",
-      "bytes": 19912914
-    },
-    {
-      "path": "docs/release_evidence/neos-v0.7-portfolio-completion/README.md",
-      "sha256": "1f7d73fd729bc99587e2d3cafc782c914126362a881ef4171baf72a995df01df",
-      "bytes": 541
-    },
-    {
-      "path": "docs/release_evidence/neos-v0.7-portfolio-completion/evidence.json",
-      "sha256": "04754cfd5c705a0d6a593348ca862e2db4ec2434473bbed586586c0d0b25717c",
-      "bytes": 1822
-    },
-    {
-      "path": "docs/release_evidence/neos-v0.8-decision-intelligence/README.md",
-      "sha256": "20d6fd94bb211705f6912e0cc4a295aaed8ac258605dec51cdf2d79b31d92011",
-      "bytes": 823
-    },
-    {
-      "path": "docs/release_evidence/neos-v0.8-decision-intelligence/evidence.json",
-      "sha256": "89225c84f7cff7d5f0eebaf8f4f7098c390db0acd7943c148d599834ba960d9d",
-      "bytes": 515
-    },
-    {
-      "path": "docs/release_evidence/neos-v0.9-requirements-architecture-intelligence/README.md",
-      "sha256": "d8475039b6fa151bf6c9d91c4da0a984d047a3c51123539d9d4f35d254fa773f",
-      "bytes": 810
-    },
-    {
-      "path": "docs/release_evidence/neos-v0.9-requirements-architecture-intelligence/evidence.json",
-      "sha256": "bf6aaee2dc1a90144d863011bf3553ffe9a140e5f188ffe173dda0caf2b34711",
-      "bytes": 674
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/GENOME_DIFF.json",
-      "sha256": "8572d3b0817d3055b342c2479581b9b854396ab02a0eed3d0b6a5753676d9e99",
-      "bytes": 97740
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/GENOME_DIFF.md",
-      "sha256": "2d027c859f8b71d3474f19329dcdf5c1b142821117cac8da3351710cc25d1f1e",
-      "bytes": 97864
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/GENOME_METRICS.json",
-      "sha256": "ffca5ae46623673b422b993121b6c5b79f3f800ba4f88051cb594c50fc25de55",
-      "bytes": 454
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_ARCHITECTURE_GENOME.md",
-      "sha256": "1deb1ac8826dee9c776597aa281c4721bcaaaf7db97ca7e979cf1b2dfd32b178",
-      "bytes": 75049
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_ATTENTION.md",
-      "sha256": "a0279429b88c7d86c40dd0930b8d74154f284a9f59ca53d73aa230c38aa07dde",
-      "bytes": 650
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_DOCUMENTATION_GENOME.md",
-      "sha256": "1ce8587f74550fbe8cf23e25cb39daf11762c003ca50726657382f2052367f1c",
-      "bytes": 26374
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_DOMAIN_MAP.md",
-      "sha256": "35f457dd6dd7695e09c962b7e3792477cebb112302e5b2dd999e63c23264bc68",
-      "bytes": 101081
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_FEATURE_MATURITY.md",
-      "sha256": "bc80ef7798c7e032bbd91ec7ea92fbc438b3d958d9e9d072cc89ab7f367ffb64",
-      "bytes": 1258
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_PROJECT_GENOME.md",
-      "sha256": "d1186df1df7b199c5c8900c7c0bdb1c6028a5f3c9b92cd98ffe28b93bf5107b2",
-      "bytes": 757
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_PROJECT_HEALTH.md",
-      "sha256": "3a679de38ac1f6be8d4caf1d8e62ce6dce1b240f21546d3128e559e5526c57e6",
-      "bytes": 1278
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_PROJECT_MATURITY.md",
-      "sha256": "3bde3e3e71da705f0517e64cd3c161017e5ef67dc639171ede86bbdcb9567ce8",
-      "bytes": 15701
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_PROJECT_REPORT.md",
-      "sha256": "1625aaf1c95ea548989a5afa78f172e77eb5f8195cef2f3406f06a3b7bc10d7b",
-      "bytes": 1095530
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_REUSE_CANDIDATES.md",
-      "sha256": "33903e0dc312a5f4f6d7b0e8ee84b75fc172bc5c30085cc167bcf683000fd2db",
-      "bytes": 6254
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_RISK_GENOME.md",
-      "sha256": "80d539f5e9662a6826f3a6abd58d6fb477eaf8ba683fb545cf137fa8d7036822",
-      "bytes": 721
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_TECHNOLOGY_PROFILE.md",
-      "sha256": "0992acafcf88f9ee1b6425258ba3a1f9c12d398d7af0a9f8fdd16f02198e3577",
-      "bytes": 635
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_TEST_GENOME.md",
-      "sha256": "aaac84c2e20c8893ed62b24afe251f84429543bc54d90968ceff39b4625e0961",
-      "bytes": 103505
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/MICROGROW_UNKNOWN_SURFACE.md",
-      "sha256": "23348ec01f361d3804a40c4f356a0c53a49137af380991942b2178ba3590612d",
-      "bytes": 3874
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/README.md",
-      "sha256": "309617e0547ad6c8caf942986ff69fe847c5fd1180b6b726b14d97960a55d791",
-      "bytes": 439
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/READ_ONLY_PROOF.md",
-      "sha256": "4c897911b3c96ce17e792143e303ffac2141361c02791663f0887a69340421eb",
-      "bytes": 347
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/microgrow_architecture_genome.json",
-      "sha256": "30c17a702170e13eb9a4dd0cb7ca91e41c19a0a98103cd9b89ca9e38af61709b",
-      "bytes": 74459
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/microgrow_domain_map.json",
-      "sha256": "74f658817a52697a57455d9f27d00206d268df947b32f3ba380645b74ff7d307",
-      "bytes": 100621
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/microgrow_project_genome.json",
-      "sha256": "36d99d4e33f9d9bb57e592c829e4f46e92b198f23552d2f2581b483dfe9ccce5",
-      "bytes": 1015510
-    },
-    {
-      "path": "docs/release_evidence/project-genome-v0.3/microgrow_project_report.json",
-      "sha256": "cb4f778ec698fcb3d18ee310d0848469e4c8fe010aba327191d5950c1d53a4d7",
-      "bytes": 1095400
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/A1_ACCEPTANCE.md",
-      "sha256": "bf0e6f4f990600b2b7420f6574f4429a971f25c68c426be0abe64bd3ff150e19",
-      "bytes": 570
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/BACKEND_OWNERSHIP_EVIDENCE.md",
-      "sha256": "3971f75f2637f6436e6d3b95da682a14f7f4564289a4d731a8ad91cde20c9286",
-      "bytes": 669
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/BACKEND_PROCESS_TOPOLOGY.md",
-      "sha256": "0c9a7373e491b612fc8e25741f7834c28dec0630941c4b9cd1ce497b45a2b9ab",
-      "bytes": 622
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/BUG_FIX_SUMMARY.md",
-      "sha256": "2a7fb0dffbf7a35cbe268140604490d6dd2836dd497241570798821daccc31f2",
-      "bytes": 574
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/COMMANDS.md",
-      "sha256": "5e22681d8e3742191e4c201fc7bcb688903563958353ecea7a6b7efedf80df03",
-      "bytes": 582
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/DESKTOP_CONNECTION_EVIDENCE.md",
-      "sha256": "a33cfcf6ff9a40cfbb9bd513943e270d24e7aebffa0adf30b5ea22ecd5a74dfd",
-      "bytes": 500
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/DESKTOP_SHUTDOWN_DIAGNOSIS.md",
-      "sha256": "36195c3b7777dbea7ba953c38515dd6575be696c9ff12d05a13f66e44551ad32",
-      "bytes": 938
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/DESKTOP_SHUTDOWN_EVIDENCE.md",
-      "sha256": "e390f4a7885925f6f8509ab8440f8bdce4b71f77029cd42231631caf30248e69",
-      "bytes": 730
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/KNOWN_LIMITATIONS.md",
-      "sha256": "6ca3308448817690dc8f13e4ee832550df130226dc238b2daf4178105393ed61",
-      "bytes": 366
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/PACKAGED_STARTUP_DIAGNOSIS.md",
-      "sha256": "8a11765046f3f7f196dd033056c9cf1fdc01d0ec0bdbae6ba8e2e147f89e11d5",
-      "bytes": 1007
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/PROCESS_CLEANUP_EVIDENCE.md",
-      "sha256": "fe42acccd748c6f239089839cc199ef0383470466339d81a90a829c45a959162",
-      "bytes": 468
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/README.md",
-      "sha256": "6af4db77d3c4691ccf629156004d1618ecacc23524924cfd759ead66e67753cc",
-      "bytes": 645
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/SERVICE_HEALTH_EVIDENCE.md",
-      "sha256": "c11007d9a612fb787c3593f67b718670e7d3043794b5e26ec6f4a5a9d0acf71b",
-      "bytes": 502
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/SMOKE_HARNESS.md",
-      "sha256": "32fbe656f748b0f2f880205ed9ab4a58b132ccf918d989d64b4d7d49c376f1cc",
-      "bytes": 694
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/TEST_RESULTS.md",
-      "sha256": "b87b4854596b01c64a01156f876c02fe26d60e7acb308c2a0a58942f32094873",
-      "bytes": 750
-    },
-    {
-      "path": "docs/release_evidence/windows-productionisation-a1/evidence.json",
-      "sha256": "2a2b9a5b3223c486793bd00129938dbf474a84619aa4b10319dffea76e385799",
-      "bytes": 1824
-    },
-    {
-      "path": "docs/requirements_intelligence/README.md",
-      "sha256": "4e9040582e7f0004dac87c281e6be582733ba2ce8a3a584cb4b81eb58eea61e5",
-      "bytes": 965
-    },
-    {
-      "path": "docs/security/THREAT_MODEL.md",
-      "sha256": "4c43e9073fecb631e2aa9793a72fcb78be34d271fafced7a6d86c75b897537d5",
-      "bytes": 891
-    },
-    {
-      "path": "docs/user/ADDING_A_PROJECT.md",
-      "sha256": "f716ccb747eb65cd8c3f5f4fc0301454f42f5c6ed50831e5c52f70af9aaa2d1e",
-      "bytes": 566
-    },
-    {
-      "path": "docs/user/AI_ENGINEERING_PARTNER_GUIDE.md",
-      "sha256": "3829c09a5cd40534527814cb1d0236d333245f0caa786f2eda7a10a066a8d7c6",
-      "bytes": 398
-    },
-    {
-      "path": "docs/user/AI_PRIVACY_AND_DATA.md",
-      "sha256": "5b44786887edf09c050525f058c124e633132b6924f9c81edf70c2beca70e191",
-      "bytes": 276
-    },
-    {
-      "path": "docs/user/AI_TROUBLESHOOTING.md",
-      "sha256": "59a0d519422bfdd0be2ac296a2ae7eb9b057be08987fabbaa39c32671f503f2d",
-      "bytes": 334
-    },
-    {
-      "path": "docs/user/AI_UNKNOWN_AND_CONFIDENCE.md",
-      "sha256": "4610b5eed16495b69a2a6f6890d65afc5c30d334eb0658ff90d4205ee41c8a8b",
-      "bytes": 223
-    },
-    {
-      "path": "docs/user/ASKING_ENGINEERING_QUESTIONS.md",
-      "sha256": "0842ef4571ae4fca36e7ffe97760e5367040436de8a555e839303a4df5c05684",
-      "bytes": 201
-    },
-    {
-      "path": "docs/user/CONFIGURING_AI.md",
-      "sha256": "c18b06ffd43fe5f206561ad2fb0980c130914ad94f27853e222b8cddbb16dbac",
-      "bytes": 236
-    },
-    {
-      "path": "docs/user/CREATING_DIAGNOSTICS.md",
-      "sha256": "c23bc8050af9e7482a7d3b77a49a94c532b1ab39a72933f6c0927dc5ca83fe94",
-      "bytes": 812
-    },
-    {
-      "path": "docs/user/DECISION_CENTRE_GUIDE.md",
-      "sha256": "e6b5dc55d26fa32ab422b2934485a9cf2e6e2558b0f3cb7eb8b5f1c9e56b509b",
-      "bytes": 872
-    },
-    {
-      "path": "docs/user/ENGINEERING_MEMORY_GUIDE.md",
-      "sha256": "e043aab6f8c6eafb27dad1ee8d376ad380c0e2bdd0e1769d856cc1a3cd4ab09c",
-      "bytes": 881
-    },
-    {
-      "path": "docs/user/FLIGHT_DIFF_GUIDE.md",
-      "sha256": "ed306f7bf44001cb3596e6b50175355521767b50f7046acfb9ebe8dbf815178d",
-      "bytes": 384
-    },
-    {
-      "path": "docs/user/FLIGHT_RECORDER_GUIDE.md",
-      "sha256": "a33fc74d8b689f045146289c8686ef7b8d2d62a615d9da54ed5b68e1a1182181",
-      "bytes": 753
-    },
-    {
-      "path": "docs/user/INCIDENT_HISTORY_GUIDE.md",
-      "sha256": "dfeae89a387ebe8215728118d2dff689ff975691c20769ad3eefdc88ceb4b4be",
-      "bytes": 400
-    },
-    {
-      "path": "docs/user/INSTALLING_NEOS_WINDOWS.md",
-      "sha256": "bf541f115cd7ccdfc53eed227932119fd4b3d7bfff4fb2acecbe6aea00742a52",
-      "bytes": 830
-    },
-    {
-      "path": "docs/user/LOCAL_AI_SETUP.md",
-      "sha256": "94124878f94d8eb3e224bddbb32239b2080e8152fb8e463e904cebde60a1cbbe",
-      "bytes": 290
-    },
-    {
-      "path": "docs/user/MEMORY_TIMELINE_GUIDE.md",
-      "sha256": "5c7148eb814bfe66f00192f02dc0d21f76942f6c16e6625cf997bf146dc6471c",
-      "bytes": 304
-    },
-    {
-      "path": "docs/user/PORTFOLIO_WORKSPACE_GUIDE.md",
-      "sha256": "4739c85024b96ed1988fdc4cafb04248309e692ecea5a4377e25556c4760b2a2",
-      "bytes": 659
-    },
-    {
-      "path": "docs/user/PROJECT_GENOME.md",
-      "sha256": "eac439f18bd645b38207bc06b03d03b5a701f267c4413d2f11884e20bc2baaf6",
-      "bytes": 1037
-    },
-    {
-      "path": "docs/user/PROJECT_REWIND_GUIDE.md",
-      "sha256": "9122324924a47ead541127e31a4ba63ed16074688db96d480b90a3af801adff3",
-      "bytes": 459
-    },
-    {
-      "path": "docs/user/READING_AI_EVIDENCE.md",
-      "sha256": "13ec4b414e7185040f3c0920bf371d0610d838617a59f5c200e0181f486bb8a2",
-      "bytes": 218
-    },
-    {
-      "path": "docs/user/READING_DECISION_HISTORY.md",
-      "sha256": "8d0a1dded7443fe18bbb889e3df04f604c1edf53d575e0f8dccbe4b78ed762f4",
-      "bytes": 441
-    },
-    {
-      "path": "docs/user/REFRESHING_PROJECT_INTELLIGENCE.md",
-      "sha256": "38f13268d73af815d38e6ac2bd0d2e98e7e89031d6960b9375ffbfbb524b3445",
-      "bytes": 822
-    },
-    {
-      "path": "docs/user/REPLAY_GUIDE.md",
-      "sha256": "fa97f6cc544ee5b2133a170a61cdaf7e81982cc39152bbada3c38a13ffa5ea5d",
-      "bytes": 390
-    },
-    {
-      "path": "docs/user/REQUIREMENTS_INTELLIGENCE_GUIDE.md",
-      "sha256": "c26c4064f5ddda9deb281b58ff4659c832a2f6c79d6e3c65c35100cd487a9f92",
-      "bytes": 1013
-    },
-    {
-      "path": "docs/user/SCANNING_A_PROJECT.md",
-      "sha256": "bbae20eb8e9d4083ef96def3e466ee1417e919151ce1e680926d1cb1bdd47fda",
-      "bytes": 540
-    },
-    {
-      "path": "docs/user/STARTING_NEOS.md",
-      "sha256": "f66d8a486407861b452f4d8efb9812b4819cc55d56f588a282b35030ac6bfc83",
-      "bytes": 611
-    },
-    {
-      "path": "docs/user/TROUBLESHOOTING_WINDOWS.md",
-      "sha256": "313c11b7fc8225d3d7757340abe6cbf62c45395faafdf049cb33f06d022bc735",
-      "bytes": 1027
-    },
-    {
-      "path": "docs/user/WHY_QUERY_GUIDE.md",
-      "sha256": "3926a61d3b946d2e4a469623c3b84c8b7e260cfc46651107f97256ecd131a1a3",
-      "bytes": 335
-    },
-    {
-      "path": "examples/microgrow/README.md",
-      "sha256": "c41d0264468789bb1e53d8f8ddc612feed8d8d532ad7e13611ca8f5fa17af506",
-      "bytes": 262
-    },
-    {
-      "path": "examples/microgrow/project.neos.json",
-      "sha256": "d6e9de6c7e04ff1a9e3ac5548201f88fc483af3bf9c0f8a2532bf3b3d2d3266a",
-      "bytes": 592
-    },
-    {
-      "path": "neos/__init__.py",
-      "sha256": "64624ed9975506616b8f0d362c4eac0edab190b743a5c7e3fa423c307750bba6",
-      "bytes": 323
-    },
-    {
-      "path": "neos/__main__.py",
-      "sha256": "b3978f1c8197c0ecc9dadfa1b7d0e0acd156b363c8675fa2987e0badad4173a8",
-      "bytes": 84
-    },
-    {
-      "path": "pyproject.toml",
-      "sha256": "eff148409ed0fa681f8883f93c462cf91fac4456f87e7d2ee1f61a3e52e26826",
-      "bytes": 669
-    },
-    {
-      "path": "schemas/ai-context-bundle.schema.json",
-      "sha256": "bb5b9a839d2491dd2ce8c2dd89ee7327125a6381c012b1dee2479cf4f1b25404",
-      "bytes": 1450
-    },
-    {
-      "path": "schemas/knowledge-edge.schema.json",
-      "sha256": "7f908052220a10a776970c0c26414990b395043ed68f2a665ae34e5369d01062",
-      "bytes": 523
-    },
-    {
-      "path": "schemas/knowledge-node.schema.json",
-      "sha256": "62cdd82136a2c276b45f7e5c52db7888d4e998b518907bbe7e71d89eb00074f2",
-      "bytes": 526
-    },
-    {
-      "path": "schemas/project-manifest.schema.json",
-      "sha256": "6f7c3c545876bdab4e7860aa3299c2fa3705a0c2f1dcb7285f9072232c28ee15",
-      "bytes": 1353
-    },
-    {
-      "path": "scripts/backend_entry.py",
-      "sha256": "aa7ad0910907dfbe695e83cb806ee32a3149a502f788ee4dbdb00f8b8e9e6f8a",
-      "bytes": 271
-    },
-    {
-      "path": "scripts/backup_neos.ps1",
-      "sha256": "f8f4ff81ec416c6905206f1f48394fe87aa43b7a99fed35994fd93bcf3eabdec",
-      "bytes": 325
-    },
-    {
-      "path": "scripts/build_backend.ps1",
-      "sha256": "93907f18b4448514cb3ec1eb8b9578ec9bf97f3379410497b79f32903224b2fb",
-      "bytes": 838
-    },
-    {
-      "path": "scripts/demo_microgrow.ps1",
-      "sha256": "d2337c6a136ca164176a50b78e4d2b0bc26c305d46dfa21045c5bd1b987c9891",
-      "bytes": 344
-    },
-    {
-      "path": "scripts/package_windows.ps1",
-      "sha256": "7e5019b3ce5afbe19ffead5717c36b87494142b1ab1259299283769d3b494dc4",
-      "bytes": 4297
-    },
-    {
-      "path": "scripts/setup_windows.ps1",
-      "sha256": "fd97b32a2bd421bd16d52467b2f9dadd824147e41ea416889c18892e14e87b90",
-      "bytes": 578
-    },
-    {
-      "path": "scripts/smoke_windows_backend.ps1",
-      "sha256": "ba5e63592e8a296bb8d59395b1c7ecf277913dcac6b543f0cf19b7e4969bb1a1",
-      "bytes": 4375
-    },
-    {
-      "path": "scripts/smoke_windows_package.ps1",
-      "sha256": "d6300309fe36c6ef0a9d6dcfb7adf92b31df90989cd4bed787b54c641a67d86c",
-      "bytes": 5423
-    },
-    {
-      "path": "scripts/validate_windows.ps1",
-      "sha256": "b5f478105fa39ffada439df4599f58ab85a437d5414db72fab9fa5cc1fcd0bd0",
-      "bytes": 203
-    },
-    {
-      "path": "src/neos/__init__.py",
-      "sha256": "1fd3564596fb35b79144f2cffd5d5f01198b357ada9e8ad533e38e63ef3fdae8",
-      "bytes": 22
-    },
-    {
-      "path": "src/neos/__main__.py",
-      "sha256": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
-      "bytes": 79
-    },
-    {
-      "path": "src/neos/ai/__init__.py",
-      "sha256": "eaa353c603767224a2bb8adb717aa073f3518379857593992a4b195babed6dc7",
-      "bytes": 1682
-    },
-    {
-      "path": "src/neos/ai/engine.py",
-      "sha256": "07725b439859e46a50b0eb549b59922da61fa66daca3ead60ce9da707aed2efd",
-      "bytes": 45549
-    },
-    {
-      "path": "src/neos/ai/models.py",
-      "sha256": "5a092d50d95849a5d280fe3d19140370691126206738c7b748dd85e22bd29831",
-      "bytes": 8287
-    },
-    {
-      "path": "src/neos/ai/providers.py",
-      "sha256": "1fb917d30227c475cd9d3204f693956b6ba1a8a86b4313c610cf779ca6e94a8b",
-      "bytes": 13035
-    },
-    {
-      "path": "src/neos/ai/service.py",
-      "sha256": "d634aa04afee649320caf59f25c3e686f77cd70555016d4e84f99ca319210655",
-      "bytes": 6042
-    },
-    {
-      "path": "src/neos/ai/store.py",
-      "sha256": "b4f29b32e8aa430be8a959e1ff187d44ef75abcbe22882d3ceef3183aedf3ac8",
-      "bytes": 16806
-    },
-    {
-      "path": "src/neos/classify.py",
-      "sha256": "02b11ce9eb3a654e46f5f688df22a2d7741bd8b11344f7e33408bf228af50b88",
-      "bytes": 2062
-    },
-    {
-      "path": "src/neos/cli.py",
-      "sha256": "3e3298795c1fd2c282f1eefe87f7c5f100738887abcef72e59321c8eef8750e4",
-      "bytes": 50796
-    },
-    {
-      "path": "src/neos/config.py",
-      "sha256": "c96d121f075e6308352e4af00728c64dcab470c1cafd32f87b242fc33593717a",
-      "bytes": 82
-    },
-    {
-      "path": "src/neos/core.py",
-      "sha256": "be5dcd59c95266ee2777b6ca9ccc411b7f08b878d0ae1c8a7f23f1759d6af925",
-      "bytes": 35193
-    },
-    {
-      "path": "src/neos/db.py",
-      "sha256": "8ddab6de2a46dd2cac5ba1400cf67cd16e2e9d12cab83f2aec0de0f3f6213ca7",
-      "bytes": 37090
-    },
-    {
-      "path": "src/neos/decision_intelligence.py",
-      "sha256": "cb5b56513730367569a70d3f5907297d88670c2e96e38a8be4156e38eeb92f36",
-      "bytes": 54480
-    },
-    {
-      "path": "src/neos/ecosystem.py",
-      "sha256": "2b023ae92f6cad5bc29ebf4e5b4b49b688a9bfcbb0acefb34cffe02b7ba16133",
-      "bytes": 62821
-    },
-    {
-      "path": "src/neos/flight.py",
-      "sha256": "a403700a428bea50e9efe822711038884769e47d077291d0f4b72f6fede9b057",
-      "bytes": 56653
-    },
-    {
-      "path": "src/neos/genome.py",
-      "sha256": "815ee5a586d1ac03f479f80bad4134e9c3a5f7b7e99362407b373e8c271706ac",
-      "bytes": 61172
-    },
-    {
-      "path": "src/neos/manifest.py",
-      "sha256": "28333b900564de887025643a428835ea3836a9c8212c35dd4abd19c66c34c878",
-      "bytes": 4899
-    },
-    {
-      "path": "src/neos/memory.py",
-      "sha256": "ea63336f3fc863e43cf4346096aee240eeb05c9a22bb2c90b676f928e0db5fbf",
-      "bytes": 59913
-    },
-    {
-      "path": "src/neos/models.py",
-      "sha256": "d532ae5c008fcece36d528377a85c75fd5770ee4835940649605ca0c97966a7f",
-      "bytes": 272
-    },
-    {
-      "path": "src/neos/plugins/__init__.py",
-      "sha256": "9d025053d61abc42b846017611f7099ff4b8cdca16f246be63c8d98f91f614c2",
-      "bytes": 444
-    },
-    {
-      "path": "src/neos/plugins/base.py",
-      "sha256": "137c12e7f06d8c9183990afa85a42686c9df40fa031d30ed9f7f0ead43fcea5b",
-      "bytes": 448
-    },
-    {
-      "path": "src/neos/plugins/example_platformio.py",
-      "sha256": "45b57495d172fa4051d7813f658e2c35665196c2c5c1f97a9c9b9a682888aa37",
-      "bytes": 701
-    },
-    {
-      "path": "src/neos/plugins/flutter_plugin.py",
-      "sha256": "ad7aedf410968772bfc89ea1edb4d9506a83807aecfcc0fa6dc4accd5c59e71f",
-      "bytes": 1287
-    },
-    {
-      "path": "src/neos/plugins/python_plugin.py",
-      "sha256": "032562cc349f0119bf69c735c089d3df920c8df7adddf6b323fdd484a327650e",
-      "bytes": 1325
-    },
-    {
-      "path": "src/neos/plugins/runtime.py",
-      "sha256": "e919c0d4cabf654209aa2561a7f371394fa4eaa0f5c5de2b15e15bdc5e4ea0f0",
-      "bytes": 2098
-    },
-    {
-      "path": "src/neos/requirements_intelligence.py",
-      "sha256": "6142355435e399d2b5e4a7f238745ea501561055953a40cfc1f282159697a42b",
-      "bytes": 43783
-    },
-    {
-      "path": "src/neos/scanner.py",
-      "sha256": "70a209cf837a54818fc193f86cce580955e46cce469fd9f9e4cef4b8e515beb3",
-      "bytes": 2327
-    },
-    {
-      "path": "src/neos/semantic.py",
-      "sha256": "b7f1fec2468009fa588e03538f8aa7f84bb4cf3cdc1bc0e91f4f0d0d0149c930",
-      "bytes": 48543
-    },
-    {
-      "path": "src/neos/service/__init__.py",
-      "sha256": "86a1595be6ce1c112425e91ac8bbf4ea1dd520b5857b742ea5b2f841c6feb1d6",
-      "bytes": 302
-    },
-    {
-      "path": "src/neos/service/app.py",
-      "sha256": "5f3b0424f6092b5d3a1a8e751c8d5764079b9bd0ddd127a75387d6ddcff8b133",
-      "bytes": 6188
-    },
-    {
-      "path": "src/neos/service/health.py",
-      "sha256": "98bdbf8a95290f034baa7fd887de01557fbd4f7c29e5c3bacc1b7f497fc44c43",
-      "bytes": 3897
-    },
-    {
-      "path": "src/neos/service/models.py",
-      "sha256": "0428811c318d18749d7e5a83f0085c16ad9242729a1e83028496aae4b689353b",
-      "bytes": 983
-    },
-    {
-      "path": "src/neos/service/routes.py",
-      "sha256": "c6d1f5037b53b081385ad69f85346b1caf308b97cf22fcb92bf55094e9ea883a",
-      "bytes": 27048
-    },
-    {
-      "path": "src/neos/service/serialization.py",
-      "sha256": "6d354084a7e1f7251c6f3b0517f6c0e92319970e170006cd97b5de0e0ef05453",
-      "bytes": 512
-    },
-    {
-      "path": "src/new_earth_engineering_os.egg-info/PKG-INFO",
-      "sha256": "5d196923eb9cda0c861a884fce763e97f5c434283bd3b5be0aabf21b2c1350ea",
-      "bytes": 3201
-    },
-    {
-      "path": "src/new_earth_engineering_os.egg-info/SOURCES.txt",
-      "sha256": "a01ffe6044cdafb76b883ab5d75906259c06a8f07b4f91a94c7005c32b1c0500",
-      "bytes": 886
-    },
-    {
-      "path": "src/new_earth_engineering_os.egg-info/dependency_links.txt",
-      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "bytes": 1
-    },
-    {
-      "path": "src/new_earth_engineering_os.egg-info/entry_points.txt",
-      "sha256": "f9b83da89ab1c6a282f145cb54177f7af642b8b4e396cbb64c1ab0e9d03f3101",
-      "bytes": 39
-    },
-    {
-      "path": "src/new_earth_engineering_os.egg-info/requires.txt",
-      "sha256": "c41bef488da68452dce9bf9422234a400cd34e5edbf0ee09fd26ddbd90465bd8",
-      "bytes": 27
-    },
-    {
-      "path": "src/new_earth_engineering_os.egg-info/top_level.txt",
-      "sha256": "bc57aea02254a4b2aa070514f68ae3b05450f664a53f8f3df6ff2ce807523a19",
-      "bytes": 5
-    },
-    {
-      "path": "tests/test_ai_engine.py",
-      "sha256": "3c63166527f65d1929b1ad6d1b28c6ad9741cc69580fc21f2c0961ff93945d44",
-      "bytes": 1979
-    },
-    {
-      "path": "tests/test_classify.py",
-      "sha256": "4dc9b7d505376fd647fcc53fd0a485dfbc818121398abf3189362da8db5923df",
-      "bytes": 495
-    },
-    {
-      "path": "tests/test_context_bundle.py",
-      "sha256": "fcfd2c8813be45766cf16de6cc986e97dbda98d58d07f5f48b0ac0e43316a1bb",
-      "bytes": 1155
-    },
-    {
-      "path": "tests/test_core.py",
-      "sha256": "36a65430f9220782aa3b7e16d4b7ca6ee1a066ee15a173a0da71174e36d1a1f3",
-      "bytes": 636
-    },
-    {
-      "path": "tests/test_decision_intelligence.py",
-      "sha256": "eafd9a6f8a6682bc7a010889433cde2bbc5f7fa85c69794b318302670525b164",
-      "bytes": 4867
-    },
-    {
-      "path": "tests/test_diff.py",
-      "sha256": "aceed22933d7e2b3e31515b084cca68573e6fd1b3e5b9888ccba44eefaaaf01c",
-      "bytes": 1232
-    },
-    {
-      "path": "tests/test_ecosystem.py",
-      "sha256": "7fe12d7dea8f3c8e9afc270704e3b4aafd874c2967bd8926b2aae7ebf4def2e3",
-      "bytes": 6545
-    },
-    {
-      "path": "tests/test_flight.py",
-      "sha256": "7c4639c8b24cf151d9578bccf6480741b87592be6ab036b56a51fadf28fb7189",
-      "bytes": 4219
-    },
-    {
-      "path": "tests/test_genome.py",
-      "sha256": "80621593817b154743554dcc43b46735eb352c3fdb7be51344e7915b63bcb7c1",
-      "bytes": 2696
-    },
-    {
-      "path": "tests/test_manifest.py",
-      "sha256": "1a2cbfa833970c2a19012171d7825ac982ae438adeff6aa190db9ccd80565fcd",
-      "bytes": 1471
-    },
-    {
-      "path": "tests/test_plugins.py",
-      "sha256": "eac283ab30660e538b558791623ac1ed281ebe4cde5f547f8fd2c239fed1652d",
-      "bytes": 782
-    },
-    {
-      "path": "tests/test_requirements_intelligence.py",
-      "sha256": "5c3e6837cd896b9a31ad3ffcd96d54c611737767aef329e51caa80d609caa50e",
-      "bytes": 2688
-    },
-    {
-      "path": "tests/test_scanner.py",
-      "sha256": "ea0d259dabef4d58bc6be2fd2c128fd9cf25d5ebe46da30fdc9136febe11bdab",
-      "bytes": 350
-    },
-    {
-      "path": "tests/test_service_api.py",
-      "sha256": "90e91b17376be247b07f297d06bddbc11b381786a0d02e51d9a7eb0471e96118",
-      "bytes": 9299
-    }
-  ]
+    "package":  "New-Earth-Engineering-OS-Omega",
+    "version":  "1.0.0",
+    "generated":  "2026-08-08",
+    "file_count":  316,
+    "files":  [
+                  {
+                      "path":  ".github/workflows/ci.yml",
+                      "sha256":  "354304c278db58ebe48da6b4db9780b59b931811e52c25c8540e195210bc86dc",
+                      "bytes":  385
+                  },
+                  {
+                      "path":  ".gitignore",
+                      "sha256":  "e97cb86bd258f1e1062b65e30aff39e9df5240551092f8e020bb92c62517fbd0",
+                      "bytes":  132
+                  },
+                  {
+                      "path":  "apps/desktop/.gitignore",
+                      "sha256":  "1e725ca8cb4e6c2a19dc889d0cebb497d954f091aba3b08d53df20edd0a98cdb",
+                      "bytes":  748
+                  },
+                  {
+                      "path":  "apps/desktop/.metadata",
+                      "sha256":  "adf6d1a331b1921285179adf11985c1f87687882b5a7fe67c1b96a33f8a73fcb",
+                      "bytes":  998
+                  },
+                  {
+                      "path":  "apps/desktop/analysis_options.yaml",
+                      "sha256":  "b63207cf529949ec4727b68c23dbb38ce255b6f6f4ae1effcb5c1dcf2852d238",
+                      "bytes":  1448
+                  },
+                  {
+                      "path":  "apps/desktop/lib/app.dart",
+                      "sha256":  "300c7a7c9a8c411fd7ac3df621865184b9440fa7483167845fdeacadd89f14ba",
+                      "bytes":  82323
+                  },
+                  {
+                      "path":  "apps/desktop/lib/bootstrap.dart",
+                      "sha256":  "af33ca14fced4dfb7ecb447e3a4fa6621c9ad2fbf8b6d9ca071aa457e70963bb",
+                      "bytes":  6017
+                  },
+                  {
+                      "path":  "apps/desktop/lib/decision_center.dart",
+                      "sha256":  "cd5b430887dbb7e6d48a01dedcbcec6af5aa931dbda970b26327af875b10e8dc",
+                      "bytes":  25263
+                  },
+                  {
+                      "path":  "apps/desktop/lib/engine_manager.dart",
+                      "sha256":  "ece4859f20af57b09f0a5a035effd07d4b92f6c24ce0341010ee23bb05bd7bce",
+                      "bytes":  17182
+                  },
+                  {
+                      "path":  "apps/desktop/lib/main.dart",
+                      "sha256":  "f3164fd915de453658560782935a3f3af9ab0d025be4f13ff781549629d48e9f",
+                      "bytes":  215
+                  },
+                  {
+                      "path":  "apps/desktop/lib/neos_client.dart",
+                      "sha256":  "91406043415555baff73c29494e935db1f7488267e765c711d2e2ed13d926f36",
+                      "bytes":  36954
+                  },
+                  {
+                      "path":  "apps/desktop/lib/portfolio_workspace.dart",
+                      "sha256":  "54409327c6cae10abd1a3815453845e0cadc28037f388cc0ca2b5cff153e4caa",
+                      "bytes":  22490
+                  },
+                  {
+                      "path":  "apps/desktop/pubspec.lock",
+                      "sha256":  "9a213df2d6b1726fe32834c4ebc68efa3324c865a1d8971fda77f41fc37384e5",
+                      "bytes":  7230
+                  },
+                  {
+                      "path":  "apps/desktop/pubspec.yaml",
+                      "sha256":  "31acc7f56dac8f0e929caa59fe51467293a53a71d65563eaf1bc8ee41e2e7028",
+                      "bytes":  3942
+                  },
+                  {
+                      "path":  "apps/desktop/README.md",
+                      "sha256":  "ec38b28ce460f6c67fd77b010506da29f9c0d00b5181a38fbf25d6b2ea6f8e54",
+                      "bytes":  646
+                  },
+                  {
+                      "path":  "apps/desktop/test/widget_test.dart",
+                      "sha256":  "118b82162a8d34c46196244c712c3b5eb798c97f9584263369ed7e573d2d3449",
+                      "bytes":  25395
+                  },
+                  {
+                      "path":  "apps/desktop/windows/.gitignore",
+                      "sha256":  "955e3110cb16494ee76e1cd5df47e2c212309eb94a49a123fe87f718de413cb8",
+                      "bytes":  308
+                  },
+                  {
+                      "path":  "apps/desktop/windows/CMakeLists.txt",
+                      "sha256":  "6cd8928ea92e00e603e20af2525c9a2b2de1439669fee9a897fb0ac8b42afe37",
+                      "bytes":  4258
+                  },
+                  {
+                      "path":  "apps/desktop/windows/flutter/CMakeLists.txt",
+                      "sha256":  "bd05e3268b2f246bcbafdb778165fe67a7bafdba04eb73599502563a67b8ae7e",
+                      "bytes":  3851
+                  },
+                  {
+                      "path":  "apps/desktop/windows/flutter/generated_plugin_registrant.cc",
+                      "sha256":  "82e02567f2faf5e732dc92a2fb0d01104f7ba8c48973f8cfd41a860b4fac3f3b",
+                      "bytes":  164
+                  },
+                  {
+                      "path":  "apps/desktop/windows/flutter/generated_plugin_registrant.h",
+                      "sha256":  "dbc11635d7b1ba1887adf40df5b83d634e9c3ab0bee34510c71528bb4d73602a",
+                      "bytes":  302
+                  },
+                  {
+                      "path":  "apps/desktop/windows/flutter/generated_plugins.cmake",
+                      "sha256":  "286346b0d5303dc6b41072f9582d4c52bca35255b85b27b310f858e264dfdc56",
+                      "bytes":  743
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/CMakeLists.txt",
+                      "sha256":  "d765fdd05f63ad099e585a2cced0cbff13ec3229b7de68c8681b2107db850089",
+                      "bytes":  1836
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/flutter_window.cpp",
+                      "sha256":  "9e9ec88234285499e2c364b0e3804245c20d3300ed469bc7eab466dcd2384cb3",
+                      "bytes":  3199
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/flutter_window.h",
+                      "sha256":  "c50992fb2e61b237842ab824b987d73353faf4729ec27f312f6594fdb11efd5d",
+                      "bytes":  1228
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/main.cpp",
+                      "sha256":  "2aa60a8fc61e4ecb3220c9eaf064296cd84ef1e32bb6d9530830391c73a29ac0",
+                      "bytes":  1316
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/resource.h",
+                      "sha256":  "d0e8bf7835468b4b6b1f8f0747f2e8f25c19841f2df2ac60aaa584ddae3aa7c6",
+                      "bytes":  448
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/resources/app_icon.ico",
+                      "sha256":  "c098d3fc85cacff98b8e69811b48e9f0d852fcee278132d794411d978869cbf8",
+                      "bytes":  33772
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/runner.exe.manifest",
+                      "sha256":  "639a56233fcd8cbcb8bbefcd93e4680ec2664f32d9acfb3d2ec1d8726a96e090",
+                      "bytes":  616
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/Runner.rc",
+                      "sha256":  "22c2b8e4bae33f8397c1f12f8dbe3922c3883ea97db96c496c14245af126746c",
+                      "bytes":  3146
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/utils.cpp",
+                      "sha256":  "fbb18524c22593d0ce7869b0733e237be38e668fe045e3023bcf2d0b31784fa3",
+                      "bytes":  1862
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/utils.h",
+                      "sha256":  "832e246b6758253f89016fb0374b30791242e97ad950d27fc678b3d9feacfdc4",
+                      "bytes":  691
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/win32_window.cpp",
+                      "sha256":  "4e4f4dcf8e86ea6e097562cb3476039e693449bd8045367538afee579c017511",
+                      "bytes":  8822
+                  },
+                  {
+                      "path":  "apps/desktop/windows/runner/win32_window.h",
+                      "sha256":  "d154cf89ba85f820631a9b5bedacbe64fc5815e428fe6bc5da579ce649f69841",
+                      "bytes":  3624
+                  },
+                  {
+                      "path":  "CHANGELOG.md",
+                      "sha256":  "a255504adeef9c530b27e82465fa17388b412bb2b9932dc87a4cb7c7da819fa9",
+                      "bytes":  323
+                  },
+                  {
+                      "path":  "CODEX_OMEGA_BUILD_PROMPT.md",
+                      "sha256":  "c7c0ee6ebce6b3798073e7d654379e9a9b4b12b0516cdaccd32c8afc2bd75699",
+                      "bytes":  6122
+                  },
+                  {
+                      "path":  "docs/00_START_HERE.md",
+                      "sha256":  "d162643bfa3b7b1224b163f5f8e5ae7c1881fc14d2e7906ad8ae1b464893448d",
+                      "bytes":  3086
+                  },
+                  {
+                      "path":  "docs/01_VISION_AND_PRODUCT_STRATEGY.md",
+                      "sha256":  "fde20d4a07828b28cad77ac40d1d4a59e74d575c7a7b98439b6bd856594cbcf5",
+                      "bytes":  2206
+                  },
+                  {
+                      "path":  "docs/02_SYSTEM_ARCHITECTURE.md",
+                      "sha256":  "07f3864a4da935a59234d35c2406e1f13056eb9db20e46e37fc123c6bf86990e",
+                      "bytes":  2427
+                  },
+                  {
+                      "path":  "docs/03_ALPHA_IMPLEMENTATION_PLAN.md",
+                      "sha256":  "119a5495949c93b910a86c70810496abe91a7a468efb11cd6dd19f79c31319b8",
+                      "bytes":  1550
+                  },
+                  {
+                      "path":  "docs/04_DATA_MODEL_AND_KNOWLEDGE_GRAPH.md",
+                      "sha256":  "cfde5ebb35b92475372adc2d8c8fdfb9d3ff42d40bc9e1578882e76ee46e186e",
+                      "bytes":  1620
+                  },
+                  {
+                      "path":  "docs/05_PLUGIN_ARCHITECTURE.md",
+                      "sha256":  "92c2727d19c7397f0bdd6d1f7cecfafe844e08bf23fa053852c4bf1b9bce47bc",
+                      "bytes":  1154
+                  },
+                  {
+                      "path":  "docs/06_DESKTOP_APP_SPECIFICATION.md",
+                      "sha256":  "11e68a69f075152aa4a22b379f8935fecb2d6d4d199efd2d85fdc7ce441190fa",
+                      "bytes":  1348
+                  },
+                  {
+                      "path":  "docs/07_SECURITY_AND_LOCAL_FIRST.md",
+                      "sha256":  "88ac01a68f1441a55ec6ccb1f7d8a0b123469f2792bd38deac83622b5cc03a1d",
+                      "bytes":  1096
+                  },
+                  {
+                      "path":  "docs/08_TESTING_AND_VALIDATION.md",
+                      "sha256":  "289085c882da63efa2feac76dd4368fa78ecf93b139c291d5c70477fda77c479",
+                      "bytes":  1086
+                  },
+                  {
+                      "path":  "docs/09_ROADMAP.md",
+                      "sha256":  "10aecb586ad588922f099723f47c007c600cdbe4661be6c5a3df6dfba46507cb",
+                      "bytes":  2699
+                  },
+                  {
+                      "path":  "docs/10_OPERATING_MODEL.md",
+                      "sha256":  "38c5df8019f2116d2ce7ffbe5af9a330ca0b35c53379257bf4df9495c7f2e087",
+                      "bytes":  667
+                  },
+                  {
+                      "path":  "docs/11_PROJECT_GENOME_CONCEPT.md",
+                      "sha256":  "162d6e7415b7d7b46cd8794510c683561c1cf505bd1d5f4e763d6fd170609b5b",
+                      "bytes":  720
+                  },
+                  {
+                      "path":  "docs/12_ENGINEERING_FLIGHT_RECORDER.md",
+                      "sha256":  "fe42a9622f1068e3a4ce28ddfe32be1cd6bd287ab857f48637bea42f346f44d1",
+                      "bytes":  580
+                  },
+                  {
+                      "path":  "docs/13_AI_ENGINEERING_ASSISTANT.md",
+                      "sha256":  "7e3aa684772aec403890b218f021beeae92d44286ca03f6d875d21456c73ea27",
+                      "bytes":  668
+                  },
+                  {
+                      "path":  "docs/14_RELEASE_AND_VERSIONING.md",
+                      "sha256":  "b819dde6dcc22437c8857db865fb8ba71918618bdcc0ec30a913a6a346828b19",
+                      "bytes":  455
+                  },
+                  {
+                      "path":  "docs/15_BACKUP_AND_RECOVERY.md",
+                      "sha256":  "977c202cd40f7e577103eaf9278d379ce90f4a4557e01ca4cec3b1ea0f9e44c4",
+                      "bytes":  445
+                  },
+                  {
+                      "path":  "docs/16_GLOSSARY.md",
+                      "sha256":  "a4d38e503c4dedbb45927127b06e29cd117581e3bcf408d25f69ac6aea9501b8",
+                      "bytes":  626
+                  },
+                  {
+                      "path":  "docs/adr/ADR-0001-local-first.md",
+                      "sha256":  "f907eeddaf821507993a92cd11f8e554c0dbb8e4fee56c8feee69eb8e4c19909",
+                      "bytes":  298
+                  },
+                  {
+                      "path":  "docs/adr/ADR-0002-sqlite-alpha.md",
+                      "sha256":  "4faa5b333daa770f024e81b6962f070d3d588a0e0820a5213b27e54780d99ff3",
+                      "bytes":  285
+                  },
+                  {
+                      "path":  "docs/adr/ADR-0003-ui-not-source-of-truth.md",
+                      "sha256":  "f9e9000c38486df09f09c58e8f83e4a8f02b15db1e37293257434f3328a08d30",
+                      "bytes":  187
+                  },
+                  {
+                      "path":  "docs/adr/ADR-0004-derived-vs-canonical.md",
+                      "sha256":  "45ae71be62b5907d834e4cd8b32f4fbbd51175e600ce57308b7e0c8ab8d8dba7",
+                      "bytes":  189
+                  },
+                  {
+                      "path":  "docs/ai/AI_ENGINEERING_PARTNER_ARCHITECTURE.md",
+                      "sha256":  "9e3a841eb4937411e583e8bc0e91a9b280cb7695a0c7b91670a340f6982bd978",
+                      "bytes":  837
+                  },
+                  {
+                      "path":  "docs/ai/AI_EVALUATION.md",
+                      "sha256":  "f5c68a93d8e529da797d280ce220a945b1b315d7913a01826dadb3e44c30e78f",
+                      "bytes":  303
+                  },
+                  {
+                      "path":  "docs/ai/AI_PROVENANCE.md",
+                      "sha256":  "958ee1b633e5aefaf0e567349b6d96b994df213690aa6941da6731415d926024",
+                      "bytes":  241
+                  },
+                  {
+                      "path":  "docs/ai/AI_SECURITY.md",
+                      "sha256":  "5618005618d40bd1313011abf11848257aa356a7100389540df107ff56a1aade",
+                      "bytes":  373
+                  },
+                  {
+                      "path":  "docs/ai/CONTEXT_ENGINE.md",
+                      "sha256":  "3be1eb961ef7b3ce2867db4279f21661933610f70f57c1fe9d9d91293abe4961",
+                      "bytes":  517
+                  },
+                  {
+                      "path":  "docs/ai/EVIDENCE_RETRIEVAL.md",
+                      "sha256":  "2707d744406bf9e57eb85549a74a4f96dc3b9a0fdf17e312e7f61cfa1a6f046d",
+                      "bytes":  453
+                  },
+                  {
+                      "path":  "docs/ai/LOCAL_AI_PROVIDERS.md",
+                      "sha256":  "a39bbb253eac26e56185215d5f1a9cd33312f0b22441e1babe97439428f2e786",
+                      "bytes":  448
+                  },
+                  {
+                      "path":  "docs/ai/PROMPT_CONSTRUCTION.md",
+                      "sha256":  "7dd93c6ee0510c68128255343fcb2deaad259a2f177fb4691f0286adb15b523c",
+                      "bytes":  269
+                  },
+                  {
+                      "path":  "docs/ai/PROMPT_INJECTION_DEFENCE.md",
+                      "sha256":  "fe0853ac51e43fc27046dcf6d8e4a6defa268962ab5fa75e3347252713f77d34",
+                      "bytes":  302
+                  },
+                  {
+                      "path":  "docs/ai/PROVIDER_ABSTRACTION.md",
+                      "sha256":  "0083d69c394169128d01ab05740b9a702efc823cdc940c4fbd0b940170fc8dfd",
+                      "bytes":  623
+                  },
+                  {
+                      "path":  "docs/ai/TOOL_PERMISSION_MODEL.md",
+                      "sha256":  "1a108addab4a1a6b7e468f1216942402fa7a197c2af7e7dd3969d61f21e5cdab",
+                      "bytes":  199
+                  },
+                  {
+                      "path":  "docs/architecture/ASSUMPTION_MEMORY.md",
+                      "sha256":  "108a523ed76d2b21a80476fc9369bcf4d4f3ed450851935c231b2567ecb8db09",
+                      "bytes":  440
+                  },
+                  {
+                      "path":  "docs/architecture/CHANGE_MEMORY.md",
+                      "sha256":  "f1879fab3c42662dfcb330222e1aa4d2eb523c494b04e34f7fa9a6f7cffab82c",
+                      "bytes":  387
+                  },
+                  {
+                      "path":  "docs/architecture/DECISION_EVOLUTION.md",
+                      "sha256":  "178db0a03e1098c86b333b6787a6f785fc64df0dcfc621d4ecffc44d70ef6306",
+                      "bytes":  635
+                  },
+                  {
+                      "path":  "docs/architecture/ENGINEERING_FLIGHT_RECORDER.md",
+                      "sha256":  "6e60f3bfdbf28d736708ec06b81d4b5b0e9ed2e1deb5100f5f2ffa348fcd0435",
+                      "bytes":  1158
+                  },
+                  {
+                      "path":  "docs/architecture/ENGINEERING_MEMORY_V2.md",
+                      "sha256":  "241d72b06c26ca9dce95e5b238232e20c4dbb857119db88dbb7f2911edf5a31e",
+                      "bytes":  1008
+                  },
+                  {
+                      "path":  "docs/architecture/EXPERIMENT_MEMORY.md",
+                      "sha256":  "58725ea98f6783c9020761a1890a5b76c590247c1c8447bebaa9a64623b99032",
+                      "bytes":  430
+                  },
+                  {
+                      "path":  "docs/architecture/FLIGHT_EVENTS.md",
+                      "sha256":  "61cdac537f302a76e88f5ba55c0e7e1e7212a033d752e1e6f317ff1d5bbe57d5",
+                      "bytes":  714
+                  },
+                  {
+                      "path":  "docs/architecture/FLIGHT_SNAPSHOTS.md",
+                      "sha256":  "fee39792bed69c1625e660c1efc5f3be1d6b88c494b2d2cde08856bf756025d6",
+                      "bytes":  621
+                  },
+                  {
+                      "path":  "docs/architecture/FLIGHT_TRANSITIONS.md",
+                      "sha256":  "277f1a4881a65db8ba88c785f5e492ecb101afa499bf76cb1787dcecbf0768b2",
+                      "bytes":  532
+                  },
+                  {
+                      "path":  "docs/architecture/HISTORICAL_RECONSTRUCTION.md",
+                      "sha256":  "2d68eb962f60872e1e4c13d42177c6a4a56a435f53acb1d8e66d5d0e900cce4d",
+                      "bytes":  568
+                  },
+                  {
+                      "path":  "docs/architecture/MEMORY_GAPS.md",
+                      "sha256":  "31b577257da7faa79e38baba2afd0479532e9c8805512a5427926ce758eb08e7",
+                      "bytes":  423
+                  },
+                  {
+                      "path":  "docs/architecture/PROJECT_GENOME.md",
+                      "sha256":  "6f06aab0558f5bf38a3c04bfcb463788714173e9ed721c94205b799e0bfe5419",
+                      "bytes":  1214
+                  },
+                  {
+                      "path":  "docs/architecture/REGRESSION_INTELLIGENCE.md",
+                      "sha256":  "f5cf3bf2b31df89ac03b0c465b0468325f8d05504b17745aea987a1cd2ce9334",
+                      "bytes":  542
+                  },
+                  {
+                      "path":  "docs/CLI_REFERENCE.md",
+                      "sha256":  "91cbb88da7e080ca6e5ab84def29e2f8a962b51c09d0d7febd3a7590ae87d9f5",
+                      "bytes":  6622
+                  },
+                  {
+                      "path":  "docs/decision_intelligence/README.md",
+                      "sha256":  "de88b76e3af1a2338b7dadcb488a353143925ec8ebfc2bc5f0552f6fc7100af8",
+                      "bytes":  411
+                  },
+                  {
+                      "path":  "docs/desktop/BACKEND_LIFECYCLE.md",
+                      "sha256":  "47051594db2f926c99fec0f73181cb3b3347e6123ff600cfe597868b49656d31",
+                      "bytes":  1315
+                  },
+                  {
+                      "path":  "docs/desktop/BACKEND_PACKAGING.md",
+                      "sha256":  "0407425b737e9de12f6ed5d029d7f3efb3355dcc08b9589408009f1c55cbbfd2",
+                      "bytes":  1195
+                  },
+                  {
+                      "path":  "docs/desktop/DIAGNOSTICS.md",
+                      "sha256":  "01b3608697a363cee3c252283649baf5573c1f2f06f005f91274d10b27e9694f",
+                      "bytes":  936
+                  },
+                  {
+                      "path":  "docs/desktop/FIRST_RUN_EXPERIENCE.md",
+                      "sha256":  "af62597eb4d6ab54618b2f8c580d8539c589c085681e3fc4af8c51d84f66d6cf",
+                      "bytes":  1107
+                  },
+                  {
+                      "path":  "docs/desktop/SETTINGS.md",
+                      "sha256":  "6c272963397af4368a3df615e6127a2e8f35a61971c738482137e470b2e98c04",
+                      "bytes":  993
+                  },
+                  {
+                      "path":  "docs/desktop/WINDOWS_PACKAGING.md",
+                      "sha256":  "cc36fbeb626920eab45e30973a0d2df800625282f01ee67811ca789116febeb4",
+                      "bytes":  1257
+                  },
+                  {
+                      "path":  "docs/desktop/WINDOWS_PRODUCTION_ARCHITECTURE.md",
+                      "sha256":  "158342b89de66768a9f8ffc43b8057bbd53a13f9abe5ef84ef64ba14b5e0acc4",
+                      "bytes":  1979
+                  },
+                  {
+                      "path":  "docs/DEVELOPER_GUIDE.md",
+                      "sha256":  "82703982032eff682aa3e7cc77897b11492a134000f86a026e995067e2e7a547",
+                      "bytes":  3061
+                  },
+                  {
+                      "path":  "docs/ecosystem/PORTFOLIO_WORKSPACE.md",
+                      "sha256":  "237fcab2ec0ade1333f2433edc28ba467fb73c728c87be054525544f8efd6cd8",
+                      "bytes":  545
+                  },
+                  {
+                      "path":  "docs/ecosystem/README.md",
+                      "sha256":  "5de11fa6909eef062f030937a405733c1b54622a0ca2fbeae1ad3e45fcef04bc",
+                      "bytes":  340
+                  },
+                  {
+                      "path":  "docs/ecosystem/SEARCH_AND_SCOPE.md",
+                      "sha256":  "f8b8583b8211d88a744a425fe26e776fc146f11313048835eb101ed6b7a95fb2",
+                      "bytes":  565
+                  },
+                  {
+                      "path":  "docs/governance/CONTRIBUTING.md",
+                      "sha256":  "fb699c73f192670dc41ef09e3746a223acf7b4fc5aa2b74ff5647c97a125126a",
+                      "bytes":  262
+                  },
+                  {
+                      "path":  "docs/governance/DEFINITION_OF_DONE.md",
+                      "sha256":  "fb5862cdec5e4b65d844c867c86b754d83382f2f03cf7643ea8ae8d614bd5501",
+                      "bytes":  355
+                  },
+                  {
+                      "path":  "docs/governance/ENGINEERING_PRINCIPLES.md",
+                      "sha256":  "e70ef98b8cb25bd05d2ad29a8615ae120aac093fa21dd8a114e40242008bb520",
+                      "bytes":  464
+                  },
+                  {
+                      "path":  "docs/MICROGROW_INTEGRATION_GUIDE.md",
+                      "sha256":  "20511c9f15aa22443964b5d0c0dcb11500edca5e75ed5e684383c463c4c16fdb",
+                      "bytes":  588
+                  },
+                  {
+                      "path":  "docs/New-Earth-Engineering-OS-Omega.code-workspace",
+                      "sha256":  "a5006f74d5bda846cca77a982a1bce81ddcd6283bbbea9e76cf321e07f28a7f6",
+                      "bytes":  44
+                  },
+                  {
+                      "path":  "docs/project_control/ACCEPTANCE_CRITERIA_ALPHA.md",
+                      "sha256":  "aec69bc25fae0a1b0990646b9fcb3d2a113ee6f0a5337c5f81e64f3650f9da2a",
+                      "bytes":  525
+                  },
+                  {
+                      "path":  "docs/project_control/DECISIONS_LOG.md",
+                      "sha256":  "d4ea02085e71974caa317e73239278b91b4294c05080163085036fd0dc21f03a",
+                      "bytes":  381
+                  },
+                  {
+                      "path":  "docs/project_control/FEATURE_MATRIX.md",
+                      "sha256":  "0a2cc1336b8d2817e6d9126a9880d61eb7ffdadac2e74f2ffba5d3962ea24705",
+                      "bytes":  556
+                  },
+                  {
+                      "path":  "docs/project_control/MILESTONES.md",
+                      "sha256":  "1fb2b6ab46f5439a6027339f7194fb47511fdd4efa4d8df10335c9a450a56ae5",
+                      "bytes":  518
+                  },
+                  {
+                      "path":  "docs/project_control/RISK_REGISTER.md",
+                      "sha256":  "d85086a350ce856332e7ba897dcac8053cfd7c7842b51a04896147af0901cc69",
+                      "bytes":  807
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/AI_EVALUATION_RESULTS.md",
+                      "sha256":  "aeccb11f397e3a2e655f7c1d00c8126a1966e6641d5bda243c61c8d5dbecc073",
+                      "bytes":  258
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/ARCHITECTURE_EVIDENCE.md",
+                      "sha256":  "6dce0f954851c4ed0df1aeccef382ad11d4e505d8a489a7993d97ece6febc46e",
+                      "bytes":  267
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/CITATION_EVIDENCE.md",
+                      "sha256":  "e48b538dbbac8533cbff22547927be3d22d7a81c07600d384925dfa84241b077",
+                      "bytes":  187
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/CONTEXT_ENGINE_EVIDENCE.md",
+                      "sha256":  "54a4d1c78b8be278076776fb08edecf7737373be65b40856c0abf21e13223ddf",
+                      "bytes":  179
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/evidence.json",
+                      "sha256":  "4c94db7be9d8cce8b2d71d76376c93e4993a9cc949715dc5b9b9a185280c7203",
+                      "bytes":  623
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/KNOWN_LIMITATIONS.md",
+                      "sha256":  "5d6abdff280e7dceb9cfc89fb8d60e8d47327ca5cfe3f07a2fc42ba6f0f107f9",
+                      "bytes":  289
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/LOCAL_PROVIDER_EVIDENCE.md",
+                      "sha256":  "5877bbccfd8b2d26b93776a501047c9b992c818e1a3e10a0c97bdf41af45979e",
+                      "bytes":  206
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/MICROGROW_GOLDEN_QUESTIONS.md",
+                      "sha256":  "5daeb4bda8291e61ca1174b1130bb0995bf7f1e6335797e20070ea7cef25c764",
+                      "bytes":  390
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/PERFORMANCE.md",
+                      "sha256":  "16a15afa5c17454dfd8f1b7a352ed57ad0928f41607c343c48a25986f6d115d6",
+                      "bytes":  219
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/PROMPT_INJECTION_EVIDENCE.md",
+                      "sha256":  "ce4ae3e454b9cdba8f27c74c2cfec25ad9ffd5764cee800ac92b2d92d687df14",
+                      "bytes":  257
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/PROVIDER_EVIDENCE.md",
+                      "sha256":  "3f6607e846feae3184d0034104355a1671bad7cbdff26cfa2d0378c192506189",
+                      "bytes":  171
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/README.md",
+                      "sha256":  "b2e0e9cbda817d05659e21a93e08044259282a685ba90506415b6fa13ee6ac63",
+                      "bytes":  380
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/SECURITY_REVIEW.md",
+                      "sha256":  "7e84738893dac2e15a66fd8f2100b783dd13001f40eddff4f8374224c32c9a16",
+                      "bytes":  267
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/TEST_RESULTS.md",
+                      "sha256":  "7494764fa4ab40e64f1116752ae5b6de02351600bd7371f7ddbe76dd256bf26c",
+                      "bytes":  790
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/TOOL_PERMISSION_EVIDENCE.md",
+                      "sha256":  "00e2e6a6d38d206bbd63351a346180406bc06d02534a6c66f36675105255ca0a",
+                      "bytes":  120
+                  },
+                  {
+                      "path":  "docs/release_evidence/ai-engineering-partner-v0.6/V06_ACCEPTANCE.md",
+                      "sha256":  "811f25c1a86d93bd6c617da1a0b621b9fc3666d86b7e9b34fe9057886bcd5e7f",
+                      "bytes":  301
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-microgrow/evidence.json",
+                      "sha256":  "4015cd2774ba30140c7f0aad28f5477fcd387b53c50fab4eafc5c2e257bb5193",
+                      "bytes":  1317
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-microgrow/README.md",
+                      "sha256":  "5c131d4698ab5f7f51c6890fd66b903b536b5b810e74c1f0b9b5c9a5a3d7d493",
+                      "bytes":  1062
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/AI_CONTEXT_V2_EVIDENCE.md",
+                      "sha256":  "c5d866a171f36f3c2b47c0642200c7abeff1279b44bb540a12ca1c60e9d23875",
+                      "bytes":  743
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/ARCHITECTURE_DELTA.md",
+                      "sha256":  "1c33ead3a989ef22964cfb1473a6203eea879e518f698135aa4e2e91f72aca18",
+                      "bytes":  1063
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/CLI_EVIDENCE.md",
+                      "sha256":  "52bcf35de9341317f3fab535c9d33e8263bcbf3b0ff53737f84c35d835839c84",
+                      "bytes":  1429
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/DATABASE_MIGRATION_EVIDENCE.md",
+                      "sha256":  "b00c82cce3a655078f8cd71f2777ab727f414d4fb19a8aaf216067894cbb619c",
+                      "bytes":  458
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/KNOWN_LIMITATIONS.md",
+                      "sha256":  "8abff3ce9f6002a6ade87d96f55cf455f32edcbf24feda61b1cb87077450c984",
+                      "bytes":  735
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/microgrow_feature_atlas.json",
+                      "sha256":  "118a0c0273a33d5cb99c78e67a4ad7167849ae8aacbdd86df82da3c35aaa0b10",
+                      "bytes":  13391
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/MICROGROW_FEATURE_ATLAS.md",
+                      "sha256":  "6fb28cf9eb4a4830837ca5b9ff0219a0ea4f617418a8180378345e2a6b76d7dc",
+                      "bytes":  1111
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/MICROGROW_READ_ONLY_PROOF.md",
+                      "sha256":  "062e8610377b8c5f96d15cbcf97dec1882329fbffdfa00248d28072a9025378a",
+                      "bytes":  744
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/PHASE_2_ACCEPTANCE.md",
+                      "sha256":  "2026ce1a311b19c3f434404a67b8f5bec010d32f2effd200fa071f79df67aaaf",
+                      "bytes":  1237
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/README.md",
+                      "sha256":  "3353f3099520c986246eccbb6a76574b56f5ba5f5e836d2b96ec321b3ad73461",
+                      "bytes":  291
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/SEMANTIC_SCAN_METRICS.json",
+                      "sha256":  "0d5bac0f87570cbea31bf2d60833752663d2bfdc0da919bb6e44aadcdb33a3aa",
+                      "bytes":  1502
+                  },
+                  {
+                      "path":  "docs/release_evidence/alpha-phase-2/TEST_RESULTS.md",
+                      "sha256":  "f7446676987cfea180cd8445ecf37fd060d60db90fc4b14768e15d7f3637b083",
+                      "bytes":  615
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/MEMORY_METRICS.json",
+                      "sha256":  "40e2d85805ed1e181b3360d66e03f55488ccd0d20b6f9865485100dedf656cd8",
+                      "bytes":  631
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/MICROGROW_ASSUMPTIONS.md",
+                      "sha256":  "4a675642c41f1e607dc429f3d05ad768fd2d91c1464bcb6f83907ad4d1aca08c",
+                      "bytes":  23010
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/MICROGROW_CHANGE_MEMORY.md",
+                      "sha256":  "88c218ba4f21a3b883402c7a25d50e57b9a9945368e4752bc10f1f768a9e2a36",
+                      "bytes":  1503
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/MICROGROW_CONTRADICTIONS.md",
+                      "sha256":  "8291271853acd4a76d6e4d676939ff7f3a78e2d3e17a57d624e451a7617c7090",
+                      "bytes":  253
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/MICROGROW_DECISION_HISTORY.md",
+                      "sha256":  "f6ceba3a96be30d5684d7e66ff7c761af4533a5909da6d1d3dd3e85c55a9401b",
+                      "bytes":  14766
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/microgrow_engineering_memory.json",
+                      "sha256":  "74642e6a7543ad25bea5c3549b2eae379b078585aecf36f4d7de222d67d9eaf7",
+                      "bytes":  3364498
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/MICROGROW_ENGINEERING_MEMORY.md",
+                      "sha256":  "b9b806bbdf0e224ea18286ac7e7f666bfdbc92a96b2cd5fcdc60683eaaaf1d11",
+                      "bytes":  981
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/MICROGROW_EXPERIMENT_HISTORY.md",
+                      "sha256":  "c3e9b141e0c45db1f2258285611fcacf5dea1ed5215d5e967302daa828e06a57",
+                      "bytes":  67392
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/MICROGROW_LESSONS.md",
+                      "sha256":  "ccd3b19e1f9af20428ac2821a545fa6ecdad3fcb9531788e87dbfcd084d430af",
+                      "bytes":  122307
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/MICROGROW_MEMORY_GAPS.md",
+                      "sha256":  "a1b5a6556ad34f590a1ffe5ba01886a5fe3e8c209192b8e4eb1169b46e54d26e",
+                      "bytes":  131908
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/MICROGROW_MILESTONE_TIMELINE.md",
+                      "sha256":  "f31565f8c312dbff1016d18b7b447aff20f0ac5e971ff3b90192e3e1e5af665d",
+                      "bytes":  3398
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/MICROGROW_WHY_EXAMPLES.md",
+                      "sha256":  "cb47fb95f95b1de5ba32f0bc4d902d5bce0234b40d6c47ac260a227780d12f22",
+                      "bytes":  59650
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/READ_ONLY_PROOF.md",
+                      "sha256":  "896a5039b055eae31a7c72300e610595b1314e1454b25980e86d0becb39f7b11",
+                      "bytes":  483
+                  },
+                  {
+                      "path":  "docs/release_evidence/engineering-memory-v0.4/README.md",
+                      "sha256":  "19fda21fbe51c194e29ceb1a0bbb1144f9c11903c82e398807377f3e301176eb",
+                      "bytes":  373
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/FLIGHT_METRICS.json",
+                      "sha256":  "fc3a7caf84a91658d2614fea4483bfbf397fe1e06065e3c1101cab436e8d4679",
+                      "bytes":  296
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/MICROGROW_CHECKPOINTS.md",
+                      "sha256":  "6a03700eca13242db06405a0c1619e05965624b340ec0000d1b4939ebab68269",
+                      "bytes":  239
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/MICROGROW_DECISION_TIMELINE.md",
+                      "sha256":  "21702faed5278545ea65b1f7d4778e0be61402f25b272524ce46594bd914c9b3",
+                      "bytes":  346
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/MICROGROW_FEATURE_HISTORY.md",
+                      "sha256":  "f9af00c5689f88e6e41d9c5515b2f04cdce188216cdf951a0f4d2a9f3a3aa0bf",
+                      "bytes":  178
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/microgrow_flight_recorder.json",
+                      "sha256":  "99a493e10127d8384d393fa6018a98070db89a9bb76383afc90dabfb381de910",
+                      "bytes":  19912914
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/MICROGROW_FLIGHT_RECORDER.md",
+                      "sha256":  "e523cce4043da094a0d92ad1139fe9c70dd34828fbfa9549dc9419ed2853736b",
+                      "bytes":  253
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/MICROGROW_INCIDENTS.md",
+                      "sha256":  "240f3be68a38cb8d7a63e4fb948e4b42e33bc59bc48ad3c2de05b741495e0717",
+                      "bytes":  92
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/MICROGROW_MATURITY_HISTORY.md",
+                      "sha256":  "b9f6dad00acd6909555ff3d3561d06fcd6256b5f337f06d3ecd12a283976e487",
+                      "bytes":  105
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/MICROGROW_REGRESSION_INDICATORS.md",
+                      "sha256":  "37538f77553c073a51e7f1a6aa9977f37980a8eda525c1a8bc1df3bad53e9e7d",
+                      "bytes":  104
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/MICROGROW_REPLAY_EXAMPLE.md",
+                      "sha256":  "c1491f459fb5d4cf2b7ed0510ba2798c8e7d1a11038e7d5e5e390bb92b557368",
+                      "bytes":  3974
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/MICROGROW_RISK_HISTORY.md",
+                      "sha256":  "03a701cc94febb1c5af7a00f170388e06f872df898a4e2a9adbabd591d95fb4e",
+                      "bytes":  83
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/MICROGROW_TIMELINE.md",
+                      "sha256":  "8524ebdb8c0be1a683a639f23a3cdedf00d6bf9deace6ea0dae616830dd151ec",
+                      "bytes":  5508
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/MICROGROW_TRANSITIONS.md",
+                      "sha256":  "3dde6d609d8852591b79d2f82fb6ee2d31b04fcaa72d9c05bb5d256efe04f251",
+                      "bytes":  6254279
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/READ_ONLY_PROOF.md",
+                      "sha256":  "8cb3fdd70873c0c616afdd8003ce826f4ce6079d1fe914e566b1e8922de1d33b",
+                      "bytes":  492
+                  },
+                  {
+                      "path":  "docs/release_evidence/flight-recorder-v0.5/README.md",
+                      "sha256":  "0b418920e6185a7539cb48f8b55d4df2b7ba8a7207a07b467e7307cbe6731474",
+                      "bytes":  463
+                  },
+                  {
+                      "path":  "docs/release_evidence/neos-v0.7-portfolio-completion/evidence.json",
+                      "sha256":  "04754cfd5c705a0d6a593348ca862e2db4ec2434473bbed586586c0d0b25717c",
+                      "bytes":  1822
+                  },
+                  {
+                      "path":  "docs/release_evidence/neos-v0.7-portfolio-completion/README.md",
+                      "sha256":  "1f7d73fd729bc99587e2d3cafc782c914126362a881ef4171baf72a995df01df",
+                      "bytes":  541
+                  },
+                  {
+                      "path":  "docs/release_evidence/neos-v0.8-decision-intelligence/evidence.json",
+                      "sha256":  "89225c84f7cff7d5f0eebaf8f4f7098c390db0acd7943c148d599834ba960d9d",
+                      "bytes":  515
+                  },
+                  {
+                      "path":  "docs/release_evidence/neos-v0.8-decision-intelligence/README.md",
+                      "sha256":  "20d6fd94bb211705f6912e0cc4a295aaed8ac258605dec51cdf2d79b31d92011",
+                      "bytes":  823
+                  },
+                  {
+                      "path":  "docs/release_evidence/neos-v0.9-requirements-architecture-intelligence/evidence.json",
+                      "sha256":  "7f24fb1405ffd690437e28068c04c2d1bae966f95efa2e39daf83a69094d757b",
+                      "bytes":  700
+                  },
+                  {
+                      "path":  "docs/release_evidence/neos-v0.9-requirements-architecture-intelligence/README.md",
+                      "sha256":  "d8475039b6fa151bf6c9d91c4da0a984d047a3c51123539d9d4f35d254fa773f",
+                      "bytes":  810
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/GENOME_DIFF.json",
+                      "sha256":  "8572d3b0817d3055b342c2479581b9b854396ab02a0eed3d0b6a5753676d9e99",
+                      "bytes":  97740
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/GENOME_DIFF.md",
+                      "sha256":  "2d027c859f8b71d3474f19329dcdf5c1b142821117cac8da3351710cc25d1f1e",
+                      "bytes":  97864
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/GENOME_METRICS.json",
+                      "sha256":  "ffca5ae46623673b422b993121b6c5b79f3f800ba4f88051cb594c50fc25de55",
+                      "bytes":  454
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/microgrow_architecture_genome.json",
+                      "sha256":  "30c17a702170e13eb9a4dd0cb7ca91e41c19a0a98103cd9b89ca9e38af61709b",
+                      "bytes":  74459
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_ARCHITECTURE_GENOME.md",
+                      "sha256":  "1deb1ac8826dee9c776597aa281c4721bcaaaf7db97ca7e979cf1b2dfd32b178",
+                      "bytes":  75049
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_ATTENTION.md",
+                      "sha256":  "a0279429b88c7d86c40dd0930b8d74154f284a9f59ca53d73aa230c38aa07dde",
+                      "bytes":  650
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_DOCUMENTATION_GENOME.md",
+                      "sha256":  "1ce8587f74550fbe8cf23e25cb39daf11762c003ca50726657382f2052367f1c",
+                      "bytes":  26374
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/microgrow_domain_map.json",
+                      "sha256":  "74f658817a52697a57455d9f27d00206d268df947b32f3ba380645b74ff7d307",
+                      "bytes":  100621
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_DOMAIN_MAP.md",
+                      "sha256":  "35f457dd6dd7695e09c962b7e3792477cebb112302e5b2dd999e63c23264bc68",
+                      "bytes":  101081
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_FEATURE_MATURITY.md",
+                      "sha256":  "bc80ef7798c7e032bbd91ec7ea92fbc438b3d958d9e9d072cc89ab7f367ffb64",
+                      "bytes":  1258
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/microgrow_project_genome.json",
+                      "sha256":  "36d99d4e33f9d9bb57e592c829e4f46e92b198f23552d2f2581b483dfe9ccce5",
+                      "bytes":  1015510
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_PROJECT_GENOME.md",
+                      "sha256":  "d1186df1df7b199c5c8900c7c0bdb1c6028a5f3c9b92cd98ffe28b93bf5107b2",
+                      "bytes":  757
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_PROJECT_HEALTH.md",
+                      "sha256":  "3a679de38ac1f6be8d4caf1d8e62ce6dce1b240f21546d3128e559e5526c57e6",
+                      "bytes":  1278
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_PROJECT_MATURITY.md",
+                      "sha256":  "3bde3e3e71da705f0517e64cd3c161017e5ef67dc639171ede86bbdcb9567ce8",
+                      "bytes":  15701
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/microgrow_project_report.json",
+                      "sha256":  "cb4f778ec698fcb3d18ee310d0848469e4c8fe010aba327191d5950c1d53a4d7",
+                      "bytes":  1095400
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_PROJECT_REPORT.md",
+                      "sha256":  "1625aaf1c95ea548989a5afa78f172e77eb5f8195cef2f3406f06a3b7bc10d7b",
+                      "bytes":  1095530
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_REUSE_CANDIDATES.md",
+                      "sha256":  "33903e0dc312a5f4f6d7b0e8ee84b75fc172bc5c30085cc167bcf683000fd2db",
+                      "bytes":  6254
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_RISK_GENOME.md",
+                      "sha256":  "80d539f5e9662a6826f3a6abd58d6fb477eaf8ba683fb545cf137fa8d7036822",
+                      "bytes":  721
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_TECHNOLOGY_PROFILE.md",
+                      "sha256":  "0992acafcf88f9ee1b6425258ba3a1f9c12d398d7af0a9f8fdd16f02198e3577",
+                      "bytes":  635
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_TEST_GENOME.md",
+                      "sha256":  "aaac84c2e20c8893ed62b24afe251f84429543bc54d90968ceff39b4625e0961",
+                      "bytes":  103505
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/MICROGROW_UNKNOWN_SURFACE.md",
+                      "sha256":  "23348ec01f361d3804a40c4f356a0c53a49137af380991942b2178ba3590612d",
+                      "bytes":  3874
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/READ_ONLY_PROOF.md",
+                      "sha256":  "4c897911b3c96ce17e792143e303ffac2141361c02791663f0887a69340421eb",
+                      "bytes":  347
+                  },
+                  {
+                      "path":  "docs/release_evidence/project-genome-v0.3/README.md",
+                      "sha256":  "309617e0547ad6c8caf942986ff69fe847c5fd1180b6b726b14d97960a55d791",
+                      "bytes":  439
+                  },
+                  {
+                      "path":  "docs/release_evidence/README.md",
+                      "sha256":  "663c354e02a61a6bf516bd2081c67655b49e4299a305b4a2e73314b3199572a7",
+                      "bytes":  1623
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/A1_ACCEPTANCE.md",
+                      "sha256":  "bf0e6f4f990600b2b7420f6574f4429a971f25c68c426be0abe64bd3ff150e19",
+                      "bytes":  570
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/BACKEND_OWNERSHIP_EVIDENCE.md",
+                      "sha256":  "3971f75f2637f6436e6d3b95da682a14f7f4564289a4d731a8ad91cde20c9286",
+                      "bytes":  669
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/BACKEND_PROCESS_TOPOLOGY.md",
+                      "sha256":  "0c9a7373e491b612fc8e25741f7834c28dec0630941c4b9cd1ce497b45a2b9ab",
+                      "bytes":  622
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/BUG_FIX_SUMMARY.md",
+                      "sha256":  "2a7fb0dffbf7a35cbe268140604490d6dd2836dd497241570798821daccc31f2",
+                      "bytes":  574
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/COMMANDS.md",
+                      "sha256":  "5e22681d8e3742191e4c201fc7bcb688903563958353ecea7a6b7efedf80df03",
+                      "bytes":  582
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/DESKTOP_CONNECTION_EVIDENCE.md",
+                      "sha256":  "a33cfcf6ff9a40cfbb9bd513943e270d24e7aebffa0adf30b5ea22ecd5a74dfd",
+                      "bytes":  500
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/DESKTOP_SHUTDOWN_DIAGNOSIS.md",
+                      "sha256":  "36195c3b7777dbea7ba953c38515dd6575be696c9ff12d05a13f66e44551ad32",
+                      "bytes":  938
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/DESKTOP_SHUTDOWN_EVIDENCE.md",
+                      "sha256":  "e390f4a7885925f6f8509ab8440f8bdce4b71f77029cd42231631caf30248e69",
+                      "bytes":  730
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/evidence.json",
+                      "sha256":  "2a2b9a5b3223c486793bd00129938dbf474a84619aa4b10319dffea76e385799",
+                      "bytes":  1824
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/KNOWN_LIMITATIONS.md",
+                      "sha256":  "6ca3308448817690dc8f13e4ee832550df130226dc238b2daf4178105393ed61",
+                      "bytes":  366
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/PACKAGED_STARTUP_DIAGNOSIS.md",
+                      "sha256":  "8a11765046f3f7f196dd033056c9cf1fdc01d0ec0bdbae6ba8e2e147f89e11d5",
+                      "bytes":  1007
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/PROCESS_CLEANUP_EVIDENCE.md",
+                      "sha256":  "fe42acccd748c6f239089839cc199ef0383470466339d81a90a829c45a959162",
+                      "bytes":  468
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/README.md",
+                      "sha256":  "6af4db77d3c4691ccf629156004d1618ecacc23524924cfd759ead66e67753cc",
+                      "bytes":  645
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/SERVICE_HEALTH_EVIDENCE.md",
+                      "sha256":  "c11007d9a612fb787c3593f67b718670e7d3043794b5e26ec6f4a5a9d0acf71b",
+                      "bytes":  502
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/SMOKE_HARNESS.md",
+                      "sha256":  "32fbe656f748b0f2f880205ed9ab4a58b132ccf918d989d64b4d7d49c376f1cc",
+                      "bytes":  694
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-a1/TEST_RESULTS.md",
+                      "sha256":  "b87b4854596b01c64a01156f876c02fe26d60e7acb308c2a0a58942f32094873",
+                      "bytes":  750
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-v1.0.0/ACCEPTANCE.md",
+                      "sha256":  "4ce06677ea6531c467d55614b61e4f763aac272c149f1a0d3db9f41052feacb2",
+                      "bytes":  594
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-v1.0.0/EVIDENCE.json",
+                      "sha256":  "89921c0eeb4ba6aa4e4996a8829a2dfb1d4bc3785be65066f528d311811d973e",
+                      "bytes":  975
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-v1.0.0/README.md",
+                      "sha256":  "b3e291fd5f1158466d8d30dd2a130c01bb275c9e30cf00b4c9dfb2960412e7ad",
+                      "bytes":  473
+                  },
+                  {
+                      "path":  "docs/release_evidence/windows-productionisation-v1.0.0/TEST_RESULTS.md",
+                      "sha256":  "f06f32174b7fe4115441913948702dba2e411c827301b1ba28a3bed97009bbd0",
+                      "bytes":  771
+                  },
+                  {
+                      "path":  "docs/requirements_intelligence/README.md",
+                      "sha256":  "4e9040582e7f0004dac87c281e6be582733ba2ce8a3a584cb4b81eb58eea61e5",
+                      "bytes":  965
+                  },
+                  {
+                      "path":  "docs/security/THREAT_MODEL.md",
+                      "sha256":  "4c43e9073fecb631e2aa9793a72fcb78be34d271fafced7a6d86c75b897537d5",
+                      "bytes":  891
+                  },
+                  {
+                      "path":  "docs/TROUBLESHOOTING.md",
+                      "sha256":  "7fb4bd13b0a8082432ffb95b495f205c41887aa26affb46bd15920a50ccf127e",
+                      "bytes":  432
+                  },
+                  {
+                      "path":  "docs/user/ADDING_A_PROJECT.md",
+                      "sha256":  "f716ccb747eb65cd8c3f5f4fc0301454f42f5c6ed50831e5c52f70af9aaa2d1e",
+                      "bytes":  566
+                  },
+                  {
+                      "path":  "docs/user/AI_ENGINEERING_PARTNER_GUIDE.md",
+                      "sha256":  "3829c09a5cd40534527814cb1d0236d333245f0caa786f2eda7a10a066a8d7c6",
+                      "bytes":  398
+                  },
+                  {
+                      "path":  "docs/user/AI_PRIVACY_AND_DATA.md",
+                      "sha256":  "5b44786887edf09c050525f058c124e633132b6924f9c81edf70c2beca70e191",
+                      "bytes":  276
+                  },
+                  {
+                      "path":  "docs/user/AI_TROUBLESHOOTING.md",
+                      "sha256":  "59a0d519422bfdd0be2ac296a2ae7eb9b057be08987fabbaa39c32671f503f2d",
+                      "bytes":  334
+                  },
+                  {
+                      "path":  "docs/user/AI_UNKNOWN_AND_CONFIDENCE.md",
+                      "sha256":  "4610b5eed16495b69a2a6f6890d65afc5c30d334eb0658ff90d4205ee41c8a8b",
+                      "bytes":  223
+                  },
+                  {
+                      "path":  "docs/user/ASKING_ENGINEERING_QUESTIONS.md",
+                      "sha256":  "0842ef4571ae4fca36e7ffe97760e5367040436de8a555e839303a4df5c05684",
+                      "bytes":  201
+                  },
+                  {
+                      "path":  "docs/user/CONFIGURING_AI.md",
+                      "sha256":  "c18b06ffd43fe5f206561ad2fb0980c130914ad94f27853e222b8cddbb16dbac",
+                      "bytes":  236
+                  },
+                  {
+                      "path":  "docs/user/CREATING_DIAGNOSTICS.md",
+                      "sha256":  "c23bc8050af9e7482a7d3b77a49a94c532b1ab39a72933f6c0927dc5ca83fe94",
+                      "bytes":  812
+                  },
+                  {
+                      "path":  "docs/user/DECISION_CENTRE_GUIDE.md",
+                      "sha256":  "e6b5dc55d26fa32ab422b2934485a9cf2e6e2558b0f3cb7eb8b5f1c9e56b509b",
+                      "bytes":  872
+                  },
+                  {
+                      "path":  "docs/user/ENGINEERING_MEMORY_GUIDE.md",
+                      "sha256":  "e043aab6f8c6eafb27dad1ee8d376ad380c0e2bdd0e1769d856cc1a3cd4ab09c",
+                      "bytes":  881
+                  },
+                  {
+                      "path":  "docs/user/FLIGHT_DIFF_GUIDE.md",
+                      "sha256":  "ed306f7bf44001cb3596e6b50175355521767b50f7046acfb9ebe8dbf815178d",
+                      "bytes":  384
+                  },
+                  {
+                      "path":  "docs/user/FLIGHT_RECORDER_GUIDE.md",
+                      "sha256":  "a33fc74d8b689f045146289c8686ef7b8d2d62a615d9da54ed5b68e1a1182181",
+                      "bytes":  753
+                  },
+                  {
+                      "path":  "docs/user/INCIDENT_HISTORY_GUIDE.md",
+                      "sha256":  "dfeae89a387ebe8215728118d2dff689ff975691c20769ad3eefdc88ceb4b4be",
+                      "bytes":  400
+                  },
+                  {
+                      "path":  "docs/user/INSTALLING_NEOS_WINDOWS.md",
+                      "sha256":  "89f2d107626e95a2d9a4a5660ff756735f594f0f9b4d74470e488ea6a8c6b191",
+                      "bytes":  824
+                  },
+                  {
+                      "path":  "docs/user/LOCAL_AI_SETUP.md",
+                      "sha256":  "94124878f94d8eb3e224bddbb32239b2080e8152fb8e463e904cebde60a1cbbe",
+                      "bytes":  290
+                  },
+                  {
+                      "path":  "docs/user/MEMORY_TIMELINE_GUIDE.md",
+                      "sha256":  "5c7148eb814bfe66f00192f02dc0d21f76942f6c16e6625cf997bf146dc6471c",
+                      "bytes":  304
+                  },
+                  {
+                      "path":  "docs/user/PORTFOLIO_WORKSPACE_GUIDE.md",
+                      "sha256":  "4739c85024b96ed1988fdc4cafb04248309e692ecea5a4377e25556c4760b2a2",
+                      "bytes":  659
+                  },
+                  {
+                      "path":  "docs/user/PROJECT_GENOME.md",
+                      "sha256":  "eac439f18bd645b38207bc06b03d03b5a701f267c4413d2f11884e20bc2baaf6",
+                      "bytes":  1037
+                  },
+                  {
+                      "path":  "docs/user/PROJECT_REWIND_GUIDE.md",
+                      "sha256":  "9122324924a47ead541127e31a4ba63ed16074688db96d480b90a3af801adff3",
+                      "bytes":  459
+                  },
+                  {
+                      "path":  "docs/user/READING_AI_EVIDENCE.md",
+                      "sha256":  "13ec4b414e7185040f3c0920bf371d0610d838617a59f5c200e0181f486bb8a2",
+                      "bytes":  218
+                  },
+                  {
+                      "path":  "docs/user/READING_DECISION_HISTORY.md",
+                      "sha256":  "8d0a1dded7443fe18bbb889e3df04f604c1edf53d575e0f8dccbe4b78ed762f4",
+                      "bytes":  441
+                  },
+                  {
+                      "path":  "docs/user/REFRESHING_PROJECT_INTELLIGENCE.md",
+                      "sha256":  "38f13268d73af815d38e6ac2bd0d2e98e7e89031d6960b9375ffbfbb524b3445",
+                      "bytes":  822
+                  },
+                  {
+                      "path":  "docs/user/REPLAY_GUIDE.md",
+                      "sha256":  "fa97f6cc544ee5b2133a170a61cdaf7e81982cc39152bbada3c38a13ffa5ea5d",
+                      "bytes":  390
+                  },
+                  {
+                      "path":  "docs/user/REQUIREMENTS_INTELLIGENCE_GUIDE.md",
+                      "sha256":  "c26c4064f5ddda9deb281b58ff4659c832a2f6c79d6e3c65c35100cd487a9f92",
+                      "bytes":  1013
+                  },
+                  {
+                      "path":  "docs/user/SCANNING_A_PROJECT.md",
+                      "sha256":  "bbae20eb8e9d4083ef96def3e466ee1417e919151ce1e680926d1cb1bdd47fda",
+                      "bytes":  540
+                  },
+                  {
+                      "path":  "docs/user/STARTING_NEOS.md",
+                      "sha256":  "f66d8a486407861b452f4d8efb9812b4819cc55d56f588a282b35030ac6bfc83",
+                      "bytes":  611
+                  },
+                  {
+                      "path":  "docs/user/TROUBLESHOOTING_WINDOWS.md",
+                      "sha256":  "313c11b7fc8225d3d7757340abe6cbf62c45395faafdf049cb33f06d022bc735",
+                      "bytes":  1027
+                  },
+                  {
+                      "path":  "docs/user/WHY_QUERY_GUIDE.md",
+                      "sha256":  "3926a61d3b946d2e4a469623c3b84c8b7e260cfc46651107f97256ecd131a1a3",
+                      "bytes":  335
+                  },
+                  {
+                      "path":  "docs/USER_GUIDE.md",
+                      "sha256":  "34245a88637fad4589cdea1da1fc453338ade128bf444aa0984773bf8be1733e",
+                      "bytes":  2028
+                  },
+                  {
+                      "path":  "examples/microgrow/project.neos.json",
+                      "sha256":  "d6e9de6c7e04ff1a9e3ac5548201f88fc483af3bf9c0f8a2532bf3b3d2d3266a",
+                      "bytes":  592
+                  },
+                  {
+                      "path":  "examples/microgrow/README.md",
+                      "sha256":  "c41d0264468789bb1e53d8f8ddc612feed8d8d532ad7e13611ca8f5fa17af506",
+                      "bytes":  262
+                  },
+                  {
+                      "path":  "LICENSE.md",
+                      "sha256":  "7213313e010adfcdd5bc2dccbdf41568f6ed372d801b140bbc083a5d2bbd6e82",
+                      "bytes":  256
+                  },
+                  {
+                      "path":  "neos/__init__.py",
+                      "sha256":  "2cd6357d963557c33d69b86813bb218cd876ce45fd5a729b04915f4840e6de3b",
+                      "bytes":  323
+                  },
+                  {
+                      "path":  "neos/__main__.py",
+                      "sha256":  "b3978f1c8197c0ecc9dadfa1b7d0e0acd156b363c8675fa2987e0badad4173a8",
+                      "bytes":  84
+                  },
+                  {
+                      "path":  "pyproject.toml",
+                      "sha256":  "86c6b5667afa736232076dd09d12ed450dfb63f4339621e9e7ce3ea151835f15",
+                      "bytes":  669
+                  },
+                  {
+                      "path":  "README.md",
+                      "sha256":  "3dd4118db81246a0f23c242c27fc28e2eba9e7ae7b20fb74d7ce47909588f40b",
+                      "bytes":  5745
+                  },
+                  {
+                      "path":  "schemas/ai-context-bundle.schema.json",
+                      "sha256":  "bb5b9a839d2491dd2ce8c2dd89ee7327125a6381c012b1dee2479cf4f1b25404",
+                      "bytes":  1450
+                  },
+                  {
+                      "path":  "schemas/knowledge-edge.schema.json",
+                      "sha256":  "7f908052220a10a776970c0c26414990b395043ed68f2a665ae34e5369d01062",
+                      "bytes":  523
+                  },
+                  {
+                      "path":  "schemas/knowledge-node.schema.json",
+                      "sha256":  "62cdd82136a2c276b45f7e5c52db7888d4e998b518907bbe7e71d89eb00074f2",
+                      "bytes":  526
+                  },
+                  {
+                      "path":  "schemas/project-manifest.schema.json",
+                      "sha256":  "6f7c3c545876bdab4e7860aa3299c2fa3705a0c2f1dcb7285f9072232c28ee15",
+                      "bytes":  1353
+                  },
+                  {
+                      "path":  "scripts/backend_entry.py",
+                      "sha256":  "aa7ad0910907dfbe695e83cb806ee32a3149a502f788ee4dbdb00f8b8e9e6f8a",
+                      "bytes":  271
+                  },
+                  {
+                      "path":  "scripts/backup_neos.ps1",
+                      "sha256":  "f8f4ff81ec416c6905206f1f48394fe87aa43b7a99fed35994fd93bcf3eabdec",
+                      "bytes":  325
+                  },
+                  {
+                      "path":  "scripts/build_backend.ps1",
+                      "sha256":  "93907f18b4448514cb3ec1eb8b9578ec9bf97f3379410497b79f32903224b2fb",
+                      "bytes":  838
+                  },
+                  {
+                      "path":  "scripts/demo_microgrow.ps1",
+                      "sha256":  "d2337c6a136ca164176a50b78e4d2b0bc26c305d46dfa21045c5bd1b987c9891",
+                      "bytes":  344
+                  },
+                  {
+                      "path":  "scripts/package_windows.ps1",
+                      "sha256":  "3f73c407690a075f5812ff6742c409a5dc20e7f242ba066cf4934e3be7d6e143",
+                      "bytes":  4285
+                  },
+                  {
+                      "path":  "scripts/setup_windows.ps1",
+                      "sha256":  "fd97b32a2bd421bd16d52467b2f9dadd824147e41ea416889c18892e14e87b90",
+                      "bytes":  578
+                  },
+                  {
+                      "path":  "scripts/smoke_windows_backend.ps1",
+                      "sha256":  "04aef5624991360ec3d87868921a2a1c5e3964fca434f2bc929faf093fe3380b",
+                      "bytes":  4369
+                  },
+                  {
+                      "path":  "scripts/smoke_windows_package.ps1",
+                      "sha256":  "4754b1fe0910e8add450ad5a66c48e1b09fa597ec40b956f25d91740c7c56df3",
+                      "bytes":  5417
+                  },
+                  {
+                      "path":  "scripts/validate_windows.ps1",
+                      "sha256":  "b5f478105fa39ffada439df4599f58ab85a437d5414db72fab9fa5cc1fcd0bd0",
+                      "bytes":  203
+                  },
+                  {
+                      "path":  "src/neos/__init__.py",
+                      "sha256":  "27e8febb48ada44153ea2add9969a2c50a9831a74d9755fdd53c549a888b1cc2",
+                      "bytes":  22
+                  },
+                  {
+                      "path":  "src/neos/__main__.py",
+                      "sha256":  "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+                      "bytes":  79
+                  },
+                  {
+                      "path":  "src/neos/ai/__init__.py",
+                      "sha256":  "eaa353c603767224a2bb8adb717aa073f3518379857593992a4b195babed6dc7",
+                      "bytes":  1682
+                  },
+                  {
+                      "path":  "src/neos/ai/engine.py",
+                      "sha256":  "07725b439859e46a50b0eb549b59922da61fa66daca3ead60ce9da707aed2efd",
+                      "bytes":  45549
+                  },
+                  {
+                      "path":  "src/neos/ai/models.py",
+                      "sha256":  "5a092d50d95849a5d280fe3d19140370691126206738c7b748dd85e22bd29831",
+                      "bytes":  8287
+                  },
+                  {
+                      "path":  "src/neos/ai/providers.py",
+                      "sha256":  "1fb917d30227c475cd9d3204f693956b6ba1a8a86b4313c610cf779ca6e94a8b",
+                      "bytes":  13035
+                  },
+                  {
+                      "path":  "src/neos/ai/service.py",
+                      "sha256":  "d634aa04afee649320caf59f25c3e686f77cd70555016d4e84f99ca319210655",
+                      "bytes":  6042
+                  },
+                  {
+                      "path":  "src/neos/ai/store.py",
+                      "sha256":  "b4f29b32e8aa430be8a959e1ff187d44ef75abcbe22882d3ceef3183aedf3ac8",
+                      "bytes":  16806
+                  },
+                  {
+                      "path":  "src/neos/classify.py",
+                      "sha256":  "02b11ce9eb3a654e46f5f688df22a2d7741bd8b11344f7e33408bf228af50b88",
+                      "bytes":  2062
+                  },
+                  {
+                      "path":  "src/neos/cli.py",
+                      "sha256":  "3e3298795c1fd2c282f1eefe87f7c5f100738887abcef72e59321c8eef8750e4",
+                      "bytes":  50796
+                  },
+                  {
+                      "path":  "src/neos/command_centre.py",
+                      "sha256":  "627d932beedab5f620c0e3c94f0f50567d0880ab76dd189b88495440668904c5",
+                      "bytes":  35723
+                  },
+                  {
+                      "path":  "src/neos/config.py",
+                      "sha256":  "c96d121f075e6308352e4af00728c64dcab470c1cafd32f87b242fc33593717a",
+                      "bytes":  82
+                  },
+                  {
+                      "path":  "src/neos/core.py",
+                      "sha256":  "be5dcd59c95266ee2777b6ca9ccc411b7f08b878d0ae1c8a7f23f1759d6af925",
+                      "bytes":  35193
+                  },
+                  {
+                      "path":  "src/neos/db.py",
+                      "sha256":  "e1e0d744b5360d51bcb71c89f41033107044300ca69a2a6c86f1dcc989f788e2",
+                      "bytes":  39036
+                  },
+                  {
+                      "path":  "src/neos/decision_intelligence.py",
+                      "sha256":  "d65b014b52a7145c7e739481c25c534dbe2c3e6cc09d53772948c30bc925a2d0",
+                      "bytes":  54480
+                  },
+                  {
+                      "path":  "src/neos/ecosystem.py",
+                      "sha256":  "2b023ae92f6cad5bc29ebf4e5b4b49b688a9bfcbb0acefb34cffe02b7ba16133",
+                      "bytes":  62821
+                  },
+                  {
+                      "path":  "src/neos/flight.py",
+                      "sha256":  "a403700a428bea50e9efe822711038884769e47d077291d0f4b72f6fede9b057",
+                      "bytes":  56653
+                  },
+                  {
+                      "path":  "src/neos/genome.py",
+                      "sha256":  "815ee5a586d1ac03f479f80bad4134e9c3a5f7b7e99362407b373e8c271706ac",
+                      "bytes":  61172
+                  },
+                  {
+                      "path":  "src/neos/manifest.py",
+                      "sha256":  "28333b900564de887025643a428835ea3836a9c8212c35dd4abd19c66c34c878",
+                      "bytes":  4899
+                  },
+                  {
+                      "path":  "src/neos/memory.py",
+                      "sha256":  "ea63336f3fc863e43cf4346096aee240eeb05c9a22bb2c90b676f928e0db5fbf",
+                      "bytes":  59913
+                  },
+                  {
+                      "path":  "src/neos/models.py",
+                      "sha256":  "d532ae5c008fcece36d528377a85c75fd5770ee4835940649605ca0c97966a7f",
+                      "bytes":  272
+                  },
+                  {
+                      "path":  "src/neos/plugins/__init__.py",
+                      "sha256":  "9d025053d61abc42b846017611f7099ff4b8cdca16f246be63c8d98f91f614c2",
+                      "bytes":  444
+                  },
+                  {
+                      "path":  "src/neos/plugins/base.py",
+                      "sha256":  "137c12e7f06d8c9183990afa85a42686c9df40fa031d30ed9f7f0ead43fcea5b",
+                      "bytes":  448
+                  },
+                  {
+                      "path":  "src/neos/plugins/example_platformio.py",
+                      "sha256":  "45b57495d172fa4051d7813f658e2c35665196c2c5c1f97a9c9b9a682888aa37",
+                      "bytes":  701
+                  },
+                  {
+                      "path":  "src/neos/plugins/flutter_plugin.py",
+                      "sha256":  "ad7aedf410968772bfc89ea1edb4d9506a83807aecfcc0fa6dc4accd5c59e71f",
+                      "bytes":  1287
+                  },
+                  {
+                      "path":  "src/neos/plugins/python_plugin.py",
+                      "sha256":  "032562cc349f0119bf69c735c089d3df920c8df7adddf6b323fdd484a327650e",
+                      "bytes":  1325
+                  },
+                  {
+                      "path":  "src/neos/plugins/runtime.py",
+                      "sha256":  "e919c0d4cabf654209aa2561a7f371394fa4eaa0f5c5de2b15e15bdc5e4ea0f0",
+                      "bytes":  2098
+                  },
+                  {
+                      "path":  "src/neos/requirements_intelligence.py",
+                      "sha256":  "e3b5d3b76e3c130bd7d4abcb01f7bd0eaab942e4c6931b43d6fbc448de5b8236",
+                      "bytes":  43783
+                  },
+                  {
+                      "path":  "src/neos/scanner.py",
+                      "sha256":  "70a209cf837a54818fc193f86cce580955e46cce469fd9f9e4cef4b8e515beb3",
+                      "bytes":  2327
+                  },
+                  {
+                      "path":  "src/neos/semantic.py",
+                      "sha256":  "b7f1fec2468009fa588e03538f8aa7f84bb4cf3cdc1bc0e91f4f0d0d0149c930",
+                      "bytes":  48543
+                  },
+                  {
+                      "path":  "src/neos/service/__init__.py",
+                      "sha256":  "86a1595be6ce1c112425e91ac8bbf4ea1dd520b5857b742ea5b2f841c6feb1d6",
+                      "bytes":  302
+                  },
+                  {
+                      "path":  "src/neos/service/app.py",
+                      "sha256":  "5f3b0424f6092b5d3a1a8e751c8d5764079b9bd0ddd127a75387d6ddcff8b133",
+                      "bytes":  6188
+                  },
+                  {
+                      "path":  "src/neos/service/health.py",
+                      "sha256":  "8f5de9fe7dd883d0cbc419cb74ba44ae4ca9945cbf40334b4210779370d8a8e8",
+                      "bytes":  4006
+                  },
+                  {
+                      "path":  "src/neos/service/models.py",
+                      "sha256":  "b19e9996c9f661eeb75874cebe5305108fb659423e833b750a52bf3a66689c2d",
+                      "bytes":  983
+                  },
+                  {
+                      "path":  "src/neos/service/routes.py",
+                      "sha256":  "89ade05efb3754606c599bd67ab2bb309ff3f4a0f60a9f4cfd45102721581799",
+                      "bytes":  30331
+                  },
+                  {
+                      "path":  "src/neos/service/serialization.py",
+                      "sha256":  "6d354084a7e1f7251c6f3b0517f6c0e92319970e170006cd97b5de0e0ef05453",
+                      "bytes":  512
+                  },
+                  {
+                      "path":  "tests/test_ai_engine.py",
+                      "sha256":  "3c63166527f65d1929b1ad6d1b28c6ad9741cc69580fc21f2c0961ff93945d44",
+                      "bytes":  1979
+                  },
+                  {
+                      "path":  "tests/test_classify.py",
+                      "sha256":  "4dc9b7d505376fd647fcc53fd0a485dfbc818121398abf3189362da8db5923df",
+                      "bytes":  495
+                  },
+                  {
+                      "path":  "tests/test_context_bundle.py",
+                      "sha256":  "fcfd2c8813be45766cf16de6cc986e97dbda98d58d07f5f48b0ac0e43316a1bb",
+                      "bytes":  1155
+                  },
+                  {
+                      "path":  "tests/test_core.py",
+                      "sha256":  "36a65430f9220782aa3b7e16d4b7ca6ee1a066ee15a173a0da71174e36d1a1f3",
+                      "bytes":  636
+                  },
+                  {
+                      "path":  "tests/test_decision_intelligence.py",
+                      "sha256":  "eafd9a6f8a6682bc7a010889433cde2bbc5f7fa85c69794b318302670525b164",
+                      "bytes":  4867
+                  },
+                  {
+                      "path":  "tests/test_diff.py",
+                      "sha256":  "aceed22933d7e2b3e31515b084cca68573e6fd1b3e5b9888ccba44eefaaaf01c",
+                      "bytes":  1232
+                  },
+                  {
+                      "path":  "tests/test_ecosystem.py",
+                      "sha256":  "7fe12d7dea8f3c8e9afc270704e3b4aafd874c2967bd8926b2aae7ebf4def2e3",
+                      "bytes":  6545
+                  },
+                  {
+                      "path":  "tests/test_flight.py",
+                      "sha256":  "7c4639c8b24cf151d9578bccf6480741b87592be6ab036b56a51fadf28fb7189",
+                      "bytes":  4219
+                  },
+                  {
+                      "path":  "tests/test_genome.py",
+                      "sha256":  "80621593817b154743554dcc43b46735eb352c3fdb7be51344e7915b63bcb7c1",
+                      "bytes":  2696
+                  },
+                  {
+                      "path":  "tests/test_manifest.py",
+                      "sha256":  "1a2cbfa833970c2a19012171d7825ac982ae438adeff6aa190db9ccd80565fcd",
+                      "bytes":  1471
+                  },
+                  {
+                      "path":  "tests/test_plugins.py",
+                      "sha256":  "eac283ab30660e538b558791623ac1ed281ebe4cde5f547f8fd2c239fed1652d",
+                      "bytes":  782
+                  },
+                  {
+                      "path":  "tests/test_requirements_intelligence.py",
+                      "sha256":  "5c3e6837cd896b9a31ad3ffcd96d54c611737767aef329e51caa80d609caa50e",
+                      "bytes":  2688
+                  },
+                  {
+                      "path":  "tests/test_scanner.py",
+                      "sha256":  "ea0d259dabef4d58bc6be2fd2c128fd9cf25d5ebe46da30fdc9136febe11bdab",
+                      "bytes":  350
+                  },
+                  {
+                      "path":  "tests/test_service_api.py",
+                      "sha256":  "af590d2b4bfe1e37b07ca0457d1b7f1385613f9cf1bcb736cf5c98606b247e42",
+                      "bytes":  10295
+                  },
+                  {
+                      "path":  "VERSION",
+                      "sha256":  "59854984853104df5c353e2f681a15fc7924742f9a2e468c29af248dce45ce03",
+                      "bytes":  6
+                  }
+              ]
 }

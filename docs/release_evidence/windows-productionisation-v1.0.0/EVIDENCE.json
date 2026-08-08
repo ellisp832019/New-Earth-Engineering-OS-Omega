@@ -1,0 +1,20 @@
+{
+  "release": "windows-productionisation-v1.0.0",
+  "observed_on": "2026-08-08",
+  "repo_root": "D:\\Dev\\Projects\\New-Earth-Engineering-OS-Omega-v0.1.0\\New-Earth-Engineering-OS-Omega",
+  "git_sha": "b6e35e4011dc88d7b6864ca02533c7190829a22d",
+  "package_root": "D:\\Dev\\Projects\\New-Earth-Engineering-OS-Omega-v0.1.0\\New-Earth-Engineering-OS-Omega\\dist\\New-Earth-Engineering-OS-Windows-v1.0.0",
+  "package_zip": "D:\\Dev\\Projects\\New-Earth-Engineering-OS-Omega-v0.1.0\\New-Earth-Engineering-OS-Omega\\dist\\New-Earth-Engineering-OS-Windows-v1.0.0.zip",
+  "package_zip_sha256": "792489CDEF3EF6A15A7598474CA4E88D028CEE08C7FAAD96BDF565F61C8497CE",
+  "build_manifest": {
+    "neos_version": "1.0.0",
+    "git_branch": "feature/neos-engineering-command-centre-v1.0",
+    "git_sha": "b6e35e4011dc88d7b6864ca02533c7190829a22d",
+    "database_schema": 11,
+    "api_version": "v1"
+  },
+  "smoke_results": {
+    "backend_smoke": "passed",
+    "package_smoke": "passed"
+  }
+}

@@ -13,7 +13,7 @@ from .flight import flight_incidents, flight_regressions
 from .genome import latest_project_genome
 from .memory import latest_project_memory, memory_gaps
 
-ENGINE_VERSION = "0.8.0"
+ENGINE_VERSION = "1.0.0"
 
 DECISION_TYPES = {
     "architecture",
