@@ -36,6 +36,9 @@ Deterministic decision engine, decision inbox, release readiness, reuse decision
 ## NEOS v0.9 - Requirements and Architecture Intelligence
 Deterministic requirement extraction, traceability, requirement gaps, verification readiness, architecture without requirement detection, and operator review workflows.
 
+## NEOS v1.2 - Embedded Firmware Intelligence
+Deterministic firmware source discovery, targets, build variants, RTOS/task intelligence, interrupts, timing facts, state machines, peripherals, GPIO ownership/conflicts, buses, protocols, packets, compatibility, findings, and release evidence.
+
 ## Beta 0.8 - Living Documentation
 Generated docs, drift detection and review workflows.
 

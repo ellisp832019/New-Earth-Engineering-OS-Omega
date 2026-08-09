@@ -90,8 +90,41 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         "U1,ST,STM32F401,MCU,QFN-48,STM32F401\n"
         "J1,Amphenol,124015,Connector,USB-C,USB-C\n"
     )
-    (hardware / "pin_map.md").write_text("GPIO21 -> I2C_SDA\nGPIO22 -> I2C_SCL\n")
+    (hardware / "pin_map.md").write_text("GPIO25 -> GPIO_RELAY\nGPIO21 -> I2C_SDA\nGPIO22 -> I2C_SCL\n")
     (hardware / "bringup.md").write_text("Hardware validation passed after bench test and power-on verification.\n")
+    (repo / "platformio.ini").write_text(
+        """
+[platformio]
+default_envs = release
+
+[env:base]
+platform = espressif32
+board = esp32dev
+framework = arduino
+build_flags = -DDEBUG
+
+[env:release]
+extends = base
+build_flags = -O2 -DRELEASE
+"""
+    )
+    (repo / "src" / "main.cpp").write_text(
+        """
+#include <Arduino.h>
+
+enum class State { Boot, Running };
+
+void onInterrupt() {}
+void workerTask(void *) {}
+
+void setup() {
+  pinMode(25, OUTPUT);
+  attachInterrupt(25, onInterrupt, FALLING);
+  xTaskCreatePinnedToCore(workerTask, "worker", 2048, nullptr, 1, nullptr, 1);
+  xTimerCreate("poll", 1000, pdTRUE, nullptr, nullptr);
+}
+"""
+    )
     _commit(repo, "feat: initial demo")
 
     db = tmp_path / "neos.db"
@@ -110,7 +143,7 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         assert status == 200
         assert health["status"] == "healthy"
         assert health["service_name"] == "NEOS Local Service"
-        assert health["service_version"] == "1.1.0"
+        assert health["service_version"] == "1.2.0"
         assert health["api_version"] == "v1"
         assert health["schema_version"] == 11
         assert health["instance_id"]
@@ -276,6 +309,59 @@ def test_service_endpoints_and_local_binding(tmp_path: Path):
         status, hardware_validation = _get_json(f"{base}/hardware/demo/validation")
         assert status == 200
         assert hardware_validation["validation_state"] in {"validated", "partial", "not_run", "unknown"}
+
+        status, firmware_payload = _get_json(f"{base}/firmware/demo")
+        assert status == 200
+        assert firmware_payload["summary"]["environment_count"] >= 1
+        assert firmware_payload["summary"]["target_count"] >= 1
+
+        status, firmware_targets = _get_json(f"{base}/firmware/demo/targets")
+        assert status == 200
+        assert firmware_targets["targets"]
+
+        status, firmware_variants = _get_json(f"{base}/projects/demo/firmware/build-variants")
+        assert status == 200
+        assert firmware_variants["build_variants"]
+
+        status, firmware_envs = _get_json(f"{base}/firmware/demo/environments")
+        assert status == 200
+        assert firmware_envs["environments"]
+
+        status, firmware_rtos = _get_json(f"{base}/projects/demo/firmware/rtos-primitives")
+        assert status == 200
+        assert "rtos_primitives" in firmware_rtos
+
+        status, firmware_timing = _get_json(f"{base}/projects/demo/firmware/timing")
+        assert status == 200
+        assert "timing_facts" in firmware_timing
+
+        status, firmware_buses = _get_json(f"{base}/projects/demo/firmware/buses")
+        assert status == 200
+        assert "buses" in firmware_buses
+
+        status, firmware_gpio_conflicts = _get_json(f"{base}/projects/demo/firmware/gpio-conflicts")
+        assert status == 200
+        assert "gpio_conflicts" in firmware_gpio_conflicts
+
+        status, firmware_packets = _get_json(f"{base}/projects/demo/firmware/packets")
+        assert status == 200
+        assert "packets" in firmware_packets
+
+        status, firmware_compatibility = _get_json(f"{base}/firmware/demo/compatibility")
+        assert status == 200
+        assert firmware_compatibility["compatibility"]
+
+        status, firmware_findings = _get_json(f"{base}/projects/demo/firmware/findings")
+        assert status == 200
+        assert "findings" in firmware_findings
+
+        status, project_firmware = _get_json(f"{base}/projects/demo/firmware")
+        assert status == 200
+        assert project_firmware["summary"]["environment_count"] >= 1
+
+        status, firmware_trace = _get_json(f"{base}/firmware/demo/impact/worker")
+        assert status == 200
+        assert firmware_trace["count"] >= 1
 
         status, memory = _get_json(f"{base}/projects/demo/memory")
         assert status == 200

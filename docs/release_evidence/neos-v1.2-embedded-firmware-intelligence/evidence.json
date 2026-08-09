@@ -1,0 +1,300 @@
+{
+  "version": "1.2.0",
+  "detector_version": "firmware-static-2026-08-heuristic-hardened-v1",
+  "synthetic_fixture": {
+    "summary": {
+      "project_id": "demo",
+      "project_name": "Demo",
+      "repo_path": "C:\\Users\\ellis\\AppData\\Local\\Temp\\neos-v12-fixture-docs-f255h_ri\\repo",
+      "supported_parsers": [
+        "platformio"
+      ],
+      "firmware_source_count": 2,
+      "environment_count": 3,
+      "target_count": 3,
+      "build_variant_count": 3,
+      "module_count": 2,
+      "task_count": 1,
+      "rtos_primitive_count": 8,
+      "interrupt_count": 1,
+      "timer_count": 1,
+      "timing_fact_count": 3,
+      "state_machine_count": 1,
+      "peripheral_count": 4,
+      "bus_count": 1,
+      "gpio_count": 1,
+      "gpio_conflict_count": 0,
+      "protocol_count": 3,
+      "packet_count": 1,
+      "memory_finding_count": 1,
+      "validation_count": 1,
+      "compatibility_count": 3,
+      "finding_count": 1,
+      "risk_count": 4,
+      "gap_count": 0,
+      "compatibility_state": "compatible",
+      "hardware_board_count": 1
+    },
+    "deterministic": true,
+    "compatibility": [
+      {
+        "id": "b6358dc25946614e93814284",
+        "project_id": "demo",
+        "firmware_variant": "base",
+        "board_revision": "unknown",
+        "board_name": "Esp32Dev",
+        "status": "compatible",
+        "evidence": [
+          "esp32dev vs Esp32Dev unknown"
+        ],
+        "confidence": 0.88,
+        "provenance": "static-compatibility-parser",
+        "reason": "PlatformIO board 'esp32dev' matched hardware board 'Esp32Dev' revision 'unknown'.",
+        "criteria": {
+          "env_board": "esp32dev",
+          "hardware_board_name": "Esp32Dev",
+          "hardware_board_revision": "unknown",
+          "match_status": "compatible"
+        },
+        "certainty": "high_confidence",
+        "detector": "static-compatibility-parser",
+        "detector_version": "firmware-static-2026-08-heuristic-hardened-v1",
+        "source_line": null,
+        "metadata": {
+          "env_board": "esp32dev"
+        }
+      },
+      {
+        "id": "8772c67f38e25bedfcb5a673",
+        "project_id": "demo",
+        "firmware_variant": "debug",
+        "board_revision": "unknown",
+        "board_name": "Esp32Dev",
+        "status": "compatible",
+        "evidence": [
+          "esp32dev vs Esp32Dev unknown"
+        ],
+        "confidence": 0.88,
+        "provenance": "static-compatibility-parser",
+        "reason": "PlatformIO board 'esp32dev' matched hardware board 'Esp32Dev' revision 'unknown'.",
+        "criteria": {
+          "env_board": "esp32dev",
+          "hardware_board_name": "Esp32Dev",
+          "hardware_board_revision": "unknown",
+          "match_status": "compatible"
+        },
+        "certainty": "high_confidence",
+        "detector": "static-compatibility-parser",
+        "detector_version": "firmware-static-2026-08-heuristic-hardened-v1",
+        "source_line": null,
+        "metadata": {
+          "env_board": "esp32dev"
+        }
+      },
+      {
+        "id": "ae536e63812fad3813f64b35",
+        "project_id": "demo",
+        "firmware_variant": "release",
+        "board_revision": "unknown",
+        "board_name": "Esp32Dev",
+        "status": "compatible",
+        "evidence": [
+          "esp32dev vs Esp32Dev unknown"
+        ],
+        "confidence": 0.88,
+        "provenance": "static-compatibility-parser",
+        "reason": "PlatformIO board 'esp32dev' matched hardware board 'Esp32Dev' revision 'unknown'.",
+        "criteria": {
+          "env_board": "esp32dev",
+          "hardware_board_name": "Esp32Dev",
+          "hardware_board_revision": "unknown",
+          "match_status": "compatible"
+        },
+        "certainty": "high_confidence",
+        "detector": "static-compatibility-parser",
+        "detector_version": "firmware-static-2026-08-heuristic-hardened-v1",
+        "source_line": null,
+        "metadata": {
+          "env_board": "esp32dev"
+        }
+      }
+    ],
+    "findings": [
+      {
+        "id": "3fc35a73575bc6504dae0cb0",
+        "project_id": "demo",
+        "finding_type": "isr_review",
+        "severity": "requires_review",
+        "title": "ISR body for onInterrupt requires review",
+        "affected_entity": "onInterrupt",
+        "evidence_paths": [
+          "src/main.cpp"
+        ],
+        "source_path": "src/main.cpp",
+        "source_line": 21,
+        "confidence": 0.8,
+        "recommended_investigation": "Inspect for blocking calls, allocation, and logging in the ISR body; safe ISR signaling alone is not treated as a fault.",
+        "provenance": "static-source-parser",
+        "environment": null,
+        "entity": "onInterrupt",
+        "line_start": 21,
+        "line_end": 23,
+        "evidence": [
+          {
+            "source_path": "src/main.cpp",
+            "line_start": 21,
+            "line_end": 23,
+            "text": "void onInterrupt() {",
+            "risk_indicators": [
+              "blocking_call_in_isr"
+            ]
+          }
+        ],
+        "reason": "One or more ISR body heuristics exceeded the conservative review threshold.",
+        "related_entities": [],
+        "scope": "isr",
+        "recommendation": "Validate ISR work stays bounded and uses FromISR-safe signaling only.",
+        "detector": "static-source-parser",
+        "detector_version": "firmware-static-2026-08-heuristic-hardened-v1",
+        "certainty": "high_confidence",
+        "metadata": {
+          "risk_indicators": [
+            "blocking_call_in_isr"
+          ],
+          "evidence": "\n  delay(1);\n"
+        }
+      }
+    ],
+    "gaps": []
+  },
+  "microgrow": {
+    "summary": {
+      "project_id": "microgrow-v1",
+      "project_name": "MicroGrow V1",
+      "repo_path": "D:\\Dev\\Projects\\MicroGrow V1",
+      "supported_parsers": [
+        "cmake-embedded",
+        "platformio"
+      ],
+      "firmware_source_count": 196,
+      "environment_count": 1,
+      "target_count": 1,
+      "build_variant_count": 1,
+      "module_count": 196,
+      "task_count": 0,
+      "rtos_primitive_count": 0,
+      "interrupt_count": 0,
+      "timer_count": 1,
+      "timing_fact_count": 50,
+      "state_machine_count": 0,
+      "peripheral_count": 320,
+      "bus_count": 4,
+      "gpio_count": 0,
+      "gpio_conflict_count": 0,
+      "protocol_count": 272,
+      "packet_count": 64,
+      "memory_finding_count": 34,
+      "validation_count": 1,
+      "compatibility_count": 1,
+      "finding_count": 0,
+      "risk_count": 6,
+      "gap_count": 3,
+      "compatibility_state": "possible_mismatch",
+      "hardware_board_count": 1
+    },
+    "compatibility": [
+      {
+        "id": "b66bbc4f93873dc7ca9b6faf",
+        "project_id": "microgrow-v1",
+        "firmware_variant": "esp32dev",
+        "board_revision": "unknown",
+        "board_name": "Microgrow V1",
+        "status": "possible_mismatch",
+        "evidence": [
+          "esp32dev vs Microgrow V1 unknown"
+        ],
+        "confidence": 0.48,
+        "provenance": "static-compatibility-parser",
+        "reason": "PlatformIO board 'esp32dev' may conflict with hardware board 'Microgrow V1' revision 'unknown'.",
+        "criteria": {
+          "env_board": "esp32dev",
+          "hardware_board_name": "Microgrow V1",
+          "hardware_board_revision": "unknown",
+          "match_status": "possible_mismatch"
+        },
+        "certainty": "low_confidence",
+        "detector": "static-compatibility-parser",
+        "detector_version": "firmware-static-2026-08-heuristic-hardened-v1",
+        "source_line": null,
+        "metadata": {
+          "env_board": "esp32dev"
+        }
+      }
+    ],
+    "validations": [
+      {
+        "id": "8150f2358be765fb76d20ce7",
+        "project_id": "microgrow-v1",
+        "validation_type": "parsing",
+        "result": "pass",
+        "evidence_path": ".github/workflows/firmware-ci.yml",
+        "summary": "Firmware source parsing completed.",
+        "confidence": 0.8,
+        "provenance": "static-source-parser",
+        "source_line": null,
+        "metadata": {}
+      }
+    ],
+    "findings": [],
+    "gaps": [
+      {
+        "id": "26f0165ccb71beca76ef50a0",
+        "project_id": "microgrow-v1",
+        "title": "No explicit firmware task evidence found",
+        "gap_type": "task",
+        "severity": "low",
+        "confidence": 0.72,
+        "evidence_paths": [
+          ".github/workflows/firmware-ci.yml",
+          "contracts/api_fixtures/get_firmware_capabilities_response.json",
+          "contracts/api_fixtures/get_firmware_update_status_response.json"
+        ],
+        "provenance": "static-source-parser",
+        "source_line": null,
+        "metadata": {}
+      },
+      {
+        "id": "12944e71a3083a5144c07f60",
+        "project_id": "microgrow-v1",
+        "title": "No explicit interrupt handler evidence found",
+        "gap_type": "interrupt",
+        "severity": "low",
+        "confidence": 0.72,
+        "evidence_paths": [
+          ".github/workflows/firmware-ci.yml",
+          "contracts/api_fixtures/get_firmware_capabilities_response.json",
+          "contracts/api_fixtures/get_firmware_update_status_response.json"
+        ],
+        "provenance": "static-source-parser",
+        "source_line": null,
+        "metadata": {}
+      },
+      {
+        "id": "5df32461ed3a731e8f09a2d4",
+        "project_id": "microgrow-v1",
+        "title": "No explicit state machine evidence found",
+        "gap_type": "state_machine",
+        "severity": "low",
+        "confidence": 0.72,
+        "evidence_paths": [
+          ".github/workflows/firmware-ci.yml",
+          "contracts/api_fixtures/get_firmware_capabilities_response.json",
+          "contracts/api_fixtures/get_firmware_update_status_response.json"
+        ],
+        "provenance": "static-source-parser",
+        "source_line": null,
+        "metadata": {}
+      }
+    ]
+  }
+}

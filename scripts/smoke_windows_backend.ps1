@@ -1,5 +1,5 @@
 param(
-    [string]$PackageRoot = (Join-Path $PSScriptRoot '..\dist\New-Earth-Engineering-OS-Windows-v1.1.0'),
+    [string]$PackageRoot = (Join-Path $PSScriptRoot '..\dist\New-Earth-Engineering-OS-Windows-v1.2.0'),
     [string]$Port = '8765',
     [int]$TimeoutSeconds = 45,
     [switch]$ShutdownAfterCheck

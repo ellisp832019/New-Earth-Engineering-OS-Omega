@@ -50,6 +50,7 @@ enum _Destination {
   requirements,
   architecture,
   hardware,
+  firmware,
   decisions,
   evidence,
   timeline,
@@ -159,6 +160,7 @@ class _NeosShellState extends State<NeosShell> {
     _NavItem(_Destination.requirements, Icons.rule_outlined, 'Requirements'),
     _NavItem(_Destination.architecture, Icons.graphic_eq_outlined, 'Architecture'),
     _NavItem(_Destination.hardware, Icons.precision_manufacturing_outlined, 'Hardware Centre'),
+    _NavItem(_Destination.firmware, Icons.memory_outlined, 'Firmware Centre'),
     _NavItem(_Destination.decisions, Icons.rule_folder_outlined, 'Decisions'),
     _NavItem(_Destination.evidence, Icons.fact_check_outlined, 'Evidence'),
     _NavItem(_Destination.timeline, Icons.timeline_outlined, 'Timeline'),
@@ -261,7 +263,7 @@ class _NeosShellState extends State<NeosShell> {
     if (destination == _Destination.today || destination == _Destination.workQueue || destination == _Destination.projects) {
       unawaited(_refreshCommandCentre());
     }
-    if (destination == _Destination.hardware) {
+    if (destination == _Destination.hardware || destination == _Destination.firmware) {
       unawaited(_saveWorkspaceSession());
     }
     if (destination == _Destination.assistant || destination == _Destination.settings || destination == _Destination.health) {
@@ -378,6 +380,7 @@ class _NeosShellState extends State<NeosShell> {
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.workQueue), child: const Text('Work Queue')),
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.projects), child: const Text('Projects')),
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.hardware), child: const Text('Hardware Centre')),
+                          OutlinedButton(onPressed: () => _selectDestination(_Destination.firmware), child: const Text('Firmware Centre')),
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.assistant), child: const Text('AI Partner')),
                         ],
                       ),
@@ -1400,6 +1403,114 @@ class _NeosShellState extends State<NeosShell> {
     );
   }
 
+  Widget _firmwareView() {
+    final project = _project;
+    if (project == null) {
+      return const Center(child: Text('Select a project to inspect firmware intelligence.'));
+    }
+    final firmware = _asMap(project.section('firmware'));
+    final summary = _asMap(firmware['summary']);
+    final targets = _asList(firmware['targets']).map((item) => _asMap(item)).toList(growable: false);
+    final buildVariants = _asList(firmware['build_variants']).map((item) => _asMap(item)).toList(growable: false);
+    final environments = _asList(firmware['environments']).map((item) => _asMap(item)).toList(growable: false);
+    final modules = _asList(firmware['modules']).map((item) => _asMap(item)).toList(growable: false);
+    final tasks = _asList(firmware['tasks']).map((item) => _asMap(item)).toList(growable: false);
+    final rtosPrimitives = _asList(firmware['rtos_primitives']).map((item) => _asMap(item)).toList(growable: false);
+    final interrupts = _asList(firmware['interrupts']).map((item) => _asMap(item)).toList(growable: false);
+    final timers = _asList(firmware['timers']).map((item) => _asMap(item)).toList(growable: false);
+    final timingFacts = _asList(firmware['timing_facts']).map((item) => _asMap(item)).toList(growable: false);
+    final states = _asList(firmware['state_machines']).map((item) => _asMap(item)).toList(growable: false);
+    final peripherals = _asList(firmware['peripherals']).map((item) => _asMap(item)).toList(growable: false);
+    final buses = _asList(firmware['buses']).map((item) => _asMap(item)).toList(growable: false);
+    final gpio = _asList(firmware['gpio']).map((item) => _asMap(item)).toList(growable: false);
+    final gpioConflicts = _asList(firmware['gpio_conflicts']).map((item) => _asMap(item)).toList(growable: false);
+    final protocols = _asList(firmware['protocols']).map((item) => _asMap(item)).toList(growable: false);
+    final packets = _asList(firmware['packets']).map((item) => _asMap(item)).toList(growable: false);
+    final memory = _asList(firmware['memory_findings']).map((item) => _asMap(item)).toList(growable: false);
+    final findings = _asList(firmware['findings']).map((item) => _asMap(item)).toList(growable: false);
+    final compatibility = _asList(firmware['compatibility']).map((item) => _asMap(item)).toList(growable: false);
+    final validations = _asList(firmware['validations']).map((item) => _asMap(item)).toList(growable: false);
+    final risks = _asList(firmware['risks']).map((item) => _asMap(item)).toList(growable: false);
+    final gaps = _asList(firmware['gaps']).map((item) => _asMap(item)).toList(growable: false);
+    final parsers = _asList(firmware['supported_parsers']).map((item) => item.toString()).toList(growable: false);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _panel(
+            title: 'Firmware Centre',
+            subtitle: 'Deterministic embedded firmware intelligence for the selected project.',
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _chip(project.projectId),
+                _chip('Parsers ${parsers.length}'),
+                _chip('Environments ${_asInt(summary['environment_count'])}'),
+                _chip('Targets ${_asInt(summary['target_count'])}'),
+                _chip('Tasks ${_asInt(summary['task_count'])}'),
+                _chip('RTOS ${_asInt(summary['rtos_primitive_count'])}'),
+                _chip('Compatibility ${_asString(summary['compatibility_state'], 'unknown')}'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _jsonPanel('Firmware summary', summary, subtitle: 'Deterministic snapshot of build, target, timing, and validation evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Supported parsers', parsers, subtitle: 'Source parsers that were actually detected in the repository.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Targets', targets, subtitle: 'MCU and board targets derived from the parsed firmware build configuration.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Build variants', buildVariants, subtitle: 'Resolved build variants and compile-time flags per environment.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Environments', environments, subtitle: 'PlatformIO or embedded build environments and inheritance details.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Modules', modules, subtitle: 'Source modules and configuration files participating in firmware analysis.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Tasks', tasks, subtitle: 'Detected task or thread evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('RTOS primitives', rtosPrimitives, subtitle: 'Queues, semaphores, mutexes, event groups, and task notifications.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Interrupts', interrupts, subtitle: 'Detected interrupt handler evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Timers', timers, subtitle: 'Detected timer and periodic scheduling evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Timing facts', timingFacts, subtitle: 'Explicit delays, waits, and watchdog-related timing evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('State machines', states, subtitle: 'Explicit or conservative state-machine evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Peripherals', peripherals, subtitle: 'Peripheral configuration evidence inferred from static source inspection.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Buses', buses, subtitle: 'Bus configuration evidence for I2C, SPI, UART, and similar transports.'),
+          const SizedBox(height: 16),
+          _jsonPanel('GPIO', gpio, subtitle: 'GPIO ownership and pin symbol evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('GPIO conflicts', gpioConflicts, subtitle: 'Potential mismatches between firmware GPIO usage and hardware mappings.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Protocols', protocols, subtitle: 'Protocol and transport evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Packets', packets, subtitle: 'Detected packet or message structure definitions.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Memory', memory, subtitle: 'Memory and buffer findings.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Findings', findings, subtitle: 'Derived firmware findings and review items.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Compatibility', compatibility, subtitle: 'Firmware variant to hardware revision compatibility records.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Validation', validations, subtitle: 'Firmware analysis and validation evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Risks', risks, subtitle: 'Conservative firmware review items and risk indicators.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Gaps', gaps, subtitle: 'Missing or incomplete firmware evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Raw firmware payload', firmware, subtitle: 'Full firmware snapshot returned by the backend.'),
+        ],
+      ),
+    );
+  }
+
   Widget _assistantView() {
     final project = _project;
     final response = _aiResponse;
@@ -1906,6 +2017,8 @@ class _NeosShellState extends State<NeosShell> {
         return _graphView();
       case _Destination.hardware:
         return _hardwareView();
+      case _Destination.firmware:
+        return _firmwareView();
       case _Destination.decisions:
         return DecisionCentre(
           client: widget.client,

@@ -26,6 +26,8 @@ from ..core import (
     decision_inventory,
     documentation_inventory,
     feature_inventory,
+    firmware_impact,
+    firmware_inventory,
     git_state_report,
     hardware_inventory,
     impact_entity,
@@ -193,6 +195,7 @@ def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
         "tests": test_inventory(db_path, project_id),
         "documentation": documentation_inventory(db_path, project_id),
         "hardware": hardware_inventory(db_path, project_id),
+        "firmware": firmware_inventory(db_path, project_id),
         "memory": memory,
         "memory_timeline": memory_timeline(memory) if memory else _empty_items(project_id),
         "decisions": decision_inventory(db_path, project_id),
@@ -273,6 +276,64 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
             matches.extend(item for item in hardware.get("component_instances", []) if entity_id in json.dumps(item, sort_keys=True))
             matches.extend(item for item in hardware.get("pins", []) if entity_id in json.dumps(item, sort_keys=True))
             return 200, {"entity_id": entity_id, "count": len(matches), "items": matches, "summary": hardware.get("summary", {})}
+    if segments and segments[0] == "firmware" and len(segments) >= 2:
+        project_id = segments[1]
+        try:
+            firmware = firmware_inventory(db_path, project_id)
+        except ValueError:
+            return 404, {"error": "not_found"}
+        if len(segments) == 2:
+            return 200, firmware
+        tail = segments[2:]
+        if tail == ["targets"]:
+            return 200, {"project_id": project_id, **firmware, "targets": firmware.get("targets", [])}
+        if tail == ["environments"]:
+            return 200, {"project_id": project_id, **firmware, "environments": firmware.get("environments", [])}
+        if tail == ["modules"]:
+            return 200, {"project_id": project_id, **firmware, "modules": firmware.get("modules", [])}
+        if tail == ["tasks"]:
+            return 200, {"project_id": project_id, **firmware, "tasks": firmware.get("tasks", [])}
+        if tail == ["interrupts"]:
+            return 200, {"project_id": project_id, **firmware, "interrupts": firmware.get("interrupts", [])}
+        if tail == ["timers"]:
+            return 200, {"project_id": project_id, **firmware, "timers": firmware.get("timers", [])}
+        if tail == ["state-machines"]:
+            return 200, {"project_id": project_id, **firmware, "state_machines": firmware.get("state_machines", [])}
+        if tail == ["peripherals"]:
+            return 200, {"project_id": project_id, **firmware, "peripherals": firmware.get("peripherals", [])}
+        if tail == ["gpio"]:
+            return 200, {"project_id": project_id, **firmware, "gpio": firmware.get("gpio", [])}
+        if tail == ["protocols"]:
+            return 200, {"project_id": project_id, **firmware, "protocols": firmware.get("protocols", [])}
+        if tail == ["memory"]:
+            return 200, {"project_id": project_id, **firmware, "memory_findings": firmware.get("memory_findings", [])}
+        if tail == ["validation"]:
+            return 200, {"project_id": project_id, **firmware, "validations": firmware.get("validations", [])}
+        if tail == ["compatibility"]:
+            return 200, {"project_id": project_id, **firmware, "compatibility": firmware.get("compatibility", [])}
+        if tail == ["gaps"]:
+            return 200, {"project_id": project_id, **firmware, "gaps": firmware.get("gaps", [])}
+        if tail == ["risks"]:
+            return 200, {"project_id": project_id, **firmware, "risks": firmware.get("risks", [])}
+        if tail == ["history"]:
+            return 200, {"project_id": project_id, "history": {"latest_snapshot": firmware.get("summary", {}), "compatibility_state": firmware.get("summary", {}).get("compatibility_state", "unknown")}}
+        if len(tail) == 2 and tail[0] == "impact":
+            entity_id = tail[1]
+            matches = [item for item in firmware.get("environments", []) if entity_id in json.dumps(item, sort_keys=True)]
+            matches.extend(item for item in firmware.get("targets", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("modules", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("tasks", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("interrupts", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("timers", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("state_machines", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("peripherals", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("gpio", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("protocols", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("memory_findings", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("validations", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("compatibility", []) if entity_id in json.dumps(item, sort_keys=True))
+            matches.extend(item for item in firmware.get("risks", []) if entity_id in json.dumps(item, sort_keys=True))
+            return 200, {"entity_id": entity_id, "count": len(matches), "items": matches, "summary": firmware.get("summary", {})}
     if len(segments) == 2 and segments[0] == "work":
         try:
             return 200, load_work_item(db_path, segments[1])
@@ -456,6 +517,82 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
             return 200, documentation_inventory(db_path, project_id)
         if tail == ["hardware"]:
             return 200, hardware_inventory(db_path, project_id)
+        if tail == ["firmware"]:
+            return 200, firmware_inventory(db_path, project_id)
+        if tail == ["firmware", "targets"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "targets": firmware.get("targets", [])}
+        if tail == ["firmware", "build-variants"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "build_variants": firmware.get("build_variants", [])}
+        if tail == ["firmware", "environments"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "environments": firmware.get("environments", [])}
+        if tail == ["firmware", "modules"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "modules": firmware.get("modules", [])}
+        if tail == ["firmware", "tasks"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "tasks": firmware.get("tasks", [])}
+        if tail == ["firmware", "rtos-primitives"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "rtos_primitives": firmware.get("rtos_primitives", [])}
+        if tail == ["firmware", "interrupts"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "interrupts": firmware.get("interrupts", [])}
+        if tail == ["firmware", "timers"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "timers": firmware.get("timers", [])}
+        if tail == ["firmware", "timing"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "timing_facts": firmware.get("timing_facts", [])}
+        if tail == ["firmware", "state-machines"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "state_machines": firmware.get("state_machines", [])}
+        if tail == ["firmware", "peripherals"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "peripherals": firmware.get("peripherals", [])}
+        if tail == ["firmware", "buses"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "buses": firmware.get("buses", [])}
+        if tail == ["firmware", "gpio"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "gpio": firmware.get("gpio", [])}
+        if tail == ["firmware", "gpio-conflicts"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "gpio_conflicts": firmware.get("gpio_conflicts", [])}
+        if tail == ["firmware", "protocols"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "protocols": firmware.get("protocols", [])}
+        if tail == ["firmware", "packets"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "packets": firmware.get("packets", [])}
+        if tail == ["firmware", "memory"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "memory_findings": firmware.get("memory_findings", [])}
+        if tail == ["firmware", "findings"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "findings": firmware.get("findings", [])}
+        if tail == ["firmware", "validation"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "validations": firmware.get("validations", [])}
+        if tail == ["firmware", "compatibility"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "compatibility": firmware.get("compatibility", [])}
+        if tail == ["firmware", "gaps"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "gaps": firmware.get("gaps", [])}
+        if tail == ["firmware", "risks"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, **firmware, "risks": firmware.get("risks", [])}
+        if tail == ["firmware", "history"]:
+            firmware = firmware_inventory(db_path, project_id)
+            return 200, {"project_id": project_id, "history": {"latest_snapshot": firmware.get("summary", {}), "compatibility_state": firmware.get("summary", {}).get("compatibility_state", "unknown")}}
+        if len(tail) == 3 and tail[0] == "firmware" and tail[1] == "impact":
+            entity_id = tail[2]
+            firmware = firmware_inventory(db_path, project_id)
+            impact = firmware_impact(firmware, entity_id)
+            return 200, {"entity_id": entity_id, **impact}
         if tail == ["hardware", "boards"]:
             hardware = hardware_inventory(db_path, project_id)
             return 200, {"project_id": project_id, **hardware, "boards": hardware.get("boards", [])}

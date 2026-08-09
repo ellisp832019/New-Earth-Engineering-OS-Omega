@@ -75,7 +75,7 @@ class ServiceHealthInfo {
 
   String get status => _string(raw['status'], 'unknown');
   String get serviceName => _string(raw['service_name'], 'NEOS Local Service');
-  String get serviceVersion => _string(raw['service_version'], '1.1.0');
+  String get serviceVersion => _string(raw['service_version'], '1.2.0');
   String get apiVersion => _string(raw['api_version'], 'v1');
   int get schemaVersion => _int(raw['schema_version'], _int(_map(raw['schema'])['database_schema'], 0));
   String get instanceId => _string(raw['instance_id']);

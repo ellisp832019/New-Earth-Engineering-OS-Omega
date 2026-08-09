@@ -22,6 +22,33 @@ from .core import (
     documentation_inventory,
     feature_inventory,
     feature_show,
+    firmware_build_variants,
+    firmware_buses,
+    firmware_compatibility,
+    firmware_diff,
+    firmware_environments,
+    firmware_findings,
+    firmware_gaps,
+    firmware_gpio,
+    firmware_gpio_conflicts,
+    firmware_impact,
+    firmware_interrupts,
+    firmware_inventory,
+    firmware_memory,
+    firmware_modules,
+    firmware_packets,
+    firmware_peripherals,
+    firmware_protocols,
+    firmware_risks,
+    firmware_rtos_primitives,
+    firmware_state_machines,
+    firmware_summary,
+    firmware_targets,
+    firmware_tasks,
+    firmware_timers,
+    firmware_timing,
+    firmware_trace,
+    firmware_validation,
     git_state_report,
     impact_entity,
     init_project,
@@ -387,6 +414,95 @@ def parser() -> argparse.ArgumentParser:
     hardware_diff_cmd.add_argument("project_id")
     hardware_diff_cmd.add_argument("--other-project-id")
     hardware_diff_cmd.add_argument("--format", choices=("text", "json"), default="json")
+
+    def _add_output_args(command_parser: argparse.ArgumentParser) -> None:
+        command_parser.add_argument("--format", choices=("text", "json"), default="json")
+        command_parser.add_argument("--json", action="store_true")
+
+    firmware = sub.add_parser("firmware")
+    firmware_sub = firmware.add_subparsers(dest="firmware_cmd", required=True)
+    firmware_summary_cmd = firmware_sub.add_parser("summary")
+    firmware_summary_cmd.add_argument("project_id")
+    _add_output_args(firmware_summary_cmd)
+    firmware_targets_cmd = firmware_sub.add_parser("targets")
+    firmware_targets_cmd.add_argument("project_id")
+    _add_output_args(firmware_targets_cmd)
+    firmware_variants_cmd = firmware_sub.add_parser("build-variants")
+    firmware_variants_cmd.add_argument("project_id")
+    _add_output_args(firmware_variants_cmd)
+    firmware_env_cmd = firmware_sub.add_parser("environments")
+    firmware_env_cmd.add_argument("project_id")
+    _add_output_args(firmware_env_cmd)
+    firmware_modules_cmd = firmware_sub.add_parser("modules")
+    firmware_modules_cmd.add_argument("project_id")
+    _add_output_args(firmware_modules_cmd)
+    firmware_tasks_cmd = firmware_sub.add_parser("tasks")
+    firmware_tasks_cmd.add_argument("project_id")
+    _add_output_args(firmware_tasks_cmd)
+    firmware_rtos_cmd = firmware_sub.add_parser("rtos-primitives")
+    firmware_rtos_cmd.add_argument("project_id")
+    _add_output_args(firmware_rtos_cmd)
+    firmware_interrupts_cmd = firmware_sub.add_parser("interrupts")
+    firmware_interrupts_cmd.add_argument("project_id")
+    _add_output_args(firmware_interrupts_cmd)
+    firmware_timers_cmd = firmware_sub.add_parser("timers")
+    firmware_timers_cmd.add_argument("project_id")
+    _add_output_args(firmware_timers_cmd)
+    firmware_timing_cmd = firmware_sub.add_parser("timing")
+    firmware_timing_cmd.add_argument("project_id")
+    _add_output_args(firmware_timing_cmd)
+    firmware_states_cmd = firmware_sub.add_parser("states")
+    firmware_states_cmd.add_argument("project_id")
+    _add_output_args(firmware_states_cmd)
+    firmware_peripherals_cmd = firmware_sub.add_parser("peripherals")
+    firmware_peripherals_cmd.add_argument("project_id")
+    _add_output_args(firmware_peripherals_cmd)
+    firmware_buses_cmd = firmware_sub.add_parser("buses")
+    firmware_buses_cmd.add_argument("project_id")
+    _add_output_args(firmware_buses_cmd)
+    firmware_gpio_cmd = firmware_sub.add_parser("gpio")
+    firmware_gpio_cmd.add_argument("project_id")
+    _add_output_args(firmware_gpio_cmd)
+    firmware_gpio_conflicts_cmd = firmware_sub.add_parser("gpio-conflicts")
+    firmware_gpio_conflicts_cmd.add_argument("project_id")
+    _add_output_args(firmware_gpio_conflicts_cmd)
+    firmware_protocols_cmd = firmware_sub.add_parser("protocols")
+    firmware_protocols_cmd.add_argument("project_id")
+    _add_output_args(firmware_protocols_cmd)
+    firmware_packets_cmd = firmware_sub.add_parser("packets")
+    firmware_packets_cmd.add_argument("project_id")
+    _add_output_args(firmware_packets_cmd)
+    firmware_memory_cmd = firmware_sub.add_parser("memory")
+    firmware_memory_cmd.add_argument("project_id")
+    _add_output_args(firmware_memory_cmd)
+    firmware_findings_cmd = firmware_sub.add_parser("findings")
+    firmware_findings_cmd.add_argument("project_id")
+    _add_output_args(firmware_findings_cmd)
+    firmware_validation_cmd = firmware_sub.add_parser("validation")
+    firmware_validation_cmd.add_argument("project_id")
+    _add_output_args(firmware_validation_cmd)
+    firmware_compatibility_cmd = firmware_sub.add_parser("compatibility")
+    firmware_compatibility_cmd.add_argument("project_id")
+    _add_output_args(firmware_compatibility_cmd)
+    firmware_gaps_cmd = firmware_sub.add_parser("gaps")
+    firmware_gaps_cmd.add_argument("project_id")
+    _add_output_args(firmware_gaps_cmd)
+    firmware_risks_cmd = firmware_sub.add_parser("risks")
+    firmware_risks_cmd.add_argument("project_id")
+    _add_output_args(firmware_risks_cmd)
+    firmware_trace_cmd = firmware_sub.add_parser("trace")
+    firmware_trace_cmd.add_argument("project_id")
+    firmware_trace_cmd.add_argument("entity_id")
+    _add_output_args(firmware_trace_cmd)
+    firmware_impact_cmd = firmware_sub.add_parser("impact")
+    firmware_impact_cmd.add_argument("project_id")
+    firmware_impact_cmd.add_argument("entity_id")
+    _add_output_args(firmware_impact_cmd)
+    firmware_diff_cmd = firmware_sub.add_parser("diff")
+    firmware_diff_cmd.add_argument("project_id")
+    firmware_diff_cmd.add_argument("--other-project-id")
+    _add_output_args(firmware_diff_cmd)
+
     decisions = sub.add_parser("decisions")
     decisions.add_argument("project_id")
     decisions.add_argument("--entity-id")
@@ -651,6 +767,10 @@ def _hardware_or_build(db: Path, project_id: str) -> dict[str, Any]:
     return build_hardware_intelligence(db, project_id)
 
 
+def _firmware_or_build(db: Path, project_id: str) -> dict[str, Any]:
+    return firmware_inventory(db, project_id)
+
+
 def main(argv=None) -> int:
     args = parser().parse_args(argv)
     db = Path(args.db)
@@ -792,6 +912,62 @@ def main(argv=None) -> int:
                     },
                     args.format,
                 )
+            return 0
+        if args.cmd == "firmware":
+            firmware = _firmware_or_build(db, args.project_id)
+            fmt = "json" if getattr(args, "json", False) else args.format
+            if args.firmware_cmd == "summary":
+                _print(firmware_summary(firmware), fmt)
+            elif args.firmware_cmd == "targets":
+                _print(firmware_targets(firmware), fmt)
+            elif args.firmware_cmd == "build-variants":
+                _print(firmware_build_variants(firmware), fmt)
+            elif args.firmware_cmd == "environments":
+                _print(firmware_environments(firmware), fmt)
+            elif args.firmware_cmd == "modules":
+                _print(firmware_modules(firmware), fmt)
+            elif args.firmware_cmd == "tasks":
+                _print(firmware_tasks(firmware), fmt)
+            elif args.firmware_cmd == "rtos-primitives":
+                _print(firmware_rtos_primitives(firmware), fmt)
+            elif args.firmware_cmd == "interrupts":
+                _print(firmware_interrupts(firmware), fmt)
+            elif args.firmware_cmd == "timers":
+                _print(firmware_timers(firmware), fmt)
+            elif args.firmware_cmd == "timing":
+                _print(firmware_timing(firmware), fmt)
+            elif args.firmware_cmd == "states":
+                _print(firmware_state_machines(firmware), fmt)
+            elif args.firmware_cmd == "peripherals":
+                _print(firmware_peripherals(firmware), fmt)
+            elif args.firmware_cmd == "buses":
+                _print(firmware_buses(firmware), fmt)
+            elif args.firmware_cmd == "gpio":
+                _print(firmware_gpio(firmware), fmt)
+            elif args.firmware_cmd == "gpio-conflicts":
+                _print(firmware_gpio_conflicts(firmware), fmt)
+            elif args.firmware_cmd == "protocols":
+                _print(firmware_protocols(firmware), fmt)
+            elif args.firmware_cmd == "packets":
+                _print(firmware_packets(firmware), fmt)
+            elif args.firmware_cmd == "memory":
+                _print(firmware_memory(firmware), fmt)
+            elif args.firmware_cmd == "findings":
+                _print(firmware_findings(firmware), fmt)
+            elif args.firmware_cmd == "validation":
+                _print(firmware_validation(firmware), fmt)
+            elif args.firmware_cmd == "compatibility":
+                _print(firmware_compatibility(firmware), fmt)
+            elif args.firmware_cmd == "gaps":
+                _print(firmware_gaps(firmware), fmt)
+            elif args.firmware_cmd == "risks":
+                _print(firmware_risks(firmware), fmt)
+            elif args.firmware_cmd == "trace":
+                _print(firmware_trace(firmware, args.entity_id), fmt)
+            elif args.firmware_cmd == "impact":
+                _print(firmware_impact(firmware, args.entity_id), fmt)
+            elif args.firmware_cmd == "diff":
+                _print(firmware_diff(db, args.project_id, args.other_project_id), fmt)
             return 0
         if args.cmd == "feature":
             if args.feature_cmd == "list":

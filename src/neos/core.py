@@ -9,6 +9,87 @@ from pathlib import Path
 from typing import Any
 
 from .db import connect
+from .firmware import (
+    build_firmware_intelligence,
+)
+from .firmware import (
+    firmware_build_variants as _firmware_build_variants,
+)
+from .firmware import (
+    firmware_buses as _firmware_buses,
+)
+from .firmware import (
+    firmware_compatibility as _firmware_compatibility,
+)
+from .firmware import (
+    firmware_diff as _firmware_diff,
+)
+from .firmware import (
+    firmware_environments as _firmware_environments,
+)
+from .firmware import (
+    firmware_findings as _firmware_findings,
+)
+from .firmware import (
+    firmware_gaps as _firmware_gaps,
+)
+from .firmware import (
+    firmware_gpio as _firmware_gpio,
+)
+from .firmware import (
+    firmware_gpio_conflicts as _firmware_gpio_conflicts,
+)
+from .firmware import (
+    firmware_impact as _firmware_impact,
+)
+from .firmware import (
+    firmware_interrupts as _firmware_interrupts,
+)
+from .firmware import (
+    firmware_memory as _firmware_memory,
+)
+from .firmware import (
+    firmware_modules as _firmware_modules,
+)
+from .firmware import (
+    firmware_packets as _firmware_packets,
+)
+from .firmware import (
+    firmware_peripherals as _firmware_peripherals,
+)
+from .firmware import (
+    firmware_protocols as _firmware_protocols,
+)
+from .firmware import (
+    firmware_risks as _firmware_risks,
+)
+from .firmware import (
+    firmware_rtos_primitives as _firmware_rtos_primitives,
+)
+from .firmware import (
+    firmware_state_machines as _firmware_state_machines,
+)
+from .firmware import (
+    firmware_summary as _firmware_summary,
+)
+from .firmware import (
+    firmware_targets as _firmware_targets,
+)
+from .firmware import (
+    firmware_tasks as _firmware_tasks,
+)
+from .firmware import (
+    firmware_timers as _firmware_timers,
+)
+from .firmware import (
+    firmware_timing as _firmware_timing,
+)
+from .firmware import (
+    firmware_trace as _firmware_trace,
+)
+from .firmware import (
+    firmware_validation as _firmware_validation,
+)
 from .flight import flight_temporal_context
 from .hardware import build_hardware_intelligence
 from .manifest import load_manifest
@@ -368,6 +449,114 @@ def _inventory_rows(conn, project_id: str, kinds: set[str]) -> list[dict[str, An
 
 def hardware_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
     return build_hardware_intelligence(db_path, project_id)
+
+
+def firmware_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    return build_firmware_intelligence(db_path, project_id)
+
+
+def firmware_summary(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_summary(snapshot)
+
+
+def firmware_environments(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_environments(snapshot)
+
+
+def firmware_targets(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_targets(snapshot)
+
+
+def firmware_build_variants(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_build_variants(snapshot)
+
+
+def firmware_modules(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_modules(snapshot)
+
+
+def firmware_tasks(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_tasks(snapshot)
+
+
+def firmware_rtos_primitives(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_rtos_primitives(snapshot)
+
+
+def firmware_interrupts(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_interrupts(snapshot)
+
+
+def firmware_timers(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_timers(snapshot)
+
+
+def firmware_timing(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_timing(snapshot)
+
+
+def firmware_state_machines(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_state_machines(snapshot)
+
+
+def firmware_peripherals(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_peripherals(snapshot)
+
+
+def firmware_buses(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_buses(snapshot)
+
+
+def firmware_gpio(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_gpio(snapshot)
+
+
+def firmware_gpio_conflicts(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_gpio_conflicts(snapshot)
+
+
+def firmware_protocols(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_protocols(snapshot)
+
+
+def firmware_packets(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_packets(snapshot)
+
+
+def firmware_memory(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_memory(snapshot)
+
+
+def firmware_findings(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_findings(snapshot)
+
+
+def firmware_validation(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_validation(snapshot)
+
+
+def firmware_compatibility(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_compatibility(snapshot)
+
+
+def firmware_gaps(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_gaps(snapshot)
+
+
+def firmware_risks(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_risks(snapshot)
+
+
+def firmware_trace(snapshot: dict[str, Any], entity_id: str) -> dict[str, Any]:
+    return _firmware_trace(snapshot, entity_id)
+
+
+def firmware_impact(snapshot: dict[str, Any], entity_id: str) -> dict[str, Any]:
+    return _firmware_impact(snapshot, entity_id)
+
+
+def firmware_diff(db_path: Path, project_id: str, other_project_id: str | None = None) -> dict[str, Any]:
+    return _firmware_diff(db_path, project_id, other_project_id)
 
 
 def project_summary(db_path: Path, project_id: str) -> dict[str, Any]:

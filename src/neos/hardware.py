@@ -12,7 +12,7 @@ from typing import Any
 
 from .db import connect
 
-ENGINE_VERSION = "1.1.0"
+ENGINE_VERSION = "1.2.0"
 
 HARDWARE_SUFFIXES = {
     ".kicad_pro",
@@ -336,7 +336,7 @@ def _hardware_paths(repo_root: Path) -> list[Path]:
         dirs[:] = sorted(
             d
             for d in dirs
-            if d not in {".git", ".neos", ".venv", "build", "dist", "__pycache__", ".pytest_cache", ".ruff_cache", ".mypy_cache", ".dart_tool"}
+            if d not in {".git", ".neos", ".venv", ".pio", "build", "dist", "__pycache__", ".pytest_cache", ".ruff_cache", ".mypy_cache", ".dart_tool"}
         )
         base_path = Path(base)
         for name in sorted(files):

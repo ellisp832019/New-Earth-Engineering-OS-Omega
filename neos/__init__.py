@@ -8,7 +8,7 @@ _src = Path(__file__).resolve().parent.parent / "src" / "neos"
 if _src.exists():
     __path__.append(str(_src))
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 from .cli import main  # noqa: E402
 
