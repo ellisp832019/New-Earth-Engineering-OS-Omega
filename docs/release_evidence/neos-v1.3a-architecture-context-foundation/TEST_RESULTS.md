@@ -13,3 +13,4 @@ Observed validation during this pass:
 - `cd apps\desktop; flutter test` - passed
 
 The package build and smoke checks validated the integrated `main` release state at `ce8a271538dc67aeb0b83319b68f29583815b44c`.
+The final merged-main release state is `e4ea2bd44ace4e330bf5b50c4dbb1e0ebb37cd92`.
