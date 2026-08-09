@@ -26,6 +26,7 @@ The recommended development sequence is:
 14. Add deterministic decision intelligence with operator review and acceptance flows.
 15. Add deterministic requirements and architecture intelligence with traceability, gaps, verification readiness and operator review.
 16. Add embedded firmware intelligence with deterministic static parsing, provenance-aware findings, and release evidence.
+17. Add architecture registry, contract validation, provenance and impact analysis for project identity and cross-project comparison.
 
 ## Definition of Alpha
 
@@ -58,3 +59,5 @@ For the NEOS v0.8 engineering decision-intelligence pass, the canonical evidence
 For the NEOS v0.9 requirements-and-architecture-intelligence pass, the canonical evidence bundle lives at `docs/release_evidence/neos-v0.9-requirements-architecture-intelligence/`.
 
 For the NEOS v1.2 embedded firmware intelligence pass, the canonical evidence bundle lives at `docs/release_evidence/neos-v1.2-embedded-firmware-intelligence/`.
+
+For the NEOS v1.3.0 architecture registry and impact intelligence release, the canonical evidence bundle lives at `docs/release_evidence/neos-v1.3a-architecture-context-foundation/`.

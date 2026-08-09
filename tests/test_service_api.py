@@ -143,7 +143,7 @@ void setup() {
         assert status == 200
         assert health["status"] == "healthy"
         assert health["service_name"] == "NEOS Local Service"
-        assert health["service_version"] == "1.2.0"
+        assert health["service_version"] == "1.3.0"
         assert health["api_version"] == "v1"
         assert health["schema_version"] == 11
         assert health["instance_id"]
@@ -153,6 +153,23 @@ void setup() {
         status, projects = _get_json(f"{base}/projects")
         assert status == 200
         assert projects["projects"][0]["project_id"] == "demo"
+
+        status, registry = _get_json(f"{base}/registry")
+        assert status == 200
+        assert registry["project_count"] == 1
+
+        status, project_registry = _get_json(f"{base}/registry/demo")
+        assert status == 200
+        assert project_registry["project_id"] == "demo"
+        assert project_registry["contracts"]["project"]["contract_type"] == "PROJECT_CONTRACT"
+
+        status, project_drift = _get_json(f"{base}/registry/demo/drift")
+        assert status == 200
+        assert project_drift["project_id"] == "demo"
+
+        status, project_impact = _get_json(f"{base}/registry/demo/impact")
+        assert status == 200
+        assert project_impact["project_id"] == "demo"
 
         status, ecosystem_search = _get_json(f"{base}/ecosystem/search?q=demo")
         assert status == 200

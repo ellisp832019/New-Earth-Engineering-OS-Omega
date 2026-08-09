@@ -96,6 +96,18 @@ from .manifest import load_manifest
 from .memory import latest_project_memory, memory_timeline, memory_why
 from .models import Finding
 from .plugins.runtime import PluginRegistry
+from .registry import (
+    architecture_impact as _architecture_impact,
+)
+from .registry import (
+    architecture_registry as _architecture_registry,
+)
+from .registry import (
+    architecture_registry_inventory as _architecture_registry_inventory,
+)
+from .registry import (
+    contract_drift as _contract_drift,
+)
 from .scanner import scan_repo
 from .semantic import extract_semantics, persist_semantics
 
@@ -557,6 +569,33 @@ def firmware_impact(snapshot: dict[str, Any], entity_id: str) -> dict[str, Any]:
 
 def firmware_diff(db_path: Path, project_id: str, other_project_id: str | None = None) -> dict[str, Any]:
     return _firmware_diff(db_path, project_id, other_project_id)
+
+
+def architecture_registry(db_path: Path, project_id: str) -> dict[str, Any]:
+    return _architecture_registry(db_path, project_id)
+
+
+def architecture_registry_inventory(db_path: Path) -> dict[str, Any]:
+    return _architecture_registry_inventory(db_path)
+
+
+def contract_drift(db_path: Path, project_id: str) -> dict[str, Any]:
+    return _contract_drift(db_path, project_id)
+
+
+def architecture_impact(
+    db_path: Path,
+    project_id: str,
+    *,
+    peer_project_id: str | None = None,
+    peer_repo_path: str | Path | None = None,
+) -> dict[str, Any]:
+    return _architecture_impact(
+        db_path,
+        project_id,
+        peer_project_id=peer_project_id,
+        peer_repo_path=peer_repo_path,
+    )
 
 
 def project_summary(db_path: Path, project_id: str) -> dict[str, Any]:

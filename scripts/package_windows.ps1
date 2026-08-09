@@ -10,14 +10,14 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $desktopRoot = Join-Path $root 'apps\desktop'
 $releaseRoot = Join-Path $desktopRoot 'build\windows\x64\runner\Release'
 $backendRoot = Join-Path $root 'build\backend'
-$packageRoot = Join-Path $root 'dist\New-Earth-Engineering-OS-Windows-v1.2.0'
+$packageRoot = Join-Path $root 'dist\New-Earth-Engineering-OS-Windows-v1.3.0'
 $packageRuntime = Join-Path $packageRoot 'runtime'
 $packageData = Join-Path $packageRoot 'data'
 $packageAssets = Join-Path $packageRoot 'assets'
 $manifestPath = Join-Path $packageRoot 'BUILD_MANIFEST.json'
 $checksumsPath = Join-Path $packageRoot 'CHECKSUMS.json'
 $metricsPath = Join-Path $packageRoot 'BUILD_METRICS.json'
-$zipPath = Join-Path $root 'dist\New-Earth-Engineering-OS-Windows-v1.2.0.zip'
+$zipPath = Join-Path $root 'dist\New-Earth-Engineering-OS-Windows-v1.3.0.zip'
 
 function Get-JsonVersionInfo {
     param([string]$Command, [string[]]$Args)
@@ -71,7 +71,7 @@ if (-not (Test-Path $backendExe)) {
 Copy-Item $backendExe (Join-Path $packageRoot 'neos_engine.exe') -Force
 Copy-Item $backendExe (Join-Path $packageRuntime 'neos_engine.exe') -Force
 
-Set-Content -Path (Join-Path $packageRoot 'VERSION') -Value "1.2.0"
+Set-Content -Path (Join-Path $packageRoot 'VERSION') -Value "1.3.0"
 Set-Content -Path (Join-Path $packageRoot 'README.txt') -Value @"
 New Earth Engineering OS
 
@@ -104,7 +104,7 @@ $hashes = foreach ($relative in $fileList) {
 }
 
 $manifest = [pscustomobject]@{
-    neos_version = '1.2.0'
+    neos_version = '1.3.0'
     git_sha = $gitSha
     git_branch = $gitBranch
     build_timestamp_utc = $timestamp

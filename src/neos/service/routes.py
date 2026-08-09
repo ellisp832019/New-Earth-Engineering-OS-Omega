@@ -88,6 +88,7 @@ from ..memory import (
     memory_milestones,
     memory_timeline,
 )
+from ..registry import architecture_impact, architecture_registry, architecture_registry_inventory
 from ..requirements_intelligence import (
     architecture_without_requirement,
     build_requirement_intelligence,
@@ -180,9 +181,15 @@ def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
     genome = latest_project_genome(db_path, project_id)
     memory = latest_project_memory(db_path, project_id)
     flight = latest_project_flight(db_path, project_id)
+    registry = architecture_registry(db_path, project_id)
     return {
         "project": project_summary(db_path, project_id),
         "summary": project_summary(db_path, project_id),
+        "registry": registry,
+        "identity": registry["identity"],
+        "contracts": registry["contracts"],
+        "drift": registry["drift"],
+        "impact_analysis": registry["impact"],
         "genome": genome,
         "health": genome_health(genome) if genome else {},
         "domains": genome_domains(genome) if genome else _empty_items(project_id),
@@ -474,6 +481,33 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
             return 200, snapshot
     if segments == ["health"]:
         return 200, service_health(db_path, config)
+    if segments == ["registry"]:
+        return 200, architecture_registry_inventory(db_path)
+    if len(segments) == 2 and segments[0] == "registry":
+        try:
+            return 200, architecture_registry(db_path, segments[1])
+        except ValueError:
+            return 404, {"error": "not_found"}
+    if len(segments) == 3 and segments[0] == "registry" and segments[2] == "drift":
+        try:
+            return 200, architecture_registry(db_path, segments[1])["drift"]
+        except ValueError:
+            return 404, {"error": "not_found"}
+    if len(segments) == 3 and segments[0] == "registry" and segments[2] == "contracts":
+        try:
+            return 200, architecture_registry(db_path, segments[1])["contracts"]
+        except ValueError:
+            return 404, {"error": "not_found"}
+    if len(segments) == 3 and segments[0] == "registry" and segments[2] == "identity":
+        try:
+            return 200, architecture_registry(db_path, segments[1])["identity"]
+        except ValueError:
+            return 404, {"error": "not_found"}
+    if len(segments) == 3 and segments[0] == "registry" and segments[2] == "impact":
+        try:
+            return 200, architecture_impact(db_path, segments[1])
+        except ValueError:
+            return 404, {"error": "not_found"}
     if segments == ["projects"]:
         return 200, {"projects": project_list(db_path)}
     if segments[0] != "projects" or len(segments) < 2:

@@ -1,0 +1,41 @@
+{
+  "bundle": "neos-v1.3a-architecture-context-foundation",
+  "date": "2026-08-09",
+  "version": "1.3.0",
+  "product_version": "1.3.0",
+  "api_version": "v1",
+  "db_schema": 11,
+  "scope": [
+    "project identity",
+    "contract spine",
+    "contract validation",
+    "contract drift",
+    "provenance",
+    "impact analysis",
+    "CLI",
+    "API",
+    "desktop"
+  ],
+  "validation": [
+    "python -m pytest -q",
+    "python -m ruff check src tests",
+    "python -m mypy src\\neos",
+    "python -m neos doctor",
+    "cd apps\\desktop; flutter analyze",
+    "cd apps\\desktop; flutter test"
+  ],
+  "peer_repos": [
+    {
+      "name": "MicroGrow V1",
+      "branch": "planning/microgrow-v1-firmware-target-dependency-lock",
+      "head": "0f9df32862bfb74f0acba8c4c1aa84d5a17c8363",
+      "status": "clean"
+    },
+    {
+      "name": "New-Earth-AI-Employee",
+      "branch": "planning/gaia-v0.10-c4-programme-roadmap-release-trains",
+      "head": "13b982302133ec7ed88906272efc60d9b33c5492",
+      "status": "clean"
+    }
+  ]
+}

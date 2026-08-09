@@ -22,6 +22,7 @@ NEOS is designed to become the intelligence layer above engineering repositories
 - Deterministic decision intelligence for next actions, release readiness, reuse, architecture and scenarios
 - Deterministic requirements and architecture intelligence with trace, gaps, verification and operator review
 - Embedded firmware intelligence with deterministic source discovery, RTOS, interrupt, timing, GPIO, compatibility, and release evidence views
+- Architecture registry, contract spine, contract drift, provenance, identity and impact intelligence for the v1.3.0 release
 - Plugin SDK contract and example plugin
 - Sample MicroGrow project manifest
 - Tests and validation scripts
@@ -33,6 +34,7 @@ NEOS is designed to become the intelligence layer above engineering repositories
 - Codex implementation/handoff prompt
 - Phase 2 evidence packs for semantic intelligence and read-only MicroGrow acceptance
 - Firmware intelligence docs and release evidence for v1.2.0
+- Architecture registry and impact intelligence docs and release evidence for v1.3.0
 
 ## Omega Alpha objective
 

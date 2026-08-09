@@ -39,6 +39,9 @@ Deterministic requirement extraction, traceability, requirement gaps, verificati
 ## NEOS v1.2 - Embedded Firmware Intelligence
 Deterministic firmware source discovery, targets, build variants, RTOS/task intelligence, interrupts, timing facts, state machines, peripherals, GPIO ownership/conflicts, buses, protocols, packets, compatibility, findings, and release evidence.
 
+## NEOS v1.3.0 - Architecture Registry & Impact Intelligence
+Deterministic project identity, contract spine, contract validation, provenance, drift, architecture registry snapshots, cross-project comparison, and impact analysis.
+
 ## Beta 0.8 - Living Documentation
 Generated docs, drift detection and review workflows.
 
@@ -55,6 +58,8 @@ Production packaging, migrations, backup/restore, plugin governance, polished de
 - experiment intelligence
 - specialized AI engineering agents
 - organization/team mode
+
+The NEOS v1.3.0 architecture registry and impact intelligence evidence bundle is stored at `docs/release_evidence/neos-v1.3a-architecture-context-foundation/`.
 
 The NEOS v0.3 MicroGrow genome evidence bundle is stored at `docs/release_evidence/project-genome-v0.3/`.
 

@@ -1,12 +1,18 @@
 # API V1
 
-NEOS v1.1.0 keeps the service API on `v1` and adds additive hardware routes.
+NEOS v1.3.0 keeps the service API on `v1` and adds additive hardware and registry routes.
 
 ## Core Service
 
 - `GET /health` - service and database status
 - `GET /projects` - project registry
 - `GET /projects/{project_id}` - project payload including hardware snapshot
+- `GET /registry` - architecture registry inventory
+- `GET /registry/{project_id}` - architecture registry snapshot
+- `GET /registry/{project_id}/drift` - contract drift and provenance status
+- `GET /registry/{project_id}/contracts` - discovered contract sources
+- `GET /registry/{project_id}/identity` - deterministic project identity
+- `GET /registry/{project_id}/impact` - architecture impact analysis
 - `GET /projects/{project_id}/summary` - project summary
 - `GET /projects/{project_id}/genome` - project genome
 - `GET /projects/{project_id}/memory` - project memory
@@ -33,4 +39,4 @@ NEOS v1.1.0 keeps the service API on `v1` and adds additive hardware routes.
 
 ## Compatibility Notes
 
-The hardware routes are additive and do not change the existing `v1` contract for the rest of the service.
+The hardware and registry routes are additive and do not change the existing `v1` contract for the rest of the service.

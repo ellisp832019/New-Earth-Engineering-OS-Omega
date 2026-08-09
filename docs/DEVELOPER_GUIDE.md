@@ -22,6 +22,8 @@ Use `neos.flight` for immutable flight snapshots, checkpoints, historical state 
 
 Use `neos.ecosystem` for portfolio snapshots, capability matrices, technology matrices, reuse candidates, overlap findings, dependency maps, risk maps, attention queues, timeline history and deterministic ecosystem search.
 
+Use `neos.registry` and the `architecture_registry`, `contract_drift`, `architecture_impact`, and `architecture_registry_inventory` helpers for deterministic project identity, contract spine, provenance, drift, and cross-project impact views.
+
 Add tests for every classifier, manifest rule, persistence rule, or plugin detector.
 
 Read-only scans should never modify the scanned repository or ingest obvious secret files.
@@ -45,3 +47,5 @@ MicroGrow release evidence for the flight recorder workflow is stored in `docs/r
 NEOS v0.7 portfolio completion evidence is stored in `docs/release_evidence/neos-v0.7-portfolio-completion/` and should capture the exact validation commands used for the desktop portfolio workspace and ecosystem search path.
 
 Firmware intelligence architecture and user guidance live under `docs/firmware/` and `docs/user/`, with release evidence stored in `docs/release_evidence/neos-v1.2-embedded-firmware-intelligence/`.
+
+Architecture registry, contract validation, provenance, and impact analysis docs live under `docs/registry/`, `docs/impact/`, and `docs/user/`, with release evidence stored in `docs/release_evidence/neos-v1.3a-architecture-context-foundation/`.

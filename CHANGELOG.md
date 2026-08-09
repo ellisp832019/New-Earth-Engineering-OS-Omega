@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0 - Architecture Registry & Impact Intelligence
+- deterministic project identity, contract spine, provenance and drift views
+- architecture registry, contract validation, impact analysis and cross-project comparison routes
+- Registry Centre in the desktop app
+- release evidence for the v1.3a architecture context foundation
+
 ## 1.2.0 - Embedded Firmware Intelligence
 - deterministic firmware discovery and snapshot generation
 - PlatformIO environments, build variants, targets, tasks, RTOS primitives, interrupts, timers, timing, state machines, GPIO, buses, protocols, packets, compatibility, findings, risks, and gaps

@@ -139,6 +139,11 @@ from .memory import (
     memory_timeline,
     memory_trace_entity,
 )
+from .registry import (
+    architecture_impact,
+    architecture_registry,
+    architecture_registry_inventory,
+)
 from .requirements_intelligence import (
     architecture_without_requirement,
     build_requirement_intelligence,
@@ -503,6 +508,26 @@ def parser() -> argparse.ArgumentParser:
     firmware_diff_cmd.add_argument("--other-project-id")
     _add_output_args(firmware_diff_cmd)
 
+    registry = sub.add_parser("registry")
+    registry_sub = registry.add_subparsers(dest="registry_cmd", required=True)
+    registry_inventory = registry_sub.add_parser("inventory")
+    registry_inventory.add_argument("--format", choices=("text", "json"), default="json")
+    registry_inventory.add_argument("--json", action="store_true")
+    registry_show = registry_sub.add_parser("show")
+    registry_show.add_argument("project_id")
+    registry_show.add_argument("--format", choices=("text", "json"), default="json")
+    registry_show.add_argument("--json", action="store_true")
+    registry_drift = registry_sub.add_parser("drift")
+    registry_drift.add_argument("project_id")
+    registry_drift.add_argument("--format", choices=("text", "json"), default="json")
+    registry_drift.add_argument("--json", action="store_true")
+    registry_impact = registry_sub.add_parser("impact")
+    registry_impact.add_argument("project_id")
+    registry_impact.add_argument("--peer-project-id")
+    registry_impact.add_argument("--peer-repo-path")
+    registry_impact.add_argument("--format", choices=("text", "json"), default="json")
+    registry_impact.add_argument("--json", action="store_true")
+
     decisions = sub.add_parser("decisions")
     decisions.add_argument("project_id")
     decisions.add_argument("--entity-id")
@@ -771,6 +796,10 @@ def _firmware_or_build(db: Path, project_id: str) -> dict[str, Any]:
     return firmware_inventory(db, project_id)
 
 
+def _registry_or_build(db: Path, project_id: str) -> dict[str, Any]:
+    return architecture_registry(db, project_id)
+
+
 def main(argv=None) -> int:
     args = parser().parse_args(argv)
     db = Path(args.db)
@@ -968,6 +997,25 @@ def main(argv=None) -> int:
                 _print(firmware_impact(firmware, args.entity_id), fmt)
             elif args.firmware_cmd == "diff":
                 _print(firmware_diff(db, args.project_id, args.other_project_id), fmt)
+            return 0
+        if args.cmd == "registry":
+            fmt = "json" if getattr(args, "json", False) else args.format
+            if args.registry_cmd == "inventory":
+                _print(architecture_registry_inventory(db), fmt)
+            elif args.registry_cmd == "show":
+                _print(_registry_or_build(db, args.project_id), fmt)
+            elif args.registry_cmd == "drift":
+                _print(_registry_or_build(db, args.project_id)["drift"], fmt)
+            elif args.registry_cmd == "impact":
+                _print(
+                    architecture_impact(
+                        db,
+                        args.project_id,
+                        peer_project_id=getattr(args, "peer_project_id", None),
+                        peer_repo_path=getattr(args, "peer_repo_path", None),
+                    ),
+                    fmt,
+                )
             return 0
         if args.cmd == "feature":
             if args.feature_cmd == "list":
