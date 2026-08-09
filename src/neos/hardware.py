@@ -12,7 +12,7 @@ from typing import Any
 
 from .db import connect
 
-ENGINE_VERSION = "1.2.0"
+ENGINE_VERSION = "1.3.0"
 
 HARDWARE_SUFFIXES = {
     ".kicad_pro",

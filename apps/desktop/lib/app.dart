@@ -50,6 +50,7 @@ enum _Destination {
   requirements,
   architecture,
   hardware,
+  registry,
   firmware,
   decisions,
   evidence,
@@ -160,6 +161,7 @@ class _NeosShellState extends State<NeosShell> {
     _NavItem(_Destination.requirements, Icons.rule_outlined, 'Requirements'),
     _NavItem(_Destination.architecture, Icons.graphic_eq_outlined, 'Architecture'),
     _NavItem(_Destination.hardware, Icons.precision_manufacturing_outlined, 'Hardware Centre'),
+    _NavItem(_Destination.registry, Icons.account_tree_outlined, 'Registry Centre'),
     _NavItem(_Destination.firmware, Icons.memory_outlined, 'Firmware Centre'),
     _NavItem(_Destination.decisions, Icons.rule_folder_outlined, 'Decisions'),
     _NavItem(_Destination.evidence, Icons.fact_check_outlined, 'Evidence'),
@@ -263,7 +265,7 @@ class _NeosShellState extends State<NeosShell> {
     if (destination == _Destination.today || destination == _Destination.workQueue || destination == _Destination.projects) {
       unawaited(_refreshCommandCentre());
     }
-    if (destination == _Destination.hardware || destination == _Destination.firmware) {
+    if (destination == _Destination.hardware || destination == _Destination.registry || destination == _Destination.firmware) {
       unawaited(_saveWorkspaceSession());
     }
     if (destination == _Destination.assistant || destination == _Destination.settings || destination == _Destination.health) {
@@ -380,6 +382,7 @@ class _NeosShellState extends State<NeosShell> {
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.workQueue), child: const Text('Work Queue')),
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.projects), child: const Text('Projects')),
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.hardware), child: const Text('Hardware Centre')),
+                          OutlinedButton(onPressed: () => _selectDestination(_Destination.registry), child: const Text('Registry Centre')),
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.firmware), child: const Text('Firmware Centre')),
                           OutlinedButton(onPressed: () => _selectDestination(_Destination.assistant), child: const Text('AI Partner')),
                         ],
@@ -1403,6 +1406,60 @@ class _NeosShellState extends State<NeosShell> {
     );
   }
 
+  Widget _registryView() {
+    final project = _project;
+    if (project == null) {
+      return const Center(child: Text('Select a project to inspect registry and contract intelligence.'));
+    }
+    final registry = _asMap(project.section('registry'));
+    final identity = _asMap(registry['identity']);
+    final contracts = _asMap(registry['contracts']);
+    final drift = _asMap(registry['drift']);
+    final impact = _asMap(registry['impact']);
+    final health = _asMap(registry['health']);
+    final conflicts = _asList(registry['identity_conflicts']).map((item) => _asMap(item)).toList(growable: false);
+    final sources = _asList(registry['sources']).map((item) => _asMap(item)).toList(growable: false);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _panel(
+            title: 'Registry Centre',
+            subtitle: 'Stable identity, contract spine, drift and impact analysis for the selected project.',
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _chip(project.projectId),
+                _chip('Contracts ${_asInt(health['contract_count'])}'),
+                _chip('Sources ${_asInt(health['discovered_contract_count'])}'),
+                _chip('Conflicts ${_asInt(health['identity_conflict_count'])}'),
+                _chip('Drift ${_countOf(drift)}'),
+                _chip('Status ${_asString(health['status'], 'unknown')}'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _jsonPanel('Identity', identity, subtitle: 'Stable project identity with declared, observed and derived repository evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Contracts', contracts, subtitle: 'Project, capabilities, dependencies, safety boundary and release-state contracts.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Drift', drift, subtitle: 'Conservative contract drift classification and review state.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Impact', impact, subtitle: 'Architecture impact analysis and cross-project reasoning payload.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Identity conflicts', conflicts, subtitle: 'Repository and alias ambiguities that require review rather than auto-resolution.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Discovered sources', sources, subtitle: 'Structured manifest and contract files discovered deterministically from the repository.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Raw registry payload', registry, subtitle: 'Full registry snapshot returned by the backend.'),
+        ],
+      ),
+    );
+  }
+
   Widget _firmwareView() {
     final project = _project;
     if (project == null) {
@@ -2017,6 +2074,8 @@ class _NeosShellState extends State<NeosShell> {
         return _graphView();
       case _Destination.hardware:
         return _hardwareView();
+      case _Destination.registry:
+        return _registryView();
       case _Destination.firmware:
         return _firmwareView();
       case _Destination.decisions:

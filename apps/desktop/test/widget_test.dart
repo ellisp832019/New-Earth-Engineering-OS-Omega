@@ -8,7 +8,7 @@ class FakeNeosClient implements NeosClient {
     return ServiceHealthInfo.fromJson({
       'status': 'healthy',
       'service_name': 'NEOS Local Service',
-      'service_version': '1.2.0',
+      'service_version': '1.3.0',
       'api_version': 'v1',
       'schema_version': 11,
       'instance_id': 'fake-instance',

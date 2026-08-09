@@ -158,6 +158,20 @@ Portfolio commands:
 
 `neos report ecosystem` renders the portfolio report in markdown by default or JSON with `--json`.
 
+Registry and contract commands:
+
+`neos registry inventory` prints the architecture registry inventory across registered projects.
+
+`neos registry show PROJECT_ID` prints the architecture registry snapshot for one project.
+
+`neos registry drift PROJECT_ID` prints contract drift, provenance gaps, and identity conflicts.
+
+`neos registry impact PROJECT_ID` prints cross-project impact analysis for the selected project.
+
+`neos registry impact PROJECT_ID --peer-project-id OTHER_ID` compares two registered projects directly.
+
+`neos registry impact PROJECT_ID --peer-repo-path PATH` compares a project against an unregistered local repository path.
+
 `neos version` prints the NEOS version.
 
 Most read commands accept `--format text|json`.
