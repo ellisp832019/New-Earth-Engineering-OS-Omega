@@ -1,13 +1,20 @@
 from __future__ import annotations
 
 import sqlite3
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 11
 
 SCHEMA = """
 PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS migrations (
+    version INTEGER PRIMARY KEY,
+    applied_at TEXT NOT NULL,
+    description TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS projects (
     project_id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -61,28 +68,932 @@ CREATE TABLE IF NOT EXISTS scan_observations (
 );
 CREATE INDEX IF NOT EXISTS idx_scan_observations_project_scan ON scan_observations(project_id, scan_id);
 CREATE INDEX IF NOT EXISTS idx_scan_observations_source_path ON scan_observations(project_id, source_path);
+
+CREATE TABLE IF NOT EXISTS symbols (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    status TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    start_line INTEGER,
+    end_line INTEGER,
+    content_hash TEXT NOT NULL,
+    parser_source TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    observed_at TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    provenance TEXT NOT NULL,
+    parent_symbol_id TEXT REFERENCES symbols(id),
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_symbols_project_kind ON symbols(project_id, kind);
+CREATE INDEX IF NOT EXISTS idx_symbols_project_path ON symbols(project_id, source_path);
+CREATE INDEX IF NOT EXISTS idx_symbols_scan ON symbols(scan_id);
+
+CREATE TABLE IF NOT EXISTS symbol_locations (
+    id TEXT PRIMARY KEY,
+    symbol_id TEXT NOT NULL REFERENCES symbols(id) ON DELETE CASCADE,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    source_path TEXT NOT NULL,
+    start_line INTEGER,
+    end_line INTEGER,
+    content_hash TEXT NOT NULL,
+    parser_source TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    provenance TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    observed_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_symbol_locations_project_symbol ON symbol_locations(project_id, symbol_id);
+
+CREATE TABLE IF NOT EXISTS relationships (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    source_entity_id TEXT NOT NULL,
+    target_entity_id TEXT NOT NULL,
+    relationship_type TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    evidence_source TEXT NOT NULL,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    parser_source TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_relationships_project_type ON relationships(project_id, relationship_type);
+CREATE INDEX IF NOT EXISTS idx_relationships_source ON relationships(project_id, source_entity_id);
+CREATE INDEX IF NOT EXISTS idx_relationships_target ON relationships(project_id, target_entity_id);
+
+CREATE TABLE IF NOT EXISTS dependencies (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    source_entity_id TEXT NOT NULL,
+    target_entity_id TEXT NOT NULL,
+    dependency_type TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    evidence_source TEXT NOT NULL,
+    parser_source TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_dependencies_project_source ON dependencies(project_id, source_entity_id);
+CREATE INDEX IF NOT EXISTS idx_dependencies_project_target ON dependencies(project_id, target_entity_id);
+
+CREATE TABLE IF NOT EXISTS features (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    status TEXT NOT NULL,
+    introduced_version TEXT,
+    removed_version TEXT,
+    confidence REAL NOT NULL,
+    source TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    provenance TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_features_project_status ON features(project_id, status);
+
+CREATE TABLE IF NOT EXISTS feature_evidence (
+    id TEXT PRIMARY KEY,
+    feature_id TEXT NOT NULL REFERENCES features(id) ON DELETE CASCADE,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    evidence_type TEXT NOT NULL,
+    entity_id TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    start_line INTEGER,
+    end_line INTEGER,
+    content_hash TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    provenance TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_feature_evidence_feature ON feature_evidence(feature_id);
+
+CREATE TABLE IF NOT EXISTS feature_relationships (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    feature_id TEXT NOT NULL REFERENCES features(id) ON DELETE CASCADE,
+    related_feature_id TEXT NOT NULL REFERENCES features(id) ON DELETE CASCADE,
+    relationship_type TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    evidence_source TEXT NOT NULL,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    parser_source TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS engineering_decisions (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    status TEXT NOT NULL,
+    date TEXT,
+    context TEXT NOT NULL,
+    decision TEXT NOT NULL,
+    rationale TEXT NOT NULL,
+    alternatives TEXT NOT NULL,
+    consequences TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    provenance TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    observed_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_engineering_decisions_project_status ON engineering_decisions(project_id, status);
+
+CREATE TABLE IF NOT EXISTS decision_evidence (
+    id TEXT PRIMARY KEY,
+    decision_id TEXT NOT NULL REFERENCES engineering_decisions(id) ON DELETE CASCADE,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    evidence_type TEXT NOT NULL,
+    entity_id TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    start_line INTEGER,
+    end_line INTEGER,
+    content_hash TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    provenance TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS decision_questions (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    decision_type TEXT NOT NULL,
+    status TEXT NOT NULL,
+    scope_json TEXT NOT NULL,
+    source TEXT NOT NULL,
+    related_entities_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    engine_version TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_questions_project_type ON decision_questions(project_id, decision_type);
+CREATE INDEX IF NOT EXISTS idx_decision_questions_status ON decision_questions(status);
+
+CREATE TABLE IF NOT EXISTS decision_options (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES decision_questions(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    source TEXT NOT NULL,
+    constraints_json TEXT NOT NULL,
+    affected_entities_json TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_options_question ON decision_options(question_id);
+
+CREATE TABLE IF NOT EXISTS decision_intelligence_evidence (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES decision_questions(id) ON DELETE CASCADE,
+    option_id TEXT NOT NULL REFERENCES decision_options(id) ON DELETE CASCADE,
+    evidence_type TEXT NOT NULL,
+    entity_id TEXT NOT NULL,
+    project_id TEXT NOT NULL,
+    source TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    supports_or_opposes TEXT NOT NULL,
+    weight_category TEXT NOT NULL,
+    provenance TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_intelligence_evidence_question ON decision_intelligence_evidence(question_id);
+
+CREATE TABLE IF NOT EXISTS decision_recommendations (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES decision_questions(id) ON DELETE CASCADE,
+    recommended_option TEXT NOT NULL,
+    strength TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    supporting_factors_json TEXT NOT NULL,
+    opposing_factors_json TEXT NOT NULL,
+    risks_json TEXT NOT NULL,
+    assumptions_json TEXT NOT NULL,
+    unknowns_json TEXT NOT NULL,
+    alternatives_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    engine_version TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_recommendations_question ON decision_recommendations(question_id);
+
+CREATE TABLE IF NOT EXISTS decision_reviews (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES decision_questions(id) ON DELETE CASCADE,
+    operator TEXT NOT NULL,
+    review_state TEXT NOT NULL,
+    selected_option TEXT NOT NULL,
+    notes TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_reviews_question ON decision_reviews(question_id);
+
+CREATE TABLE IF NOT EXISTS decision_outcomes (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES decision_questions(id) ON DELETE CASCADE,
+    outcome_state TEXT NOT NULL,
+    observed_result TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_outcomes_question ON decision_outcomes(question_id);
+
+CREATE TABLE IF NOT EXISTS requirements (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    requirement_key TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    requirement_type TEXT NOT NULL,
+    status TEXT NOT NULL,
+    canonical_state TEXT NOT NULL,
+    source TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    source_line INTEGER,
+    confidence REAL NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    provenance TEXT NOT NULL,
+    related_feature_ids_json TEXT NOT NULL,
+    related_architecture_json TEXT NOT NULL,
+    related_test_paths_json TEXT NOT NULL,
+    related_validation_json TEXT NOT NULL,
+    related_release_json TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_requirements_project_status ON requirements(project_id, status);
+CREATE INDEX IF NOT EXISTS idx_requirements_project_type ON requirements(project_id, requirement_type);
+CREATE INDEX IF NOT EXISTS idx_requirements_project_source ON requirements(project_id, source_path);
+
+CREATE TABLE IF NOT EXISTS requirement_evidence (
+    id TEXT PRIMARY KEY,
+    requirement_id TEXT NOT NULL REFERENCES requirements(id) ON DELETE CASCADE,
+    link_type TEXT NOT NULL,
+    entity_id TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    source_line INTEGER,
+    confidence REAL NOT NULL,
+    supports_or_opposes TEXT NOT NULL,
+    provenance TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_requirement_evidence_requirement ON requirement_evidence(requirement_id);
+CREATE INDEX IF NOT EXISTS idx_requirement_evidence_type ON requirement_evidence(link_type);
+
+CREATE TABLE IF NOT EXISTS requirement_reviews (
+    id TEXT PRIMARY KEY,
+    requirement_id TEXT NOT NULL REFERENCES requirements(id) ON DELETE CASCADE,
+    operator TEXT NOT NULL,
+    review_state TEXT NOT NULL,
+    notes TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_requirement_reviews_requirement ON requirement_reviews(requirement_id);
+
+CREATE TABLE IF NOT EXISTS app_sessions (
+    session_key TEXT PRIMARY KEY,
+    value_json TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS work_items (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scope TEXT NOT NULL,
+    category TEXT NOT NULL,
+    priority TEXT NOT NULL,
+    title TEXT NOT NULL,
+    why TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    recommended_action TEXT NOT NULL,
+    status TEXT NOT NULL,
+    source TEXT NOT NULL,
+    source_fingerprint TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_work_items_project_status ON work_items(project_id, status);
+CREATE INDEX IF NOT EXISTS idx_work_items_category_priority ON work_items(category, priority);
+CREATE INDEX IF NOT EXISTS idx_work_items_source_fingerprint ON work_items(source_fingerprint);
+
+CREATE TABLE IF NOT EXISTS refresh_jobs (
+    job_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    status TEXT NOT NULL,
+    current_stage TEXT NOT NULL,
+    stage_index INTEGER NOT NULL,
+    stage_total INTEGER NOT NULL,
+    stages_json TEXT NOT NULL,
+    options_json TEXT NOT NULL,
+    result_json TEXT NOT NULL,
+    error_text TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_refresh_jobs_project_status ON refresh_jobs(project_id, status);
+CREATE INDEX IF NOT EXISTS idx_refresh_jobs_status ON refresh_jobs(status);
+
+CREATE TABLE IF NOT EXISTS api_endpoints (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    method TEXT,
+    route TEXT NOT NULL,
+    handler TEXT,
+    source_path TEXT NOT NULL,
+    line INTEGER,
+    content_hash TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    provenance TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    observed_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_api_endpoints_project_route ON api_endpoints(project_id, route);
+
+CREATE TABLE IF NOT EXISTS configuration_keys (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    key TEXT NOT NULL,
+    section TEXT,
+    source_path TEXT NOT NULL,
+    value_type TEXT NOT NULL,
+    default_value TEXT,
+    content_hash TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    provenance TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    observed_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_configuration_keys_project_key ON configuration_keys(project_id, key);
+
+CREATE TABLE IF NOT EXISTS impact_findings (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    entity_id TEXT NOT NULL,
+    impact_type TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    path_json TEXT NOT NULL,
+    explanation TEXT NOT NULL,
+    provenance TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_impact_findings_project_entity ON impact_findings(project_id, entity_id);
+
+CREATE TABLE IF NOT EXISTS project_genomes (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    source_commit TEXT,
+    source_branch TEXT,
+    genome_schema_version INTEGER NOT NULL,
+    source_fingerprint TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    summary_json TEXT NOT NULL,
+    genome_json TEXT NOT NULL,
+    metrics_json TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_project_genomes_unique ON project_genomes(project_id, genome_schema_version, source_fingerprint);
+CREATE INDEX IF NOT EXISTS idx_project_genomes_created ON project_genomes(project_id, created_at);
+
+CREATE TABLE IF NOT EXISTS memory_records (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    genome_id TEXT REFERENCES project_genomes(id) ON DELETE SET NULL,
+    memory_schema_version INTEGER NOT NULL,
+    memory_type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    status TEXT NOT NULL,
+    source_type TEXT NOT NULL,
+    source_path TEXT,
+    source_commit TEXT,
+    source_branch TEXT,
+    timestamp TEXT NOT NULL,
+    effective_date TEXT,
+    confidence REAL NOT NULL,
+    provenance TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    superseded_by TEXT,
+    related_entities_json TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_memory_records_project_type ON memory_records(project_id, memory_type);
+CREATE INDEX IF NOT EXISTS idx_memory_records_project_time ON memory_records(project_id, COALESCE(effective_date, timestamp), created_at);
+
+CREATE TABLE IF NOT EXISTS memory_relationships (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    source_record_id TEXT NOT NULL REFERENCES memory_records(id) ON DELETE CASCADE,
+    target_record_id TEXT NOT NULL REFERENCES memory_records(id) ON DELETE CASCADE,
+    relationship_type TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    provenance TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_memory_relationships_project_source ON memory_relationships(project_id, source_record_id);
+CREATE INDEX IF NOT EXISTS idx_memory_relationships_project_target ON memory_relationships(project_id, target_record_id);
+
+CREATE TABLE IF NOT EXISTS memory_snapshots (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    genome_id TEXT NOT NULL REFERENCES project_genomes(id) ON DELETE CASCADE,
+    source_commit TEXT,
+    source_branch TEXT,
+    memory_schema_version INTEGER NOT NULL,
+    source_fingerprint TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    summary_json TEXT NOT NULL,
+    memory_json TEXT NOT NULL,
+    metrics_json TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_memory_snapshots_unique ON memory_snapshots(project_id, memory_schema_version, source_fingerprint);
+CREATE INDEX IF NOT EXISTS idx_memory_snapshots_created ON memory_snapshots(project_id, created_at);
+
+CREATE TABLE IF NOT EXISTS flight_snapshots (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    scan_id TEXT NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    genome_id TEXT REFERENCES project_genomes(id) ON DELETE SET NULL,
+    memory_id TEXT REFERENCES memory_snapshots(id) ON DELETE SET NULL,
+    source_commit TEXT,
+    source_branch TEXT,
+    source_ref TEXT,
+    flight_schema_version INTEGER NOT NULL,
+    source_fingerprint TEXT NOT NULL,
+    repository_state_hash TEXT NOT NULL,
+    semantic_state_hash TEXT NOT NULL,
+    genome_state_hash TEXT NOT NULL,
+    memory_state_hash TEXT NOT NULL,
+    feature_state_hash TEXT NOT NULL,
+    test_state_hash TEXT NOT NULL,
+    api_state_hash TEXT NOT NULL,
+    configuration_state_hash TEXT NOT NULL,
+    risk_state_hash TEXT NOT NULL,
+    unknown_state_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    summary_json TEXT NOT NULL,
+    state_json TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_flight_snapshots_unique ON flight_snapshots(project_id, flight_schema_version, source_fingerprint);
+CREATE INDEX IF NOT EXISTS idx_flight_snapshots_created ON flight_snapshots(project_id, created_at);
+
+CREATE TABLE IF NOT EXISTS flight_checkpoints (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    checkpoint_type TEXT NOT NULL,
+    label TEXT NOT NULL,
+    source_ref TEXT,
+    source_commit TEXT,
+    source_branch TEXT,
+    scan_id TEXT REFERENCES scans(scan_id) ON DELETE SET NULL,
+    genome_id TEXT REFERENCES project_genomes(id) ON DELETE SET NULL,
+    memory_id TEXT REFERENCES memory_snapshots(id) ON DELETE SET NULL,
+    snapshot_id TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    timestamp TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_flight_checkpoints_project_time ON flight_checkpoints(project_id, timestamp);
+
+CREATE TABLE IF NOT EXISTS flight_events (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    timestamp TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    source_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    target_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    affected_entities_json TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_flight_events_project_time ON flight_events(project_id, timestamp);
+
+CREATE TABLE IF NOT EXISTS flight_transitions (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    source_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    target_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    timestamp TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    summary_json TEXT NOT NULL,
+    transition_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_flight_transitions_project_time ON flight_transitions(project_id, timestamp);
+
+CREATE TABLE IF NOT EXISTS flight_regressions (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    timestamp TEXT NOT NULL,
+    indicator_type TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    source_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    target_snapshot TEXT NOT NULL REFERENCES flight_snapshots(id) ON DELETE CASCADE,
+    summary TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    affected_entities_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_flight_regressions_project_time ON flight_regressions(project_id, timestamp);
+
+CREATE TABLE IF NOT EXISTS flight_incidents (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    timestamp TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    type TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    source TEXT NOT NULL,
+    affected_entities_json TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    resolved_at TEXT,
+    resolution TEXT,
+    related_decisions_json TEXT NOT NULL,
+    related_commits_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_flight_incidents_project_time ON flight_incidents(project_id, timestamp);
+
+CREATE TABLE IF NOT EXISTS ai_settings (
+    settings_id TEXT PRIMARY KEY,
+    provider_id TEXT NOT NULL,
+    model TEXT NOT NULL,
+    endpoint TEXT NOT NULL,
+    api_key_env TEXT NOT NULL,
+    timeout_seconds INTEGER NOT NULL,
+    context_budget INTEGER NOT NULL,
+    max_output_tokens INTEGER NOT NULL,
+    streaming INTEGER NOT NULL,
+    temperature REAL NOT NULL,
+    enabled INTEGER NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ai_conversations (
+    conversation_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    provider_id TEXT NOT NULL,
+    model TEXT NOT NULL,
+    status TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_project_updated ON ai_conversations(project_id, updated_at);
+
+CREATE TABLE IF NOT EXISTS ai_conversation_turns (
+    turn_id TEXT PRIMARY KEY,
+    conversation_id TEXT NOT NULL REFERENCES ai_conversations(conversation_id) ON DELETE CASCADE,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    request_id TEXT NOT NULL,
+    question TEXT NOT NULL,
+    response_json TEXT NOT NULL,
+    context_json TEXT NOT NULL,
+    citations_json TEXT NOT NULL,
+    provider_id TEXT NOT NULL,
+    model TEXT NOT NULL,
+    intent TEXT NOT NULL,
+    mode TEXT NOT NULL,
+    status TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    completed_at TEXT NOT NULL,
+    usage_json TEXT NOT NULL,
+    safety_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ai_conversation_turns_conversation_time ON ai_conversation_turns(conversation_id, created_at);
+
+CREATE TABLE IF NOT EXISTS ai_requests (
+    request_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    conversation_id TEXT REFERENCES ai_conversations(conversation_id) ON DELETE SET NULL,
+    question TEXT NOT NULL,
+    intent TEXT NOT NULL,
+    mode TEXT NOT NULL,
+    provider_id TEXT NOT NULL,
+    model TEXT NOT NULL,
+    context_json TEXT NOT NULL,
+    response_json TEXT NOT NULL,
+    status TEXT NOT NULL,
+    latency_ms INTEGER NOT NULL,
+    created_at TEXT NOT NULL,
+    completed_at TEXT NOT NULL,
+    usage_json TEXT NOT NULL,
+    safety_json TEXT NOT NULL,
+    tool_audit_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ai_requests_conversation_time ON ai_requests(conversation_id, created_at);
+
+CREATE TABLE IF NOT EXISTS ai_request_citations (
+    citation_id TEXT PRIMARY KEY,
+    request_id TEXT NOT NULL REFERENCES ai_requests(request_id) ON DELETE CASCADE,
+    conversation_id TEXT REFERENCES ai_conversations(conversation_id) ON DELETE SET NULL,
+    project_id TEXT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    entity_id TEXT NOT NULL,
+    source_type TEXT NOT NULL,
+    path TEXT NOT NULL,
+    relationship TEXT NOT NULL,
+    scan_id TEXT NOT NULL,
+    snapshot_id TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    excerpt TEXT NOT NULL,
+    title TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ai_request_citations_request_confidence ON ai_request_citations(request_id, confidence);
+
+CREATE TABLE IF NOT EXISTS ecosystems (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    project_ids TEXT NOT NULL,
+    snapshot_id TEXT NOT NULL,
+    schema_version INTEGER NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ecosystems_updated_at ON ecosystems(updated_at);
+
+CREATE TABLE IF NOT EXISTS portfolio_snapshots (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    ecosystem_id TEXT NOT NULL REFERENCES ecosystems(id) ON DELETE CASCADE,
+    project_ids TEXT NOT NULL,
+    source_fingerprint TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    snapshot_json TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_portfolio_snapshots_unique ON portfolio_snapshots(ecosystem_id, source_fingerprint);
+
+CREATE TABLE IF NOT EXISTS project_relationships (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    source_project_id TEXT NOT NULL,
+    target_project_id TEXT NOT NULL,
+    relationship_type TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    evidence_json TEXT NOT NULL,
+    detector TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_project_relationships_snapshot_type ON project_relationships(portfolio_snapshot_id, relationship_type);
+
+CREATE TABLE IF NOT EXISTS shared_capabilities (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    capability TEXT NOT NULL,
+    project_id TEXT NOT NULL,
+    implementation_json TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_shared_capabilities_snapshot_capability ON shared_capabilities(portfolio_snapshot_id, capability);
+
+CREATE TABLE IF NOT EXISTS reuse_candidates (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    source_project_id TEXT NOT NULL,
+    capability TEXT NOT NULL,
+    potential_target_projects_json TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    coupling_evidence_json TEXT NOT NULL,
+    dependencies_json TEXT NOT NULL,
+    test_evidence INTEGER NOT NULL,
+    documentation INTEGER NOT NULL,
+    stability TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    risks_json TEXT NOT NULL,
+    required_adaptation TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_reuse_candidates_snapshot_capability ON reuse_candidates(portfolio_snapshot_id, capability);
+
+CREATE TABLE IF NOT EXISTS duplicate_findings (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    project_ids_json TEXT NOT NULL,
+    capability TEXT NOT NULL,
+    finding_type TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    evidence_json TEXT NOT NULL,
+    recommended_review TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_duplicate_findings_snapshot_capability ON duplicate_findings(portfolio_snapshot_id, capability);
+
+CREATE TABLE IF NOT EXISTS decision_conflicts (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    project_a TEXT NOT NULL,
+    decision_a TEXT NOT NULL,
+    project_b TEXT NOT NULL,
+    decision_b TEXT NOT NULL,
+    conflict_type TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    integration_relevance TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    recommended_review TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_decision_conflicts_snapshot_type ON decision_conflicts(portfolio_snapshot_id, conflict_type);
+
+CREATE TABLE IF NOT EXISTS portfolio_risks (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    category TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    affected_projects_json TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    recommended_investigation TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_portfolio_risks_snapshot_category ON portfolio_risks(portfolio_snapshot_id, category);
+
+CREATE TABLE IF NOT EXISTS ecosystem_attention (
+    id TEXT PRIMARY KEY,
+    portfolio_snapshot_id TEXT NOT NULL REFERENCES portfolio_snapshots(id) ON DELETE CASCADE,
+    item_type TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    recommended_action TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ecosystem_attention_snapshot_type ON ecosystem_attention(portfolio_snapshot_id, item_type);
 """
+
 
 def _columns(conn: sqlite3.Connection, table: str) -> set[str]:
     return {row["name"] for row in conn.execute(f"PRAGMA table_info({table})")}
 
 
+def _ensure_column(conn: sqlite3.Connection, table: str, column: str, ddl: str) -> None:
+    if column not in _columns(conn, table):
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {ddl}")
+
+
+def _record_migration(conn: sqlite3.Connection, version: int, description: str, applied_at: str) -> None:
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO migrations(version, applied_at, description)
+        VALUES(?,?,?)
+        """,
+        (version, applied_at, description),
+    )
+
+
+def _current_schema_version(conn: sqlite3.Connection) -> int:
+    row = conn.execute("SELECT value FROM meta WHERE key='schema_version'").fetchone()
+    if not row:
+        return 0
+    try:
+        return int(str(row["value"]))
+    except ValueError:
+        return 0
+
+
+def _migration_status(conn: sqlite3.Connection) -> str:
+    current = _current_schema_version(conn)
+    return "current" if current >= SCHEMA_VERSION else "pending"
+
+
 def _migrate(conn: sqlite3.Connection) -> None:
-    scan_columns = _columns(conn, "scans")
-    if "git_branch" not in scan_columns:
-        conn.execute("ALTER TABLE scans ADD COLUMN git_branch TEXT")
-    if "repo_head" not in scan_columns:
-        conn.execute("ALTER TABLE scans ADD COLUMN repo_head TEXT")
-    if "snapshot_json" not in scan_columns:
-        conn.execute("ALTER TABLE scans ADD COLUMN snapshot_json TEXT NOT NULL DEFAULT '{}' ")
+    applied_at = datetime.now(UTC).isoformat()
+    _ensure_column(conn, "scans", "git_branch", "TEXT")
+    _ensure_column(conn, "scans", "repo_head", "TEXT")
+    _ensure_column(conn, "scans", "snapshot_json", "TEXT NOT NULL DEFAULT '{}' ")
+
+    # Ensure schema version 3 migrations are recorded exactly once.
+    if _current_schema_version(conn) < 3 or conn.execute("SELECT 1 FROM migrations WHERE version=3").fetchone() is None:
+        _record_migration(
+            conn,
+            3,
+            "Add semantic intelligence tables for symbols, features, decisions, API routes, configuration keys, and impact findings.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 4 or conn.execute("SELECT 1 FROM migrations WHERE version=4").fetchone() is None:
+        _record_migration(
+            conn,
+            4,
+            "Add project genome snapshots for deterministic project-wide engineering models.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 5 or conn.execute("SELECT 1 FROM migrations WHERE version=5").fetchone() is None:
+        _record_migration(
+            conn,
+            5,
+            "Add engineering memory snapshots for deterministic project history and rationale models.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 6 or conn.execute("SELECT 1 FROM migrations WHERE version=6").fetchone() is None:
+        _record_migration(
+            conn,
+            6,
+            "Add engineering flight recorder snapshots, checkpoints, events, transitions, incidents, and regression intelligence.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 7 or conn.execute("SELECT 1 FROM migrations WHERE version=7").fetchone() is None:
+        _record_migration(
+            conn,
+            7,
+            "Add AI settings, conversations, requests, citations, and audit persistence for the NEOS AI Engineering Partner.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 8 or conn.execute("SELECT 1 FROM migrations WHERE version=8").fetchone() is None:
+        _record_migration(
+            conn,
+            8,
+            "Add ecosystem snapshots, project relationships, shared capabilities, reuse candidates, duplication findings, decision conflicts, portfolio risks, and attention records.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 9 or conn.execute("SELECT 1 FROM migrations WHERE version=9").fetchone() is None:
+        _record_migration(
+            conn,
+            9,
+            "Add deterministic decision intelligence tables for questions, options, evidence, recommendations, reviews, and outcomes.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 10 or conn.execute("SELECT 1 FROM migrations WHERE version=10").fetchone() is None:
+        _record_migration(
+            conn,
+            10,
+            "Add requirements and architecture traceability tables for deterministic intent-to-implementation mapping.",
+            applied_at,
+        )
+    if _current_schema_version(conn) < 11 or conn.execute("SELECT 1 FROM migrations WHERE version=11").fetchone() is None:
+        _record_migration(
+            conn,
+            11,
+            "Add engineering command-centre tables for work items, session metadata, and refresh jobs.",
+            applied_at,
+        )
+    conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version',?)", (str(SCHEMA_VERSION),))
 
 
 def connect(path: Path) -> sqlite3.Connection:
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys=ON;")
     conn.executescript(SCHEMA)
     _migrate(conn)
-    conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version',?)", (str(SCHEMA_VERSION),))
     conn.commit()
     return conn
+
+
+def schema_info(conn: sqlite3.Connection) -> dict[str, Any]:
+    return {
+        "database_schema": _current_schema_version(conn),
+        "migration_status": _migration_status(conn),
+        "migrations": [dict(row) for row in conn.execute("SELECT version, applied_at, description FROM migrations ORDER BY version")],
+    }

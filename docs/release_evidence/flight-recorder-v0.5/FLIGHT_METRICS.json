@@ -1,0 +1,13 @@
+{
+  "checkpoints": 2,
+  "database_size_bytes": 72237056,
+  "events": 2,
+  "generation_runtime_seconds": 321.444,
+  "historical_commits_inspected": 2,
+  "incidents": 0,
+  "regression_indicators": 0,
+  "replay_events": 8,
+  "snapshots": 2,
+  "timeline_events": 792,
+  "transitions": 1
+}

@@ -9,10 +9,95 @@ from pathlib import Path
 from typing import Any
 
 from .db import connect
+from .firmware import (
+    build_firmware_intelligence,
+)
+from .firmware import (
+    firmware_build_variants as _firmware_build_variants,
+)
+from .firmware import (
+    firmware_buses as _firmware_buses,
+)
+from .firmware import (
+    firmware_compatibility as _firmware_compatibility,
+)
+from .firmware import (
+    firmware_diff as _firmware_diff,
+)
+from .firmware import (
+    firmware_environments as _firmware_environments,
+)
+from .firmware import (
+    firmware_findings as _firmware_findings,
+)
+from .firmware import (
+    firmware_gaps as _firmware_gaps,
+)
+from .firmware import (
+    firmware_gpio as _firmware_gpio,
+)
+from .firmware import (
+    firmware_gpio_conflicts as _firmware_gpio_conflicts,
+)
+from .firmware import (
+    firmware_impact as _firmware_impact,
+)
+from .firmware import (
+    firmware_interrupts as _firmware_interrupts,
+)
+from .firmware import (
+    firmware_memory as _firmware_memory,
+)
+from .firmware import (
+    firmware_modules as _firmware_modules,
+)
+from .firmware import (
+    firmware_packets as _firmware_packets,
+)
+from .firmware import (
+    firmware_peripherals as _firmware_peripherals,
+)
+from .firmware import (
+    firmware_protocols as _firmware_protocols,
+)
+from .firmware import (
+    firmware_risks as _firmware_risks,
+)
+from .firmware import (
+    firmware_rtos_primitives as _firmware_rtos_primitives,
+)
+from .firmware import (
+    firmware_state_machines as _firmware_state_machines,
+)
+from .firmware import (
+    firmware_summary as _firmware_summary,
+)
+from .firmware import (
+    firmware_targets as _firmware_targets,
+)
+from .firmware import (
+    firmware_tasks as _firmware_tasks,
+)
+from .firmware import (
+    firmware_timers as _firmware_timers,
+)
+from .firmware import (
+    firmware_timing as _firmware_timing,
+)
+from .firmware import (
+    firmware_trace as _firmware_trace,
+)
+from .firmware import (
+    firmware_validation as _firmware_validation,
+)
+from .flight import flight_temporal_context
+from .hardware import build_hardware_intelligence
 from .manifest import load_manifest
+from .memory import latest_project_memory, memory_timeline, memory_why
 from .models import Finding
 from .plugins.runtime import PluginRegistry
 from .scanner import scan_repo
+from .semantic import extract_semantics, persist_semantics
 
 
 def utc_now() -> str:
@@ -72,6 +157,11 @@ def _project_row(conn, project_id: str):
     if not row:
         raise ValueError(f"Unknown project: {project_id}")
     return row
+
+
+def _project_repo_path(conn, project_id: str) -> Path:
+    row = _project_row(conn, project_id)
+    return Path(row["repo_path"])
 
 
 def _latest_scan_row(conn, project_id: str):
@@ -185,6 +275,7 @@ def scan_project(db_path: Path, project_id: str, repo_path: Path) -> dict[str, A
     registry = PluginRegistry()
     analyses = registry.analyze(repo_path, {"project_id": project_id})
     plugin_findings = [finding for analysis in analyses for finding in analysis.findings]
+    combined_findings = findings + plugin_findings
     scan_id = "scan-" + uuid.uuid4().hex[:16]
     commit = git_commit(repo_path)
     branch = git_branch(repo_path)
@@ -227,6 +318,8 @@ def scan_project(db_path: Path, project_id: str, repo_path: Path) -> dict[str, A
             ),
         ),
     )
+    semantic_package = extract_semantics(repo_path, project_id, scan_id, combined_findings)
+    persist_semantics(conn, semantic_package)
 
     project_node = "project-" + project_id
     conn.execute(
@@ -271,6 +364,7 @@ def scan_project(db_path: Path, project_id: str, repo_path: Path) -> dict[str, A
         "git_commit": commit,
         "git_branch": branch,
         "fingerprint": fingerprint,
+        "semantic_counts": {key: len(value) for key, value in semantic_package.items() if isinstance(value, list)},
     }
 
 
@@ -353,6 +447,118 @@ def _inventory_rows(conn, project_id: str, kinds: set[str]) -> list[dict[str, An
     return items
 
 
+def hardware_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    return build_hardware_intelligence(db_path, project_id)
+
+
+def firmware_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    return build_firmware_intelligence(db_path, project_id)
+
+
+def firmware_summary(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_summary(snapshot)
+
+
+def firmware_environments(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_environments(snapshot)
+
+
+def firmware_targets(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_targets(snapshot)
+
+
+def firmware_build_variants(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_build_variants(snapshot)
+
+
+def firmware_modules(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_modules(snapshot)
+
+
+def firmware_tasks(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_tasks(snapshot)
+
+
+def firmware_rtos_primitives(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_rtos_primitives(snapshot)
+
+
+def firmware_interrupts(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_interrupts(snapshot)
+
+
+def firmware_timers(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_timers(snapshot)
+
+
+def firmware_timing(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_timing(snapshot)
+
+
+def firmware_state_machines(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_state_machines(snapshot)
+
+
+def firmware_peripherals(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_peripherals(snapshot)
+
+
+def firmware_buses(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_buses(snapshot)
+
+
+def firmware_gpio(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_gpio(snapshot)
+
+
+def firmware_gpio_conflicts(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_gpio_conflicts(snapshot)
+
+
+def firmware_protocols(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_protocols(snapshot)
+
+
+def firmware_packets(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_packets(snapshot)
+
+
+def firmware_memory(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_memory(snapshot)
+
+
+def firmware_findings(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_findings(snapshot)
+
+
+def firmware_validation(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_validation(snapshot)
+
+
+def firmware_compatibility(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_compatibility(snapshot)
+
+
+def firmware_gaps(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_gaps(snapshot)
+
+
+def firmware_risks(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return _firmware_risks(snapshot)
+
+
+def firmware_trace(snapshot: dict[str, Any], entity_id: str) -> dict[str, Any]:
+    return _firmware_trace(snapshot, entity_id)
+
+
+def firmware_impact(snapshot: dict[str, Any], entity_id: str) -> dict[str, Any]:
+    return _firmware_impact(snapshot, entity_id)
+
+
+def firmware_diff(db_path: Path, project_id: str, other_project_id: str | None = None) -> dict[str, Any]:
+    return _firmware_diff(db_path, project_id, other_project_id)
+
+
 def project_summary(db_path: Path, project_id: str) -> dict[str, Any]:
     conn = connect(db_path)
     project = _project_row(conn, project_id)
@@ -363,6 +569,15 @@ def project_summary(db_path: Path, project_id: str) -> dict[str, Any]:
             (project_id,),
         )
     }
+    semantic_counts = {
+        "symbols": conn.execute("SELECT COUNT(*) FROM symbols WHERE project_id=?", (project_id,)).fetchone()[0],
+        "features": conn.execute("SELECT COUNT(*) FROM features WHERE project_id=?", (project_id,)).fetchone()[0],
+        "decisions": conn.execute("SELECT COUNT(*) FROM engineering_decisions WHERE project_id=?", (project_id,)).fetchone()[0],
+        "api_endpoints": conn.execute("SELECT COUNT(*) FROM api_endpoints WHERE project_id=?", (project_id,)).fetchone()[0],
+        "configuration_keys": conn.execute("SELECT COUNT(*) FROM configuration_keys WHERE project_id=?", (project_id,)).fetchone()[0],
+        "relationships": conn.execute("SELECT COUNT(*) FROM relationships WHERE project_id=?", (project_id,)).fetchone()[0],
+        "dependencies": conn.execute("SELECT COUNT(*) FROM dependencies WHERE project_id=?", (project_id,)).fetchone()[0],
+    }
     last = _latest_scan_row(conn, project_id)
     conn.close()
     return {
@@ -371,6 +586,7 @@ def project_summary(db_path: Path, project_id: str) -> dict[str, Any]:
         "repo_path": project["repo_path"],
         "lifecycle": project["lifecycle"],
         "counts": counts,
+        "semantic_counts": semantic_counts,
         "last_scan": dict(last) if last else None,
     }
 
@@ -501,14 +717,35 @@ def context_bundle(db_path: Path, project_id: str, question: str) -> dict[str, A
     evidence = _select_evidence_rows(conn, project_id, keywords)
     if not evidence:
         evidence = _select_evidence_rows(conn, project_id, set(), limit=8)
-    selected_facts = [
-        {
-            "fact": f"{item['kind']}: {item['label']}",
-            "evidence_path": item["source_path"],
-            "provenance": item["metadata"].get("origin", "scanner"),
-        }
-        for item in evidence
-    ]
+    selected_facts = []
+    for item in evidence:
+        selected_facts.append(
+            {
+                "id": item["node_id"],
+                "kind": item["kind"],
+                "summary": f"{item['kind']}: {item['label']}",
+                "evidence_path": item["source_path"],
+                "provenance": item["metadata"].get("origin", "scanner"),
+                "confidence": 0.8,
+            }
+        )
+    inferences = []
+    if selected_facts:
+        inferences.append(
+            {
+                "summary": f"{len(selected_facts)} evidence items matched the question keywords.",
+                "confidence": 0.7,
+                "provenance": "deterministic-query",
+            }
+        )
+    if latest and latest_rows:
+        inferences.append(
+            {
+                "summary": f"The latest scan observed {len(latest_rows)} raw artefacts.",
+                "confidence": 0.95,
+                "provenance": "scan-snapshot",
+            }
+        )
     limitations = [
         "Repository text is treated as untrusted input.",
         "Context is bounded to selected evidence paths.",
@@ -516,6 +753,16 @@ def context_bundle(db_path: Path, project_id: str, question: str) -> dict[str, A
     unknowns = []
     if not latest:
         unknowns.append("No scan exists for this project.")
+    injection_warnings = []
+    for row in latest_rows[:50]:
+        source_path = row["source_path"]
+        file_path = Path(project["repo_path"]) / source_path
+        try:
+            text = file_path.read_text(encoding="utf-8", errors="ignore") if file_path.exists() else ""
+        except OSError:
+            text = ""
+        if text and any(marker in text.lower() for marker in ("ignore previous instructions", "system prompt", "prompt injection")):
+            injection_warnings.append({"source_path": source_path, "warning": "instruction-like repository text detected"})
     bundle = {
         "project_id": project_id,
         "scan_id": latest["scan_id"] if latest else None,
@@ -528,6 +775,8 @@ def context_bundle(db_path: Path, project_id: str, question: str) -> dict[str, A
         "question": question,
         "evidence_paths": [item["source_path"] for item in evidence],
         "selected_facts": selected_facts,
+        "facts": selected_facts,
+        "inferences": inferences,
         "provenance": {
             "project_name": project["name"],
             "repo_path": project["repo_path"],
@@ -536,6 +785,333 @@ def context_bundle(db_path: Path, project_id: str, question: str) -> dict[str, A
         },
         "unknowns": unknowns,
         "limitations": limitations,
+        "warnings": injection_warnings,
     }
+    memory: dict[str, Any] = latest_project_memory(db_path, project_id)
+    if memory:
+        bundle["historical_record"] = memory_timeline(memory)
+        bundle["memory_provenance"] = memory.get("provenance", {})
+        bundle["decisions"] = memory.get("records", {}).get("decision", [])
+        bundle["assumptions"] = memory.get("records", {}).get("assumption", [])
+        bundle["lessons"] = memory.get("records", {}).get("lesson", [])
+        bundle["memory_unknowns"] = memory.get("gaps", [])
+    bundle["temporal_intelligence"] = flight_temporal_context(db_path, project_id, question)
     conn.close()
     return bundle
+
+
+def _row_dict(row) -> dict[str, Any]:
+    return dict(row) if row else {}
+
+
+def _entity_lookup(conn, entity_id: str) -> dict[str, Any] | None:
+    for table in (
+        "symbols",
+        "features",
+        "engineering_decisions",
+        "api_endpoints",
+        "configuration_keys",
+        "impact_findings",
+    ):
+        row = conn.execute(f"SELECT * FROM {table} WHERE id=?", (entity_id,)).fetchone()
+        if row:
+            data = dict(row)
+            data["entity_table"] = table
+            data["entity_type"] = table.removesuffix("s")
+            return data
+    return None
+
+
+def _entity_evidence(conn, entity_id: str) -> list[dict[str, Any]]:
+    evidence: list[dict[str, Any]] = []
+    symbol = conn.execute("SELECT * FROM symbols WHERE id=?", (entity_id,)).fetchone()
+    if symbol:
+        location = conn.execute("SELECT * FROM symbol_locations WHERE symbol_id=? ORDER BY start_line LIMIT 1", (entity_id,)).fetchone()
+        evidence.append({"type": "symbol_location", "row": _row_dict(location)})
+    for table, parent_column in (
+        ("feature_evidence", "feature_id"),
+        ("decision_evidence", "decision_id"),
+    ):
+        rows = conn.execute(f"SELECT * FROM {table} WHERE {parent_column}=? ORDER BY source_path, start_line", (entity_id,)).fetchall()
+        evidence.extend({"type": table, "row": dict(row)} for row in rows)
+    return evidence
+
+
+def _adjacency_rows(conn, entity_id: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in conn.execute(
+        """
+        SELECT id, source_entity_id, target_entity_id, relationship_type, confidence, evidence_source, scan_id, parser_source, created_at, metadata_json
+        FROM relationships
+        WHERE source_entity_id=? OR target_entity_id=?
+        ORDER BY relationship_type, id
+        """,
+        (entity_id, entity_id),
+    ):
+        rows.append(dict(row))
+    for row in conn.execute(
+        """
+        SELECT id, source_entity_id, target_entity_id, dependency_type AS relationship_type, confidence, evidence_source, scan_id, parser_source, created_at, metadata_json
+        FROM dependencies
+        WHERE source_entity_id=? OR target_entity_id=?
+        ORDER BY dependency_type, id
+        """,
+        (entity_id, entity_id),
+    ):
+        rows.append(dict(row))
+    for row in conn.execute(
+        """
+        SELECT id AS id, feature_id AS source_entity_id, entity_id AS target_entity_id, 'supported_by' AS relationship_type,
+               confidence, provenance AS evidence_source, scan_id, 'feature_evidence' AS parser_source, '' AS created_at, metadata_json
+        FROM feature_evidence
+        WHERE feature_id=? OR entity_id=?
+        ORDER BY id
+        """,
+        (entity_id, entity_id),
+    ):
+        rows.append(dict(row))
+    for row in conn.execute(
+        """
+        SELECT id AS id, decision_id AS source_entity_id, entity_id AS target_entity_id, 'supported_by' AS relationship_type,
+               confidence, provenance AS evidence_source, scan_id, 'decision_evidence' AS parser_source, '' AS created_at, metadata_json
+        FROM decision_evidence
+        WHERE decision_id=? OR entity_id=?
+        ORDER BY id
+        """,
+        (entity_id, entity_id),
+    ):
+        rows.append(dict(row))
+    return rows
+
+
+def _project_entities(conn, table: str, project_id: str) -> list[dict[str, Any]]:
+    rows = conn.execute(
+        f"SELECT * FROM {table} WHERE project_id=? ORDER BY id",
+        (project_id,),
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def symbol_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    rows = _project_entities(conn, "symbols", project_id)
+    conn.close()
+    return {"project_id": project_id, "count": len(rows), "items": rows}
+
+
+def symbol_show(db_path: Path, symbol_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    symbol = conn.execute("SELECT * FROM symbols WHERE id=?", (symbol_id,)).fetchone()
+    location = conn.execute("SELECT * FROM symbol_locations WHERE symbol_id=? ORDER BY start_line LIMIT 1", (symbol_id,)).fetchone()
+    conn.close()
+    if not symbol:
+        raise ValueError(f"Unknown symbol: {symbol_id}")
+    return {"symbol": dict(symbol), "location": _row_dict(location)}
+
+
+def feature_inventory(db_path: Path, project_id: str, candidates_only: bool = False) -> dict[str, Any]:
+    conn = connect(db_path)
+    if candidates_only:
+        rows = conn.execute(
+            "SELECT * FROM features WHERE project_id=? AND source='heuristic' ORDER BY confidence DESC, name",
+            (project_id,),
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT * FROM features WHERE project_id=? ORDER BY source, confidence DESC, name",
+            (project_id,),
+        ).fetchall()
+    conn.close()
+    return {"project_id": project_id, "count": len(rows), "items": [dict(row) for row in rows]}
+
+
+def feature_show(db_path: Path, feature_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    feature = conn.execute("SELECT * FROM features WHERE id=?", (feature_id,)).fetchone()
+    evidence = conn.execute("SELECT * FROM feature_evidence WHERE feature_id=? ORDER BY source_path, start_line", (feature_id,)).fetchall()
+    conn.close()
+    if not feature:
+        raise ValueError(f"Unknown feature: {feature_id}")
+    return {"feature": dict(feature), "evidence": [dict(row) for row in evidence]}
+
+
+def confirm_feature(db_path: Path, feature_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    feature = conn.execute("SELECT * FROM features WHERE id=?", (feature_id,)).fetchone()
+    if not feature:
+        conn.close()
+        raise ValueError(f"Unknown feature: {feature_id}")
+    now = utc_now()
+    conn.execute(
+        "UPDATE features SET source='operator', status='validated', updated_at=? WHERE id=?",
+        (now, feature_id),
+    )
+    conn.commit()
+    updated = conn.execute("SELECT * FROM features WHERE id=?", (feature_id,)).fetchone()
+    conn.close()
+    return {"feature": dict(updated)}
+
+
+def decision_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    rows = _project_entities(conn, "engineering_decisions", project_id)
+    conn.close()
+    return {"project_id": project_id, "count": len(rows), "items": rows}
+
+
+def decision_show(db_path: Path, decision_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    decision = conn.execute("SELECT * FROM engineering_decisions WHERE id=?", (decision_id,)).fetchone()
+    evidence = conn.execute("SELECT * FROM decision_evidence WHERE decision_id=? ORDER BY source_path, start_line", (decision_id,)).fetchall()
+    conn.close()
+    if not decision:
+        raise ValueError(f"Unknown decision: {decision_id}")
+    return {"decision": dict(decision), "evidence": [dict(row) for row in evidence]}
+
+
+def api_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    rows = _project_entities(conn, "api_endpoints", project_id)
+    conn.close()
+    return {"project_id": project_id, "count": len(rows), "items": rows}
+
+
+def configuration_inventory(db_path: Path, project_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    rows = _project_entities(conn, "configuration_keys", project_id)
+    conn.close()
+    return {"project_id": project_id, "count": len(rows), "items": rows}
+
+
+def dependencies_for_entity(db_path: Path, entity_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    rows = _adjacency_rows(conn, entity_id)
+    conn.close()
+    deps = [row for row in rows if row["relationship_type"] in {"imports", "depends_on"}]
+    return {"entity_id": entity_id, "count": len(deps), "items": deps}
+
+
+def trace_entity(db_path: Path, entity_id: str, depth: int = 3, relationship: str | None = None, direction: str = "both") -> dict[str, Any]:
+    conn = connect(db_path)
+    visited = {entity_id}
+    frontier: list[tuple[str, int, list[str]]] = [(entity_id, 0, [])]
+    edges: list[dict[str, Any]] = []
+    nodes: list[dict[str, Any]] = []
+    while frontier:
+        current_id, current_depth, path = frontier.pop(0)
+        if current_depth >= depth:
+            continue
+        for row in _adjacency_rows(conn, current_id):
+            rel_type = row["relationship_type"]
+            if relationship and rel_type != relationship:
+                continue
+            if direction == "out" and row["source_entity_id"] != current_id:
+                continue
+            if direction == "in" and row["target_entity_id"] != current_id:
+                continue
+            next_id = row["target_entity_id"] if row["source_entity_id"] == current_id else row["source_entity_id"]
+            edge = dict(row)
+            edge["depth"] = current_depth + 1
+            edge["path"] = path + [rel_type]
+            edges.append(edge)
+            if next_id not in visited:
+                visited.add(next_id)
+                entity = _entity_lookup(conn, next_id)
+                if entity:
+                    nodes.append({"id": next_id, "entity": entity, "depth": current_depth + 1})
+                frontier.append((next_id, current_depth + 1, path + [rel_type]))
+    conn.close()
+    return {"entity_id": entity_id, "depth": depth, "nodes": nodes, "edges": edges}
+
+
+def impact_entity(db_path: Path, entity_id: str, depth: int = 2) -> dict[str, Any]:
+    trace = trace_entity(db_path, entity_id, depth=depth, direction="both")
+    direct = [edge for edge in trace["edges"] if edge["depth"] == 1]
+    indirect = [edge for edge in trace["edges"] if edge["depth"] > 1]
+    affected_features = []
+    affected_tests = []
+    affected_docs = []
+    affected_api = []
+    affected_config = []
+    affected_decisions = []
+    for node in trace["nodes"]:
+        entity = node["entity"]
+        kind = entity.get("kind") or entity.get("entity_type")
+        item = {"id": node["id"], "kind": kind, "name": entity.get("name") or entity.get("title") or entity.get("route"), "path": entity.get("source_path"), "depth": node["depth"]}
+        if kind == "feature":
+            affected_features.append(item)
+        elif kind in {"test_function", "test_class", "test"}:
+            affected_tests.append(item)
+        elif kind in {"module", "class", "function", "method", "async_function", "cli_entry_point"}:
+            affected_docs.append(item)
+        elif kind == "api_endpoint":
+            affected_api.append(item)
+        elif kind == "configuration_key":
+            affected_config.append(item)
+        elif kind == "decision":
+            affected_decisions.append(item)
+    conn = connect(db_path)
+    entity = _entity_lookup(conn, entity_id)
+    conn.close()
+    return {
+        "entity": entity,
+        "direct_impacts": direct,
+        "indirect_impacts": indirect,
+        "affected_features": affected_features,
+        "affected_tests": affected_tests,
+        "affected_documentation": affected_docs,
+        "affected_api": affected_api,
+        "affected_configuration": affected_config,
+        "affected_decisions": affected_decisions,
+        "unknown_areas": [],
+    }
+
+
+def why_entity(db_path: Path, entity_id: str) -> dict[str, Any]:
+    conn = connect(db_path)
+    entity = _entity_lookup(conn, entity_id)
+    evidence = _entity_evidence(conn, entity_id)
+    related_decisions = conn.execute(
+        """
+        SELECT d.*
+        FROM engineering_decisions d
+        JOIN decision_evidence e ON e.decision_id = d.id
+        WHERE e.entity_id = ? OR d.id = ?
+        ORDER BY d.date, d.title
+        """,
+        (entity_id, entity_id),
+    ).fetchall()
+    conn.close()
+    rationale = "Rationale not recorded in current NEOS evidence."
+    if entity and entity.get("kind") == "decision":
+        rationale = entity.get("rationale") or rationale
+    result: dict[str, Any] = {
+        "entity": entity,
+        "evidence": evidence,
+        "decisions": [dict(row) for row in related_decisions],
+        "rationale": rationale,
+    }
+    memory = latest_project_memory(db_path, str(entity["project_id"])) if entity and entity.get("project_id") else {}
+    if memory:
+        memory_result = memory_why(memory, entity_id)
+        result.update(
+            {
+                "recorded_rationale": memory_result["recorded_rationale"],
+                "supporting_evidence": memory_result["supporting_evidence"],
+                "related_decisions": memory_result["related_decisions"],
+                "historical_changes": memory_result["historical_changes"],
+                "unknown_rationale": memory_result["unknown_rationale"],
+                "memory_trace": memory_result["trace"],
+            }
+        )
+    else:
+        result.update(
+            {
+                "recorded_rationale": [rationale] if rationale else [],
+                "supporting_evidence": evidence,
+                "related_decisions": [dict(row) for row in related_decisions],
+                "historical_changes": [],
+                "unknown_rationale": [] if rationale else ["Rationale not recorded in current engineering memory."],
+            }
+        )
+    return result

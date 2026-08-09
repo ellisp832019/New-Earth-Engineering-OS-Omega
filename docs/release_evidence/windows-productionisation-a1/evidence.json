@@ -1,0 +1,61 @@
+{
+  "observed_at_utc": "2026-08-07T18:08:31.8546659Z",
+  "repository": "New-Earth-Engineering-OS-Omega",
+  "branch": "feature/neos-windows-productionisation-a1",
+  "git_sha": "b75cb2c91e233e85ffefe71166f42641f47e7bc1",
+  "package_root": "dist\\New-Earth-Engineering-OS-Windows-Milestone-A1",
+  "package_zip": "dist\\New-Earth-Engineering-OS-Windows-Milestone-A1.zip",
+  "package_manifest": {
+    "neos_version": "0.1.0",
+    "flutter_version": "3.41.7",
+    "dart_version": "3.11.5",
+    "python_version": "3.14.4",
+    "database_schema": 6,
+    "api_version": "v1"
+  },
+  "files": [
+    {
+      "file": "NEOS.exe",
+      "sha256": "B64D6A72D894CFC074BE806476DB7C7867EFDBD3C7E11467D65FF8246AB3842E",
+      "bytes": 128000
+    },
+    {
+      "file": "neos_engine.exe",
+      "sha256": "8C508DD65E874EB3C334CDA3F90D3945C7D7579C0A9E06CF10156CDA2085B575",
+      "bytes": 10076768
+    },
+    {
+      "file": "runtime\\neos_engine.exe",
+      "sha256": "8C508DD65E874EB3C334CDA3F90D3945C7D7579C0A9E06CF10156CDA2085B575",
+      "bytes": 10076768
+    },
+    {
+      "file": "New-Earth-Engineering-OS-Windows-Milestone-A1.zip",
+      "sha256": "63E06C8F732092416074CB3CC88E3EADFDB5AD41F19BCF80F96B02165C4725CE",
+      "bytes": 32028563
+    }
+  ],
+  "validation": {
+    "pytest": "passed",
+    "ruff": "passed",
+    "mypy": "passed",
+    "flutter_analyze": "passed",
+    "flutter_test": "passed",
+    "flutter_build_windows_release": "passed",
+    "package_windows_ps1": "passed",
+    "smoke_windows_backend_ps1_shutdown_after_check": "passed",
+    "smoke_windows_package_ps1": "passed"
+  },
+  "smoke_test": {
+    "backend": {
+      "status": "passed",
+      "alive": false,
+      "listener": false
+    },
+    "package": {
+      "status": "passed",
+      "desktop_exited": true,
+      "owned_backend_still_running": false
+    }
+  }
+}

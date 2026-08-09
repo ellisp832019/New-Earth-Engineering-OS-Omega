@@ -1,0 +1,82 @@
+# MicroGrow Timeline
+
+- 2026-03-03 [decision] ADR-0001-api-style
+- 2026-03-14T15:05:03Z [milestone] MicroGrow Milestone Timeline
+- 2026-03-16T14:18:00Z [milestone] MG-LOG-APP-001
+- 2026-03-16T14:18:00Z [milestone] MG-LOG-APP-002
+- 2026-03-17T13:27:35Z [milestone] MicroGrow V1 RC1 Burn-In Checklist
+- 2026-03-17T13:27:35Z [milestone] MicroGrow v1.0.0-rc1 Release Notes
+- 2026-03-21T11:09:33Z [milestone] MG-LOG-APP-003
+- 2026-03-21T11:09:33Z [milestone] MG-MILESTONE-002
+- 2026-03-21T11:09:33Z [milestone] MG-LOG-APP-005
+- 2026-03-21T11:09:33Z [milestone] MG-LOG-APP-004
+- 2026-03-21T11:09:33Z [milestone] MG-MILESTONE-001
+- 2026-03-24T08:12:51Z [milestone] MicroGrow v1.0.0-rc3 Release Notes
+- 2026-04-03T10:33:10+01:00 [observation] MicroGrow V1 — Validation Run
+- 2026-04-04T11:46:55+01:00 [observation] MicroGrow V1 — Validation Run 001
+- 2026-04-04T12:00:44+01:00 [observation] MicroGrow V1 — Validation Run 002
+- 2026-04-04T14:59:28+01:00 [milestone] MicroGrow v1.0.0-rc4 Release Notes
+- 2026-04-06T05:25:35+01:00 [milestone] MicroGrow v1.0.0 Release Notes
+- 2026-04-06T05:25:35+01:00 [milestone] MicroGrow V1 Release-Candidate Burn-In Checklist
+- 2026-04-06T05:25:35+01:00 [milestone] MicroGrow RC4 Burn-In Run Sheet
+- 2026-04-06T21:25:03+01:00 [milestone] MicroGrow FSD Idea Prompt
+- 2026-04-06T22:26:11+01:00 [assumption] MicroGrow - `<Feature Name>` (FSD)
+- 2026-04-06T22:26:11+01:00 [milestone] MicroGrow - `<Feature Name>` (FSD)
+- 2026-04-06T22:46:23+01:00 [milestone] FSD AI User Guide
+- 2026-04-07T00:44:56+01:00 [milestone] AI FSD Review
+- 2026-04-07T00:44:56+01:00 [observation] AI FSD Review
+- 2026-04-07T00:53:11+01:00 [milestone] AI FSD Review
+- 2026-04-07T00:55:50+01:00 [milestone] AI FSD Review
+- 2026-04-07T08:23:50+01:00 [milestone] MicroGrow - Live System Status (FSD)
+- 2026-04-07T08:23:50+01:00 [milestone] AI FSD Implementation Plan
+- 2026-04-07T08:23:50+01:00 [observation] MicroGrow - Live System Status (FSD)
+- 2026-04-07T08:23:50+01:00 [observation] AI FSD Implementation Plan
+- 2026-04-07T16:24:58+01:00 [milestone] MicroGrow - Automation Guardrails (FSD)
+- 2026-04-07T19:58:56+01:00 [observation] MicroGrow V1 Hardware Validation Runbook
+- 2026-04-08T09:23:20+01:00 [milestone] AI FSD Implementation Plan
+- 2026-04-08T09:23:20+01:00 [milestone] MicroGrow — Local Node Discovery and Recovery Assist (FSD)
+- 2026-04-08T09:54:18+01:00 [assumption] AI FSD Implementation Plan
+- 2026-04-08T09:54:18+01:00 [milestone] MicroGrow — Device Setup and Recovery UX (FSD)
+- 2026-04-08T09:54:18+01:00 [milestone] AI FSD Implementation Plan
+- 2026-04-08T18:06:30+01:00 [milestone] MicroGrow — Diagnostics System (FSD)
+- 2026-04-08T23:55:17+01:00 [assumption] AI FSD Implementation Plan
+- 2026-04-08T23:55:17+01:00 [milestone] AI FSD Implementation Plan
+- 2026-04-09T15:10:44+01:00 [assumption] MicroGrow - Relay Boot Inhibit And Interlock (FSD)
+- 2026-04-09T15:10:44+01:00 [milestone] MicroGrow - Relay Boot Inhibit And Interlock (FSD)
+- 2026-04-09T15:10:44+01:00 [milestone] AI FSD Implementation Plan
+- 2026-04-09T15:31:51+01:00 [milestone] MicroGrow V1.0.1 Hardening Checklist
+- 2026-04-09T15:31:51+01:00 [milestone] MicroGrow v1.0.1 Release Notes
+- 2026-04-09T16:02:10+01:00 [milestone] MicroGrow V1.0.2 Watchlist
+- 2026-04-20T16:49:03+01:00 [milestone] MicroGrow - Crop Profiles (FSD)
+- 2026-04-21T14:04:31+01:00 [milestone] AI FSD Implementation Plan
+- 2026-04-25T06:52:42+01:00 [milestone] AI FSD Implementation Plan
+- 2026-04-25T06:52:42+01:00 [observation] Crop Profile Commerce Backend Deployment Package
+- 2026-05-01T06:46:24+01:00 [milestone] MicroGrow - Local Food Resilience Platform (FSD)
+- 2026-05-01T06:46:24+01:00 [milestone] AI FSD Implementation Plan
+- 2026-05-04T10:17:39+01:00 [lesson] Project
+- 2026-05-04T10:17:39+01:00 [lesson] Project
+- 2026-05-04T10:17:39+01:00 [observation] Goal
+- 2026-05-04T10:17:39+01:00 [observation] Project
+- 2026-05-04T10:17:39+01:00 [observation] Active Proteus Copy
+- 2026-05-04T10:17:39+01:00 [observation] Folders
+- 2026-05-04T10:17:39+01:00 [observation] Sensors Currently Being Compared
+- 2026-05-04T10:17:39+01:00 [observation] Purpose
+- 2026-05-04T10:17:39+01:00 [observation] Goal
+- 2026-05-04T10:17:39+01:00 [observation] Folders
+- 2026-05-04T10:17:39+01:00 [observation] Purpose
+- 2026-05-04T10:17:39+01:00 [observation] Project Areas
+- 2026-05-04T10:17:39+01:00 [observation] Purpose
+- 2026-05-08T07:16:11+01:00 [milestone] MicroGrow - Unified App Experience and Sensor Expansion (FSD)
+- 2026-05-08T12:39:49+01:00 [milestone] FSD-012 - Mist Driver Status and Fault UI
+- 2026-05-08T12:39:49+01:00 [observation] FSD-012 - Mist Driver Status and Fault UI
+- 2026-05-09T11:50:44+01:00 [lesson] MG Mist Driver v1 Stage 2 Results
+- 2026-05-09T11:50:44+01:00 [lesson] MG Mist Driver v1 Stage 2 Results
+- 2026-05-09T11:50:44+01:00 [lesson] MG Mist Driver v1 Stage 2 Results
+- 2026-05-09T11:50:44+01:00 [lesson] MG Mist Driver v1 Stage 2 Results
+- 2026-05-09T11:50:44+01:00 [lesson] MG Mist Driver v1 Stage 2 Results
+- 2026-05-09T11:50:44+01:00 [lesson] MG Mist Driver v1 Stage 2 Results
+- 2026-05-09T11:50:44+01:00 [lesson] MG Mist Driver v1 Stage 2 Results
+- 2026-05-09T11:50:44+01:00 [lesson] MG Mist Driver v1 Stage 2 Results
+- 2026-05-09T11:50:44+01:00 [lesson] MG Mist Driver v1 Stage 2 Results
+- 2026-05-09T11:50:44+01:00 [lesson] MG Mist Driver v1 Stage 2 Results
+- 2026-05-09T11:50:44+01:00 [lesson] MG Mist Driver v1 Stage 2 Results

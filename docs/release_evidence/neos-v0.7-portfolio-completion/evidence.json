@@ -1,0 +1,62 @@
+{
+  "release": "neos-v0.7-portfolio-completion",
+  "observed_at": "2026-08-08",
+  "scope": [
+    "desktop portfolio workspace",
+    "ecosystem search",
+    "reuse and overlap intelligence",
+    "portfolio AI citations",
+    "release packaging"
+  ],
+  "validation": [
+    {
+      "command": "python -m pytest -q",
+      "result": "passed",
+      "details": "18 tests passed"
+    },
+    {
+      "command": "python -m ruff check src tests",
+      "result": "passed"
+    },
+    {
+      "command": "python -m mypy src\\\\neos",
+      "result": "passed"
+    },
+    {
+      "command": "flutter analyze apps/desktop",
+      "result": "passed",
+      "details": "No issues found"
+    },
+    {
+      "command": "flutter test (apps/desktop)",
+      "result": "passed"
+    },
+    {
+      "command": "flutter build windows --release (apps/desktop)",
+      "result": "passed",
+      "details": "Built build\\\\windows\\\\x64\\\\runner\\\\Release\\\\desktop.exe"
+    },
+    {
+      "command": "python -m neos doctor",
+      "result": "passed",
+      "details": {
+        "neos_version": "0.7.0",
+        "database_schema": 8
+      }
+    },
+    {
+      "command": "powershell -ExecutionPolicy Bypass -File scripts/package_windows.ps1 -SkipRepoCleanCheck -SkipZip",
+      "result": "passed"
+    },
+    {
+      "command": "powershell -ExecutionPolicy Bypass -File scripts/smoke_windows_backend.ps1 -ShutdownAfterCheck",
+      "result": "passed",
+      "details": "Smoke DB used schema 8 and service_version 0.7.0; portfolio health remained empty-state because no projects were registered"
+    },
+    {
+      "command": "powershell -ExecutionPolicy Bypass -File scripts/smoke_windows_package.ps1",
+      "result": "passed",
+      "details": "Package smoke used an empty temp DB and exercised the packaged desktop/backend bundle"
+    }
+  ]
+}

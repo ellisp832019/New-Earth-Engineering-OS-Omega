@@ -1,33 +1,51 @@
 # Roadmap
 
-## Alpha 0.1 — Repository Truth
+## Alpha 0.1 - Repository Truth
 Project registry, scanner, SQLite graph, CLI, manifests, basic queries.
 
-## Alpha 0.2 — Change Intelligence
+## Alpha 0.2 - Change Intelligence
 Git metadata, scan diff, change classification, stale-state warnings.
 
-## Alpha 0.3 — Semantic Engineering Model
-Features, requirements, decisions, tests, releases and stronger relationships.
+## Alpha 0.3 - Semantic Engineering Model
+Features, repository intelligence, decisions, tests, releases, project genome snapshots and stronger relationships.
 
-## Alpha 0.4 — AI Context Gateway
-Deterministic retrieval, bounded context packages, provenance and uncertainty.
+## Alpha 0.4 - Engineering Memory
+Decision chronology, git history memory, assumptions, experiments, lessons, changes, timeline queries, memory gaps and contradictions.
 
-## Beta 0.5 — Desktop Explorer
+## Alpha 0.5 - AI Context Gateway
+Deterministic retrieval, bounded context packages, provenance, uncertainty, prompt-injection defense and engineering memory context.
+
+## Alpha 0.6 - Engineering Flight Recorder
+Immutable snapshots, historical state comparison, checkpoints, transition replay, incidents, regressions and rewindable engineering timelines.
+
+## Beta 0.5 - Desktop Explorer
 Windows UI for project/graph/search/reports.
 
-## Beta 0.6 — Plugin Runtime
+## Beta 0.6 - Plugin Runtime
 PlatformIO, Flutter, Python, GitHub and KiCad adapters.
 
-## Beta 0.7 — Portfolio Intelligence
+## Beta 0.7 - Portfolio Intelligence
 Cross-project dependencies, shared modules, technology and risk maps.
 
-## Beta 0.8 — Living Documentation
+## NEOS v0.7 - Portfolio Completion
+Desktop portfolio workspace, ecosystem search, reuse workbench, overlap intelligence, portfolio AI scope, and release closeout evidence.
+
+## NEOS v0.8 - Engineering Decision Intelligence
+Deterministic decision engine, decision inbox, release readiness, reuse decisions, architecture comparison, scenario analysis, and operator acceptance workflows.
+
+## NEOS v0.9 - Requirements and Architecture Intelligence
+Deterministic requirement extraction, traceability, requirement gaps, verification readiness, architecture without requirement detection, and operator review workflows.
+
+## NEOS v1.2 - Embedded Firmware Intelligence
+Deterministic firmware source discovery, targets, build variants, RTOS/task intelligence, interrupts, timing facts, state machines, peripherals, GPIO ownership/conflicts, buses, protocols, packets, compatibility, findings, and release evidence.
+
+## Beta 0.8 - Living Documentation
 Generated docs, drift detection and review workflows.
 
-## Beta 0.9 — Release Intelligence
+## Beta 0.9 - Release Intelligence
 Readiness scoring, evidence packs, version timeline and impact analysis.
 
-## v1.0 — Engineering OS
+## v1.0 - Engineering OS
 Production packaging, migrations, backup/restore, plugin governance, polished desktop app, full acceptance suite and operator documentation.
 
 ## Post-v1 ideas
@@ -37,3 +55,9 @@ Production packaging, migrations, backup/restore, plugin governance, polished de
 - experiment intelligence
 - specialized AI engineering agents
 - organization/team mode
+
+The NEOS v0.3 MicroGrow genome evidence bundle is stored at `docs/release_evidence/project-genome-v0.3/`.
+
+The NEOS v0.4 MicroGrow engineering memory evidence bundle is stored at `docs/release_evidence/engineering-memory-v0.4/`.
+
+The NEOS v0.5 MicroGrow flight-recorder evidence bundle is stored at `docs/release_evidence/flight-recorder-v0.5/`.

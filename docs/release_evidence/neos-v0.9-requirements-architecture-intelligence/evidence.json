@@ -1,0 +1,26 @@
+{
+  "release": "neos-v0.9-requirements-architecture-intelligence",
+  "observed_at": "2026-08-08",
+  "validation": {
+    "python_pytest": "20 passed",
+    "ruff_check": "passed",
+    "mypy": "passed",
+    "flutter_analyze": "passed",
+    "flutter_test": "passed",
+    "doctor": {
+      "neos_version": "0.9.0",
+      "database_schema": 10,
+      "migration_status": "current"
+    }
+  },
+  "implementation": {
+    "service_version": "0.9.0",
+    "schema_version": 10,
+    "desktop_surface": "Requirements Intelligence",
+    "package_manifest_file_count": 385
+  },
+  "notes": [
+    "Requirements remain operator-controlled.",
+    "AI remains read-only and suggest-only."
+  ]
+}
