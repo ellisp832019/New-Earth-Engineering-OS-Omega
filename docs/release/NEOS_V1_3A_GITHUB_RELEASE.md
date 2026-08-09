@@ -7,3 +7,16 @@ Security and compatibility notes:
 - the service API remains `v1`
 - the registry routes are additive
 - repository inspection remains read-only
+
+Release asset:
+
+- file: `New-Earth-Engineering-OS-Windows-v1.3.0.zip`
+- SHA-256: `29E0CE878B62D6A2CC8CE05B2BA569EF5F74A95001A8473CE7998E325298584F`
+
+Validation summary:
+
+- final package manifest git SHA: `ce8a271538dc67aeb0b83319b68f29583815b44c`
+- merge SHA: `ce8a271538dc67aeb0b83319b68f29583815b44c`
+- implementation SHA: `a2b7cfdca8f69e3073204fe44c4a0c79711ec614`
+- backend smoke: passed
+- package smoke: passed
