@@ -10,7 +10,7 @@ requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "Proprietary - New Earth Advanced Technologies Ltd"}
 authors = [{name = "New Earth Advanced Technologies Ltd"}]
-dependencies = []
+dependencies = ["PyYAML>=6.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6"]
