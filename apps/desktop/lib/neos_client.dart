@@ -267,6 +267,16 @@ abstract class NeosClient {
   Future<ServiceHealthInfo> probeHealth(Uri baseUri);
   Future<ServiceOverview> loadOverview(Uri baseUri);
   Future<ProjectRecord> loadProject(Uri baseUri, String projectId);
+  Future<Map<String, dynamic>> loadWorkspace(Uri baseUri, {List<String>? projectIds, bool includeNonFirstParty = false});
+  Future<Map<String, dynamic>> loadWorkspaceProject(Uri baseUri, String projectId, {String? repoPath});
+  Future<Map<String, dynamic>> loadWorkspaceSummary(Uri baseUri, String projectId, {String? repoPath});
+  Future<Map<String, dynamic>> loadWorkspaceClassification(Uri baseUri, String projectId, {String? repoPath});
+  Future<Map<String, dynamic>> loadWorkspaceIntegration(Uri baseUri, String projectId, {String? repoPath});
+  Future<Map<String, dynamic>> loadWorkspaceContracts(Uri baseUri, String projectId, {String? repoPath});
+  Future<Map<String, dynamic>> loadWorkspaceDependencies(Uri baseUri, String projectId, {String? repoPath});
+  Future<Map<String, dynamic>> loadWorkspaceFreshness(Uri baseUri, String projectId, {String? repoPath});
+  Future<Map<String, dynamic>> loadWorkspaceProvenance(Uri baseUri, String projectId, {String? repoPath});
+  Future<Map<String, dynamic>> loadWorkspaceSafety(Uri baseUri, String projectId, {String? repoPath});
   Future<Map<String, dynamic>> loadHardware(Uri baseUri, String projectId);
   Future<Map<String, dynamic>> loadEcosystem(Uri baseUri);
   Future<Map<String, dynamic>> loadEcosystemProjects(Uri baseUri);
@@ -384,6 +394,64 @@ class HttpNeosClient implements NeosClient {
     final normalized = _normalize(baseUri);
     final json = await _getJson(normalized.resolve('projects/$projectId'));
     return ProjectRecord.fromJson(json);
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspace(Uri baseUri, {List<String>? projectIds, bool includeNonFirstParty = false}) async {
+    final normalized = _normalize(baseUri);
+    final queryParts = <String>[];
+    if (includeNonFirstParty) {
+      queryParts.add('include_non_first_party=true');
+    }
+    if (projectIds != null && projectIds.isNotEmpty) {
+      queryParts.addAll(projectIds.map((value) => 'project_id=${Uri.encodeQueryComponent(value)}'));
+    }
+    return queryParts.isEmpty ? _getJson(normalized.resolve('workspace')) : _getJson(_withRepeatedQuery(normalized, 'workspace', queryParts));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceProject(Uri baseUri, String projectId, {String? repoPath}) async {
+    return _getJson(_withQuery(baseUri, 'workspace/$projectId', repoPath == null ? null : {'repo_path': repoPath}));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceSummary(Uri baseUri, String projectId, {String? repoPath}) async {
+    return _getJson(_withQuery(baseUri, 'workspace/$projectId/summary', repoPath == null ? null : {'repo_path': repoPath}));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceClassification(Uri baseUri, String projectId, {String? repoPath}) async {
+    return _getJson(_withQuery(baseUri, 'workspace/$projectId/classification', repoPath == null ? null : {'repo_path': repoPath}));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceIntegration(Uri baseUri, String projectId, {String? repoPath}) async {
+    return _getJson(_withQuery(baseUri, 'workspace/$projectId/integration', repoPath == null ? null : {'repo_path': repoPath}));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceContracts(Uri baseUri, String projectId, {String? repoPath}) async {
+    return _getJson(_withQuery(baseUri, 'workspace/$projectId/contracts', repoPath == null ? null : {'repo_path': repoPath}));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceDependencies(Uri baseUri, String projectId, {String? repoPath}) async {
+    return _getJson(_withQuery(baseUri, 'workspace/$projectId/dependencies', repoPath == null ? null : {'repo_path': repoPath}));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceFreshness(Uri baseUri, String projectId, {String? repoPath}) async {
+    return _getJson(_withQuery(baseUri, 'workspace/$projectId/freshness', repoPath == null ? null : {'repo_path': repoPath}));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceProvenance(Uri baseUri, String projectId, {String? repoPath}) async {
+    return _getJson(_withQuery(baseUri, 'workspace/$projectId/provenance', repoPath == null ? null : {'repo_path': repoPath}));
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceSafety(Uri baseUri, String projectId, {String? repoPath}) async {
+    return _getJson(_withQuery(baseUri, 'workspace/$projectId/safety', repoPath == null ? null : {'repo_path': repoPath}));
   }
 
   @override

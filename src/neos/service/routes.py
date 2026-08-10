@@ -104,6 +104,7 @@ from ..requirements_intelligence import (
     untested_requirements,
     verification_readiness,
 )
+from ..workspace import workspace_context, workspace_inventory, workspace_section
 from .health import project_list, service_health
 from .models import ServiceConfig
 
@@ -182,10 +183,12 @@ def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
     memory = latest_project_memory(db_path, project_id)
     flight = latest_project_flight(db_path, project_id)
     registry = architecture_registry(db_path, project_id)
+    workspace = workspace_context(db_path, project_id)
     return {
         "project": project_summary(db_path, project_id),
         "summary": project_summary(db_path, project_id),
         "registry": registry,
+        "workspace": workspace,
         "identity": registry["identity"],
         "contracts": registry["contracts"],
         "drift": registry["drift"],
@@ -508,6 +511,22 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
             return 200, architecture_impact(db_path, segments[1])
         except ValueError:
             return 404, {"error": "not_found"}
+    if segments == ["workspace"]:
+        include_non_first_party = query.get("include_non_first_party", ["false"])[0].lower() in {"1", "true", "yes", "on"}
+        return 200, workspace_inventory(
+            db_path,
+            project_ids=_query_project_ids(query),
+            exclude_non_first_party=not include_non_first_party,
+        )
+    if len(segments) >= 2 and segments[0] == "workspace":
+        project_id = segments[1]
+        repo_path = query.get("repo_path", [""])[0].strip() or None
+        context = workspace_context(db_path, project_id, repo_path=Path(repo_path) if repo_path else None)
+        if len(segments) == 2:
+            return 200, context
+        tail = segments[2:]
+        if len(tail) == 1:
+            return 200, workspace_section(db_path, project_id, tail[0], repo_path=repo_path)
     if segments == ["projects"]:
         return 200, {"projects": project_list(db_path)}
     if segments[0] != "projects" or len(segments) < 2:
