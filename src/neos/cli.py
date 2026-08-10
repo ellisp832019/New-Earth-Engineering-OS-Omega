@@ -112,6 +112,13 @@ from .genome import (
     latest_project_genome,
     render_project_report,
 )
+from .governance import (
+    governance_findings,
+    governance_project,
+    governance_report,
+    governance_snapshot,
+    governance_status,
+)
 from .hardware import (
     build_hardware_intelligence,
     hardware_boards,
@@ -587,6 +594,26 @@ def parser() -> argparse.ArgumentParser:
     workspace_safety.add_argument("project_id")
     workspace_safety.add_argument("--repo-path")
     workspace_safety.add_argument("--json", action="store_true")
+
+    governance = sub.add_parser("governance")
+    governance_sub = governance.add_subparsers(dest="governance_cmd", required=True)
+
+    def _governance_args(command_parser: argparse.ArgumentParser) -> None:
+        command_parser.add_argument("--platform-core-root")
+        command_parser.add_argument("--estate-root", action="append")
+        command_parser.add_argument("--json", action="store_true")
+
+    governance_status_cmd = governance_sub.add_parser("status")
+    _governance_args(governance_status_cmd)
+    governance_findings_cmd = governance_sub.add_parser("findings")
+    _governance_args(governance_findings_cmd)
+    governance_project_cmd = governance_sub.add_parser("project")
+    governance_project_cmd.add_argument("project_id")
+    _governance_args(governance_project_cmd)
+    governance_report_cmd = governance_sub.add_parser("report")
+    _governance_args(governance_report_cmd)
+    governance_snapshot_cmd = governance_sub.add_parser("snapshot")
+    _governance_args(governance_snapshot_cmd)
 
     decisions = sub.add_parser("decisions")
     decisions.add_argument("project_id")
@@ -1093,6 +1120,55 @@ def main(argv=None) -> int:
             elif args.workspace_cmd in {"summary", "classification", "integration", "contracts", "dependencies", "evidence", "drift", "impact", "freshness", "provenance", "release", "safety"}:
                 section = workspace_section(db, args.project_id, args.workspace_cmd, repo_path=repo_path)
                 _print(section, "json")
+            return 0
+        if args.cmd == "governance":
+            fmt = "json" if getattr(args, "json", False) else "text"
+            if args.governance_cmd == "status":
+                _print(
+                    governance_status(
+                        db,
+                        platform_core_root=getattr(args, "platform_core_root", None),
+                        estate_roots=getattr(args, "estate_root", None),
+                    ),
+                    fmt,
+                )
+            elif args.governance_cmd == "findings":
+                _print(
+                    governance_findings(
+                        db,
+                        platform_core_root=getattr(args, "platform_core_root", None),
+                        estate_roots=getattr(args, "estate_root", None),
+                    ),
+                    fmt,
+                )
+            elif args.governance_cmd == "project":
+                _print(
+                    governance_project(
+                        db,
+                        args.project_id,
+                        platform_core_root=getattr(args, "platform_core_root", None),
+                        estate_roots=getattr(args, "estate_root", None),
+                    ),
+                    fmt,
+                )
+            elif args.governance_cmd == "report":
+                _print(
+                    governance_report(
+                        db,
+                        platform_core_root=getattr(args, "platform_core_root", None),
+                        estate_roots=getattr(args, "estate_root", None),
+                    ),
+                    fmt,
+                )
+            elif args.governance_cmd == "snapshot":
+                _print(
+                    governance_snapshot(
+                        db,
+                        platform_core_root=getattr(args, "platform_core_root", None),
+                        estate_roots=getattr(args, "estate_root", None),
+                    ),
+                    fmt,
+                )
             return 0
         if args.cmd == "feature":
             if args.feature_cmd == "list":
