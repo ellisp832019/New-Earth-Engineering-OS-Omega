@@ -571,6 +571,7 @@ def test_governance_report_covers_core_rules(tmp_path: Path):
     assert _find(report, "NEOS-GOV-002", "dashboard")[0]["status"] == "ERROR"
     assert _find(report, "NEOS-GOV-003", "biocalm")[0]["status"] == "PASS"
     assert _find(report, "NEOS-GOV-004", "MicroGrow-Hub")[0]["status"] == "PASS"
+    assert _find(report, "NEOS-GOV-004", "MicroGrow-Project-Control-Centre")[0]["status"] == "PASS"
     assert _find(report, "NEOS-GOV-005", "MicroGrow-Project-Control-Centre")[0]["status"] == "PASS"
     assert _find(report, "NEOS-GOV-006", "esp32-3248s035")[0]["status"] == "PASS"
     assert _find(report, "NEOS-GOV-007", "markxl")[0]["status"] == "PASS"
@@ -590,6 +591,207 @@ def test_governance_report_covers_core_rules(tmp_path: Path):
     assert _find(report, "NEOS-GOV-012")
     assert _find(report, "NEOS-GOV-013", "New-Earth-Experiment-Validation-Engine")[0]["status"] in {"ERROR", "UNKNOWN"}
     assert _find(report, "NEOS-GOV-014", "Life OS")[0]["status"] in {"PASS", "UNKNOWN"}
+
+
+def test_governance_regression_identity_smoke_cases(tmp_path: Path):
+    db = tmp_path / "neos.db"
+    estate_root = tmp_path / "estate"
+    estate_root.mkdir()
+
+    active_cases = [
+        ("new-earth-ai-employee", "new-earth-ai-employee", "New-Earth-AI-Employee"),
+        ("field-scanner", "field-scanner", "Field Scanner"),
+        ("new-earth-living", "new-earth-living", "New Earth Living"),
+        ("xr-os", "xr-os", "XR OS"),
+        ("rehabilitation", "rehabilitation", "Rehabilitation"),
+    ]
+    for project_id, repo_slug, name in active_cases:
+        repo = tmp_path / repo_slug
+        _build_project(
+            db,
+            repo,
+            project_id,
+            name,
+            technologies=["python"],
+            remote=f"https://github.com/ellisp832019/{repo_slug}.git",
+        )
+
+    systems = [
+        {
+            "system_id": "GAIA",
+            "project_id": "new-earth-ai-employee",
+            "name": "New-Earth-AI-Employee",
+            "role": "ENGINEERING_INTELLIGENCE",
+            "canonical_owner": "GAIA",
+            "identity_kind": "active independent repository",
+            "classification": "first_party_active",
+            "lifecycle": "active",
+            "canonical_repository": {
+                "path": str(tmp_path / "new-earth-ai-employee"),
+                "remote": "https://github.com/ellisp832019/new-earth-ai-employee.git",
+                "branch": "main",
+            },
+            "dependencies": [],
+            "interfaces": ["PROJECT_CONTRACT"],
+            "capabilities": ["repository_intelligence"],
+        },
+        {
+            "system_id": "Field Scanner",
+            "project_id": "field-scanner",
+            "name": "Field Scanner",
+            "role": "PLATFORM",
+            "canonical_owner": "Field Scanner",
+            "identity_kind": "active independent repository",
+            "classification": "first_party_active",
+            "lifecycle": "active",
+            "canonical_repository": {
+                "path": str(tmp_path / "field-scanner"),
+                "remote": "https://github.com/ellisp832019/field-scanner.git",
+                "branch": "main",
+            },
+            "dependencies": [],
+            "interfaces": ["PROJECT_CONTRACT"],
+            "capabilities": ["repository_intelligence"],
+        },
+        {
+            "system_id": "New Earth Living",
+            "project_id": "new-earth-living",
+            "name": "New Earth Living",
+            "role": "PLATFORM",
+            "canonical_owner": "New Earth Living",
+            "identity_kind": "active independent repository",
+            "classification": "first_party_active",
+            "lifecycle": "active",
+            "canonical_repository": {
+                "path": str(tmp_path / "new-earth-living"),
+                "remote": "https://github.com/ellisp832019/new-earth-living.git",
+                "branch": "main",
+            },
+            "dependencies": [],
+            "interfaces": ["PROJECT_CONTRACT"],
+            "capabilities": ["repository_intelligence"],
+        },
+        {
+            "system_id": "XR OS",
+            "project_id": "xr-os",
+            "name": "XR OS",
+            "role": "PLATFORM",
+            "canonical_owner": "XR OS",
+            "identity_kind": "active independent repository",
+            "classification": "first_party_active",
+            "lifecycle": "active",
+            "canonical_repository": {
+                "path": str(tmp_path / "xr-os"),
+                "remote": "https://github.com/ellisp832019/xr-os.git",
+                "branch": "main",
+            },
+            "dependencies": [],
+            "interfaces": ["PROJECT_CONTRACT"],
+            "capabilities": ["repository_intelligence"],
+        },
+        {
+            "system_id": "Rehabilitation",
+            "project_id": "rehabilitation",
+            "name": "Rehabilitation",
+            "role": "PLATFORM",
+            "canonical_owner": "Rehabilitation",
+            "identity_kind": "active independent repository",
+            "classification": "first_party_active",
+            "lifecycle": "active",
+            "canonical_repository": {
+                "path": str(tmp_path / "rehabilitation"),
+                "remote": "https://github.com/ellisp832019/rehabilitation.git",
+                "branch": "main",
+            },
+            "dependencies": [],
+            "interfaces": ["PROJECT_CONTRACT"],
+            "capabilities": ["repository_intelligence"],
+        },
+        {
+            "system_id": "Command Centre",
+            "project_id": "Command Centre",
+            "name": "Command Centre",
+            "role": "SHELL",
+            "canonical_owner": "Command Centre",
+            "identity_kind": "embedded system",
+            "embedded_in": "GAIA",
+            "planned_extraction": True,
+            "canonical_repository": {"path": "", "remote": "", "branch": ""},
+            "dependencies": [],
+            "interfaces": [],
+            "capabilities": ["command_frontdoor"],
+        },
+        {
+            "system_id": "Backup Guardian",
+            "project_id": "Backup Guardian",
+            "name": "Backup Guardian",
+            "role": "PLANNED_EXTRACTION",
+            "canonical_owner": "Backup Guardian",
+            "identity_kind": "planned future repository",
+            "planned_extraction": True,
+            "canonical_repository": {"path": "", "remote": "", "branch": ""},
+            "dependencies": [],
+            "interfaces": [],
+            "capabilities": ["backup_engine"],
+        },
+        {
+            "system_id": "Knowledge Librarian",
+            "project_id": "Knowledge Librarian",
+            "name": "Knowledge Librarian",
+            "role": "PLANNED_EXTRACTION",
+            "canonical_owner": "Knowledge Librarian",
+            "identity_kind": "planned future repository",
+            "planned_extraction": True,
+            "canonical_repository": {"path": "", "remote": "", "branch": ""},
+            "dependencies": [],
+            "interfaces": [],
+            "capabilities": ["knowledge_librarian"],
+        },
+        {
+            "system_id": "Planner",
+            "project_id": "Planner",
+            "name": "Planner",
+            "role": "PLANNED_EXTRACTION",
+            "canonical_owner": "Planner",
+            "identity_kind": "planned future repository",
+            "planned_extraction": True,
+            "canonical_repository": {"path": "", "remote": "", "branch": ""},
+            "dependencies": [],
+            "interfaces": [],
+            "capabilities": ["workflow_planning"],
+        },
+        {
+            "system_id": "website",
+            "project_id": "website",
+            "name": "website",
+            "role": "PRODUCT",
+            "canonical_owner": "website",
+            "identity_kind": "non-repository system/project identity",
+            "canonical_repository": {"path": "", "remote": "", "branch": ""},
+            "dependencies": [],
+            "interfaces": [],
+            "capabilities": ["non_repository_identity"],
+        },
+    ]
+
+    platform_core = _write_platform_core(tmp_path / "platform-core", estate_roots=[estate_root], systems=systems)
+    report = governance_report(db, platform_core_root=platform_core, estate_roots=[estate_root])
+
+    for project_id in ["new-earth-ai-employee", "field-scanner", "new-earth-living", "xr-os", "rehabilitation"]:
+        assert _find(report, "NEOS-GOV-001", project_id)[0]["status"] == "PASS"
+        assert _find(report, "NEOS-GOV-014", project_id)[0]["status"] == "PASS"
+
+    assert _find(report, "NEOS-GOV-004", "Command Centre")[0]["status"] == "PASS"
+    assert _find(report, "NEOS-GOV-005", "Command Centre")[0]["status"] == "PASS"
+    assert _find(report, "NEOS-GOV-014", "Command Centre")[0]["status"] == "PASS"
+
+    for project_id in ["Backup Guardian", "Knowledge Librarian", "Planner"]:
+        assert _find(report, "NEOS-GOV-001", project_id)[0]["status"] == "PASS"
+        assert _find(report, "NEOS-GOV-004", project_id)[0]["status"] == "PASS"
+        assert _find(report, "NEOS-GOV-014", project_id)[0]["status"] == "PASS"
+
+    assert _find(report, "NEOS-GOV-001", "website")[0]["status"] == "PASS"
+    assert _find(report, "NEOS-GOV-014", "website")[0]["status"] == "PASS"
 
 
 def test_governance_unavailable_and_schema_mismatch(tmp_path: Path):
