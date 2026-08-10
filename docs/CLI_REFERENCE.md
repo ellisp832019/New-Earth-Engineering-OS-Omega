@@ -172,6 +172,32 @@ Registry and contract commands:
 
 `neos registry impact PROJECT_ID --peer-repo-path PATH` compares a project against an unregistered local repository path.
 
+Workspace commands:
+
+`neos workspace inventory` lists deterministic workspace summaries for first-party projects.
+
+`neos workspace inventory --include-non-first-party` includes vendor, reference, and other non-first-party projects.
+
+`neos workspace show PROJECT_ID` prints the full workspace context payload for one project.
+
+`neos workspace summary PROJECT_ID` prints the compact workspace summary for one project.
+
+`neos workspace classification PROJECT_ID` prints the deterministic classification model.
+
+`neos workspace integration PROJECT_ID` prints the integration and readiness model.
+
+`neos workspace contracts PROJECT_ID` prints the Platform Core contract adapter payload.
+
+`neos workspace dependencies PROJECT_ID` prints declared, observed, and reconciled dependency state.
+
+`neos workspace freshness PROJECT_ID` prints freshness and scan recency state.
+
+`neos workspace provenance PROJECT_ID` prints declared, observed, and derived evidence sources.
+
+`neos workspace release PROJECT_ID` prints release-readiness state.
+
+`neos workspace safety PROJECT_ID` prints the conservative safety boundary summary.
+
 `neos version` prints the NEOS version.
 
 Most read commands accept `--format text|json`.

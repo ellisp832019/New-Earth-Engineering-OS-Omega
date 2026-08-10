@@ -8,6 +8,7 @@
 - `docs/user/SCANNING_A_PROJECT.md`
 - `docs/user/REFRESHING_PROJECT_INTELLIGENCE.md`
 - `docs/user/PORTFOLIO_WORKSPACE_GUIDE.md`
+- `docs/user/WORKSPACE_GUIDE.md`
 - `docs/user/DECISION_CENTRE_GUIDE.md`
 - `docs/user/REQUIREMENTS_INTELLIGENCE_GUIDE.md`
 - `docs/user/TROUBLESHOOTING_WINDOWS.md`
@@ -33,6 +34,9 @@ The current Alpha skeleton reports observed repository artefacts. Counts are der
 
 ## Portfolio workspace
 Use the desktop Portfolio Workspace to compare capability matrices, technology overlap, reuse opportunities, dependencies, portfolio risks, attention items, timeline events, and search results across the registered project set.
+
+## Workspace centre
+Use the desktop Workspace Centre to inspect deterministic project classification, contract adapter state, freshness, dependency reconciliation, provenance, and readiness for a selected project.
 
 ## Portfolio AI
 The AI Assistant remains project-scoped by default. The Portfolio Workspace can send a selected project set to the deterministic portfolio AI path so multi-project citations stay explicit and auditable.

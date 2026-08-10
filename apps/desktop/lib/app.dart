@@ -51,6 +51,7 @@ enum _Destination {
   architecture,
   hardware,
   registry,
+  workspace,
   firmware,
   decisions,
   evidence,
@@ -162,6 +163,7 @@ class _NeosShellState extends State<NeosShell> {
     _NavItem(_Destination.architecture, Icons.graphic_eq_outlined, 'Architecture'),
     _NavItem(_Destination.hardware, Icons.precision_manufacturing_outlined, 'Hardware Centre'),
     _NavItem(_Destination.registry, Icons.account_tree_outlined, 'Registry Centre'),
+    _NavItem(_Destination.workspace, Icons.dashboard_outlined, 'Workspace'),
     _NavItem(_Destination.firmware, Icons.memory_outlined, 'Firmware Centre'),
     _NavItem(_Destination.decisions, Icons.rule_folder_outlined, 'Decisions'),
     _NavItem(_Destination.evidence, Icons.fact_check_outlined, 'Evidence'),
@@ -1460,6 +1462,77 @@ class _NeosShellState extends State<NeosShell> {
     );
   }
 
+  Widget _workspaceView() {
+    final project = _project;
+    if (project == null) {
+      return const Center(child: Text('Select a project to inspect workspace intelligence.'));
+    }
+    final workspace = _asMap(project.section('workspace'));
+    final summary = _asMap(workspace['summary']);
+    final classification = _asMap(workspace['classification']);
+    final integration = _asMap(workspace['integration']);
+    final contract = _asMap(workspace['contract']);
+    final repository = _asMap(workspace['repository']);
+    final dependencies = _asMap(workspace['dependencies']);
+    final freshness = _asMap(workspace['freshness']);
+    final release = _asMap(workspace['release']);
+    final safety = _asMap(workspace['safety']);
+    final provenance = _asMap(workspace['provenance']);
+    final evidence = _asMap(workspace['evidence']);
+    final attention = _asList(workspace['attention']).map((item) => _asMap(item)).toList(growable: false);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _panel(
+            title: 'Workspace Centre',
+            subtitle: 'Deterministic project classification, contract adapter and readiness view.',
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _chip(project.projectId),
+                _chip(_asString(classification['classification'], 'unknown')),
+                _chip('Integration ${_asString(integration['mode'], 'unknown')}'),
+                _chip('Readiness ${_asString(integration['readiness'], 'unknown')}'),
+                _chip('Freshness ${_asString(freshness['status'], 'unknown')}'),
+                _chip('Attention ${attention.length}'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _jsonPanel('Workspace summary', summary, subtitle: 'Compact workspace state used by the navigation and backend API.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Classification', classification, subtitle: 'Deterministic project classification and first-party filter state.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Integration', integration, subtitle: 'Contracted, observed or degraded integration state and readiness.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Contract adapter', contract, subtitle: 'Platform Core contract adapter with registry and manifest evidence.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Repository', repository, subtitle: 'Declared and observed repository state, including freshness inputs.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Dependencies', dependencies, subtitle: 'Declared, observed and reconciled dependency state.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Freshness', freshness, subtitle: 'Current-vs-scan freshness and repository recency state.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Release', release, subtitle: 'Release-readiness state carried into the workspace view.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Safety', safety, subtitle: 'Conservative safety boundary summary for the selected project.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Provenance', provenance, subtitle: 'Declared, observed and derived evidence sources.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Evidence', evidence, subtitle: 'Presence flags for the major workspace evidence sources.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Attention', attention, subtitle: 'Deterministic review items that need operator attention.'),
+          const SizedBox(height: 16),
+          _jsonPanel('Raw workspace payload', workspace, subtitle: 'Full workspace snapshot returned by the backend.'),
+        ],
+      ),
+    );
+  }
+
   Widget _firmwareView() {
     final project = _project;
     if (project == null) {
@@ -2076,6 +2149,8 @@ class _NeosShellState extends State<NeosShell> {
         return _hardwareView();
       case _Destination.registry:
         return _registryView();
+      case _Destination.workspace:
+        return _workspaceView();
       case _Destination.firmware:
         return _firmwareView();
       case _Destination.decisions:

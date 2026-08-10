@@ -160,6 +160,7 @@ from .requirements_intelligence import (
     verification_readiness,
 )
 from .service.app import serve_service
+from .workspace import workspace_context, workspace_inventory, workspace_section
 
 
 def parser() -> argparse.ArgumentParser:
@@ -527,6 +528,65 @@ def parser() -> argparse.ArgumentParser:
     registry_impact.add_argument("--peer-repo-path")
     registry_impact.add_argument("--format", choices=("text", "json"), default="json")
     registry_impact.add_argument("--json", action="store_true")
+
+    workspace = sub.add_parser("workspace")
+    workspace_sub = workspace.add_subparsers(dest="workspace_cmd", required=True)
+    workspace_inventory = workspace_sub.add_parser("inventory")
+    workspace_inventory.add_argument("--project-id", action="append")
+    workspace_inventory.add_argument("--include-non-first-party", action="store_true")
+    workspace_inventory.add_argument("--json", action="store_true")
+    workspace_show = workspace_sub.add_parser("show")
+    workspace_show.add_argument("project_id")
+    workspace_show.add_argument("--repo-path")
+    workspace_show.add_argument("--json", action="store_true")
+    workspace_summary = workspace_sub.add_parser("summary")
+    workspace_summary.add_argument("project_id")
+    workspace_summary.add_argument("--repo-path")
+    workspace_summary.add_argument("--json", action="store_true")
+    workspace_classification = workspace_sub.add_parser("classification")
+    workspace_classification.add_argument("project_id")
+    workspace_classification.add_argument("--repo-path")
+    workspace_classification.add_argument("--json", action="store_true")
+    workspace_integration = workspace_sub.add_parser("integration")
+    workspace_integration.add_argument("project_id")
+    workspace_integration.add_argument("--repo-path")
+    workspace_integration.add_argument("--json", action="store_true")
+    workspace_contracts = workspace_sub.add_parser("contracts")
+    workspace_contracts.add_argument("project_id")
+    workspace_contracts.add_argument("--repo-path")
+    workspace_contracts.add_argument("--json", action="store_true")
+    workspace_dependencies = workspace_sub.add_parser("dependencies")
+    workspace_dependencies.add_argument("project_id")
+    workspace_dependencies.add_argument("--repo-path")
+    workspace_dependencies.add_argument("--json", action="store_true")
+    workspace_evidence = workspace_sub.add_parser("evidence")
+    workspace_evidence.add_argument("project_id")
+    workspace_evidence.add_argument("--repo-path")
+    workspace_evidence.add_argument("--json", action="store_true")
+    workspace_drift = workspace_sub.add_parser("drift")
+    workspace_drift.add_argument("project_id")
+    workspace_drift.add_argument("--repo-path")
+    workspace_drift.add_argument("--json", action="store_true")
+    workspace_impact = workspace_sub.add_parser("impact")
+    workspace_impact.add_argument("project_id")
+    workspace_impact.add_argument("--repo-path")
+    workspace_impact.add_argument("--json", action="store_true")
+    workspace_freshness = workspace_sub.add_parser("freshness")
+    workspace_freshness.add_argument("project_id")
+    workspace_freshness.add_argument("--repo-path")
+    workspace_freshness.add_argument("--json", action="store_true")
+    workspace_provenance = workspace_sub.add_parser("provenance")
+    workspace_provenance.add_argument("project_id")
+    workspace_provenance.add_argument("--repo-path")
+    workspace_provenance.add_argument("--json", action="store_true")
+    workspace_release = workspace_sub.add_parser("release")
+    workspace_release.add_argument("project_id")
+    workspace_release.add_argument("--repo-path")
+    workspace_release.add_argument("--json", action="store_true")
+    workspace_safety = workspace_sub.add_parser("safety")
+    workspace_safety.add_argument("project_id")
+    workspace_safety.add_argument("--repo-path")
+    workspace_safety.add_argument("--json", action="store_true")
 
     decisions = sub.add_parser("decisions")
     decisions.add_argument("project_id")
@@ -1016,6 +1076,23 @@ def main(argv=None) -> int:
                     ),
                     fmt,
                 )
+            return 0
+        if args.cmd == "workspace":
+            repo_path = Path(args.repo_path).resolve() if getattr(args, "repo_path", None) else None
+            if args.workspace_cmd == "inventory":
+                _print(
+                    workspace_inventory(
+                        db,
+                        project_ids=getattr(args, "project_id", None),
+                        exclude_non_first_party=not args.include_non_first_party,
+                    ),
+                    "json",
+                )
+            elif args.workspace_cmd == "show":
+                _print(workspace_context(db, args.project_id, repo_path=repo_path), "json")
+            elif args.workspace_cmd in {"summary", "classification", "integration", "contracts", "dependencies", "evidence", "drift", "impact", "freshness", "provenance", "release", "safety"}:
+                section = workspace_section(db, args.project_id, args.workspace_cmd, repo_path=repo_path)
+                _print(section, "json")
             return 0
         if args.cmd == "feature":
             if args.feature_cmd == "list":

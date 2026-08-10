@@ -3,6 +3,129 @@ import 'package:desktop/neos_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FakeNeosClient implements NeosClient {
+  Map<String, dynamic> _workspacePayload(String projectId) {
+    return {
+      'schema_version': 1,
+      'project_id': projectId,
+      'identity': {
+        'project_id': projectId,
+        'name': 'Demo Project',
+        'repo_path': 'C:/demo',
+        'manifest_path': 'C:/demo/project.json',
+      },
+      'project': {
+        'project_id': projectId,
+        'name': 'Demo Project',
+      },
+      'summary': {
+        'project_id': projectId,
+        'name': 'Demo Project',
+        'classification': 'FIRST_PARTY_ACTIVE',
+        'integration_mode': 'CONTRACTED',
+        'readiness': 'READY',
+        'freshness': 'FRESH',
+        'contract_state': 'present',
+        'project_registered': true,
+        'scan_present': true,
+        'manifest_present': true,
+        'needs_attention': false,
+      },
+      'classification': {
+        'project_id': projectId,
+        'classification': 'FIRST_PARTY_ACTIVE',
+        'is_first_party': true,
+        'reason': 'registered-project, scan-present',
+        'signals': const ['registered-project', 'scan-present'],
+      },
+      'integration': {
+        'mode': 'CONTRACTED',
+        'readiness': 'READY',
+        'release_readiness': {'status': 'READY'},
+        'contract_state': 'present',
+      },
+      'contract': {
+        'adapter_state': 'connected',
+        'contract_state': 'present',
+        'project_contract': {'contract_type': 'PROJECT_CONTRACT'},
+        'capabilities_contract': const {},
+        'dependencies_contract': const {},
+        'safety_boundary_contract': const {},
+        'release_state_contract': const {},
+        'registry_contracts': const {},
+        'contract_sources': const [],
+      },
+      'repository': {
+        'project_id': projectId,
+        'declared_path': 'C:/demo',
+        'observed_path': 'C:/demo',
+        'exists': true,
+        'git': {'repo_path': 'C:/demo', 'branch': 'main', 'commit': 'abc123', 'dirty': false},
+        'manifest_status': 'present',
+        'manifest_path': 'C:/demo/project.json',
+        'scan_id': 'scan-1',
+      },
+      'dependencies': {
+        'declared': const [],
+        'observed': const [],
+        'reconciled': {
+          'status': 'NOT_APPLICABLE',
+          'count': 0,
+          'items': const [],
+          'summary': {'declared_count': 0, 'observed_count': 0, 'shared_count': 0},
+        },
+      },
+      'requirements': {'count': 1, 'items': [{'id': 'req-1', 'title': 'Select a project'}]},
+      'decisions': {'count': 1, 'items': ['decision-1']},
+      'memory': {'project_id': projectId, 'summary': {'decisions': 1}},
+      'flight': {'project_id': projectId, 'status': 'available'},
+      'hardware': {
+        'project_id': projectId,
+        'summary': {'board_count': 1, 'component_count': 2, 'pin_mapping_count': 2},
+      },
+      'firmware': {
+        'project_id': projectId,
+        'summary': {'environment_count': 1, 'target_count': 1, 'task_count': 1},
+      },
+      'release': {'project_id': projectId, 'status': 'READY'},
+      'safety': {
+        'project_id': projectId,
+        'boundary': const {},
+        'summary': {
+          'local_only_operation': true,
+          'cloud_allowed': false,
+          'device_flashing_allowed': false,
+          'actuator_authority': false,
+          'operator_approval_required': true,
+        },
+      },
+      'evidence': {
+        'project_registered': true,
+        'scan_present': true,
+        'manifest_present': true,
+        'contract_sources_count': 1,
+        'genome_present': true,
+        'memory_present': true,
+        'flight_present': true,
+        'hardware_present': true,
+        'firmware_present': true,
+        'readiness': 'READY',
+      },
+      'drift': {'status': 'aligned'},
+      'impact': {'count': 0, 'items': const []},
+      'freshness': {'status': 'FRESH', 'reason': 'current_git_state_matches_latest_scan'},
+      'provenance': {
+        'declared_sources': const ['C:/demo/project.json'],
+        'observed_sources': [
+          {'kind': 'git', 'repo_path': 'C:/demo', 'commit': 'abc123', 'branch': 'main'},
+          {'kind': 'scan', 'scan_id': 'scan-1', 'created_at': '2026-08-07T00:00:00Z'},
+        ],
+        'contract_sources': const [],
+        'analysis_sources': const ['project_registry_v2', 'architecture_registry', 'release_readiness'],
+      },
+      'attention': const [],
+    };
+  }
+
   @override
   Future<ServiceHealthInfo> probeHealth(Uri baseUri) async {
     return ServiceHealthInfo.fromJson({
@@ -25,6 +148,7 @@ class FakeNeosClient implements NeosClient {
         'project_id': projectId,
         'name': 'Demo Project',
       },
+      'workspace': _workspacePayload(projectId),
       'summary': {
         'name': 'Demo Project',
         'status': 'healthy',
@@ -133,6 +257,42 @@ class FakeNeosClient implements NeosClient {
   Future<Map<String, dynamic>> scanProject(Uri baseUri, String projectId, {String? repoPath}) async {
     return {'status': 'scanned', 'project_id': projectId};
   }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspace(Uri baseUri, {List<String>? projectIds, bool includeNonFirstParty = false}) async {
+    return {
+      'schema_version': 1,
+      'project_count': 1,
+      'items': [_workspacePayload('demo')['summary']],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceProject(Uri baseUri, String projectId, {String? repoPath}) async => _workspacePayload(projectId);
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceSummary(Uri baseUri, String projectId, {String? repoPath}) async => _workspacePayload(projectId)['summary'] as Map<String, dynamic>;
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceClassification(Uri baseUri, String projectId, {String? repoPath}) async => _workspacePayload(projectId)['classification'] as Map<String, dynamic>;
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceIntegration(Uri baseUri, String projectId, {String? repoPath}) async => _workspacePayload(projectId)['integration'] as Map<String, dynamic>;
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceContracts(Uri baseUri, String projectId, {String? repoPath}) async => _workspacePayload(projectId)['contract'] as Map<String, dynamic>;
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceDependencies(Uri baseUri, String projectId, {String? repoPath}) async => _workspacePayload(projectId)['dependencies'] as Map<String, dynamic>;
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceFreshness(Uri baseUri, String projectId, {String? repoPath}) async => _workspacePayload(projectId)['freshness'] as Map<String, dynamic>;
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceProvenance(Uri baseUri, String projectId, {String? repoPath}) async => _workspacePayload(projectId)['provenance'] as Map<String, dynamic>;
+
+  @override
+  Future<Map<String, dynamic>> loadWorkspaceSafety(Uri baseUri, String projectId, {String? repoPath}) async => _workspacePayload(projectId)['safety'] as Map<String, dynamic>;
 
   @override
   Future<Map<String, dynamic>> loadEcosystem(Uri baseUri) async {
