@@ -91,6 +91,21 @@ from .firmware import (
     firmware_validation as _firmware_validation,
 )
 from .flight import flight_temporal_context
+from .governance import (
+    governance_findings as _governance_findings,
+)
+from .governance import (
+    governance_project as _governance_project,
+)
+from .governance import (
+    governance_report as _governance_report,
+)
+from .governance import (
+    governance_snapshot as _governance_snapshot,
+)
+from .governance import (
+    governance_status as _governance_status,
+)
 from .hardware import build_hardware_intelligence
 from .manifest import load_manifest
 from .memory import latest_project_memory, memory_timeline, memory_why
@@ -596,6 +611,52 @@ def architecture_impact(
         peer_project_id=peer_project_id,
         peer_repo_path=peer_repo_path,
     )
+
+
+def governance_report(
+    db_path: Path,
+    *,
+    platform_core_root: str | Path | None = None,
+    estate_roots: list[str | Path] | str | Path | None = None,
+) -> dict[str, Any]:
+    return _governance_report(db_path, platform_core_root=platform_core_root, estate_roots=estate_roots)
+
+
+def governance_status(
+    db_path: Path,
+    *,
+    platform_core_root: str | Path | None = None,
+    estate_roots: list[str | Path] | str | Path | None = None,
+) -> dict[str, Any]:
+    return _governance_status(db_path, platform_core_root=platform_core_root, estate_roots=estate_roots)
+
+
+def governance_findings(
+    db_path: Path,
+    *,
+    platform_core_root: str | Path | None = None,
+    estate_roots: list[str | Path] | str | Path | None = None,
+) -> dict[str, Any]:
+    return _governance_findings(db_path, platform_core_root=platform_core_root, estate_roots=estate_roots)
+
+
+def governance_project(
+    db_path: Path,
+    project_id: str,
+    *,
+    platform_core_root: str | Path | None = None,
+    estate_roots: list[str | Path] | str | Path | None = None,
+) -> dict[str, Any]:
+    return _governance_project(db_path, project_id, platform_core_root=platform_core_root, estate_roots=estate_roots)
+
+
+def governance_snapshot(
+    db_path: Path,
+    *,
+    platform_core_root: str | Path | None = None,
+    estate_roots: list[str | Path] | str | Path | None = None,
+) -> dict[str, Any]:
+    return _governance_snapshot(db_path, platform_core_root=platform_core_root, estate_roots=estate_roots)
 
 
 def project_summary(db_path: Path, project_id: str) -> dict[str, Any]:

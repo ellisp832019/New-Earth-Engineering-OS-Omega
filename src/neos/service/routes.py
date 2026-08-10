@@ -77,6 +77,13 @@ from ..genome import (
     genome_unknowns,
     latest_project_genome,
 )
+from ..governance import (
+    governance_findings,
+    governance_project,
+    governance_report,
+    governance_snapshot,
+    governance_status,
+)
 from ..memory import (
     latest_project_memory,
     memory_assumptions,
@@ -165,6 +172,16 @@ def _body_project_ids(body: dict[str, Any], query: dict[str, list[str]]) -> list
 def _query_project_ids(query: dict[str, list[str]]) -> list[str] | None:
     values = _query_values(query, "project_id")
     return values or None
+
+
+def _query_governance_estate_roots(query: dict[str, list[str]]) -> list[str] | None:
+    roots = [item for item in query.get("estate_root", []) if item]
+    return roots or None
+
+
+def _query_platform_core_root(query: dict[str, list[str]]) -> str | None:
+    value = query.get("platform_core_root", [""])[0].strip()
+    return value or None
 
 
 def _project_repo_path(db_path: Path, project_id: str) -> Path:
@@ -486,6 +503,37 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
         return 200, service_health(db_path, config)
     if segments == ["registry"]:
         return 200, architecture_registry_inventory(db_path)
+    if segments == ["governance"]:
+        return 200, governance_report(
+            db_path,
+            platform_core_root=_query_platform_core_root(query),
+            estate_roots=_query_governance_estate_roots(query),
+        )
+    if segments == ["governance", "status"]:
+        return 200, governance_status(
+            db_path,
+            platform_core_root=_query_platform_core_root(query),
+            estate_roots=_query_governance_estate_roots(query),
+        )
+    if segments == ["governance", "findings"]:
+        return 200, governance_findings(
+            db_path,
+            platform_core_root=_query_platform_core_root(query),
+            estate_roots=_query_governance_estate_roots(query),
+        )
+    if segments == ["governance", "snapshot"]:
+        return 200, governance_snapshot(
+            db_path,
+            platform_core_root=_query_platform_core_root(query),
+            estate_roots=_query_governance_estate_roots(query),
+        )
+    if len(segments) == 3 and segments[0] == "governance" and segments[1] == "project":
+        return 200, governance_project(
+            db_path,
+            segments[2],
+            platform_core_root=_query_platform_core_root(query),
+            estate_roots=_query_governance_estate_roots(query),
+        )
     if len(segments) == 2 and segments[0] == "registry":
         try:
             return 200, architecture_registry(db_path, segments[1])

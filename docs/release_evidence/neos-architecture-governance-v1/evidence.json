@@ -1,0 +1,32 @@
+{
+  "feature": "NEOS Architecture Governance v1",
+  "scope": "Read-only deterministic comparison of Platform Core declared architecture vs NEOS observed estate",
+  "surfaces": {
+    "cli": [
+      "python -m neos governance status",
+      "python -m neos governance findings",
+      "python -m neos governance project <project_id>",
+      "python -m neos governance report",
+      "python -m neos governance snapshot"
+    ],
+    "api": [
+      "GET /governance",
+      "GET /governance/status",
+      "GET /governance/findings",
+      "GET /governance/snapshot",
+      "GET /governance/project/<project_id>"
+    ]
+  },
+  "validation": {
+    "pytest": "python -m pytest -q tests/test_governance.py",
+    "result": "3 passed"
+  },
+  "invariants": [
+    "Platform Core is not modified",
+    "UNKNOWN safety posture is preserved",
+    "NEOS platform authority is separate",
+    "Workspace reads do not write portfolio/intelligence state",
+    "No second contract system",
+    "No actuator/deployment/flashing authority"
+  ]
+}
