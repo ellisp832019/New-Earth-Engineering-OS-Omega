@@ -56,6 +56,8 @@ The classification layer resolves a project into one of these states:
 
 The resolver prefers explicit manifest signals first, then scan and registry evidence, and only falls back to conservative defaults when the repository provides no stronger signal.
 
+Workspace reads are side-effect free. They do not implicitly refresh Portfolio Intelligence or create new portfolio snapshots, scans, registry rows, memory rows, flight rows, or contract mutations.
+
 ## Integration And Readiness
 
 Workspace integration is summarized as:
@@ -88,6 +90,7 @@ Provenance records where the workspace answered from:
 - manifest declarations
 - registry evidence
 - scan evidence
+- persisted project-relationship evidence
 - live Git state
 - derived summaries
 
@@ -119,4 +122,7 @@ The existing project payload also embeds `workspace` so the desktop can render t
 - no firmware flashing authority
 - no deployment authority
 - no non-deterministic classification fallback
-
+- project safety facts can be `TRUE`, `FALSE`, or `UNKNOWN`
+- missing project safety evidence remains `UNKNOWN`
+- NEOS platform authority restrictions stay separate from project safety declarations
+- Workspace consumes persisted dependency evidence read-only rather than invoking Portfolio Intelligence during reads

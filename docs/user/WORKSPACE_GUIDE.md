@@ -12,6 +12,7 @@ The Workspace Centre gives you a deterministic, read-only view of a project from
 - provenance and evidence coverage
 - release-readiness summary
 - conservative safety boundary
+- project safety facts with `TRUE`, `FALSE`, and `UNKNOWN` states
 
 ## Open It In The Desktop App
 
@@ -20,6 +21,8 @@ The Workspace Centre gives you a deterministic, read-only view of a project from
 3. Open `Workspace` in the navigation.
 
 The Workspace Centre reads the workspace section already embedded in the project payload, so it stays aligned with the service response for the selected project.
+
+Workspace reads do not implicitly refresh Portfolio Intelligence. They consume existing persisted evidence, including the read-only project-relationship dependency snapshot when one exists.
 
 ## CLI
 
@@ -48,6 +51,6 @@ The Workspace Centre still renders for repositories with little or no evidence.
 - missing scan data becomes `NO_SCAN` or `LIVE`
 - missing contract evidence becomes `DEGRADED`
 - missing project registration becomes `UNKNOWN` or `NOT_READY`
+- missing project safety evidence remains `UNKNOWN` rather than being coerced to `false`
 
 That makes the workspace useful during early setup and for partially onboarded repositories.
-

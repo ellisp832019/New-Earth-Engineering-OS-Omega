@@ -9,7 +9,7 @@ from typing import Any
 from .core import decision_inventory, project_summary
 from .db import connect
 from .decision_intelligence import get_release_readiness
-from .ecosystem import analyse_portfolio, project_registry_v2
+from .ecosystem import project_registry_v2
 from .firmware import build_firmware_intelligence
 from .flight import latest_project_flight
 from .genome import latest_project_genome
@@ -226,6 +226,173 @@ def _manifest_dependencies(manifest: dict[str, Any]) -> list[str]:
     return _stable_set(candidates)
 
 
+def _safety_fact_value(value: Any) -> dict[str, str]:
+    if isinstance(value, bool):
+        return {
+            "state": "TRUE" if value else "FALSE",
+            "source": "DECLARED_CONTRACT",
+        }
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"true", "false"}:
+            return {
+                "state": "TRUE" if lowered == "true" else "FALSE",
+                "source": "DECLARED_CONTRACT",
+            }
+        if lowered == "unknown":
+            return {"state": "UNKNOWN", "source": "UNKNOWN"}
+    if value is None:
+        return {"state": "UNKNOWN", "source": "UNKNOWN"}
+    return {"state": "UNKNOWN", "source": "UNKNOWN"}
+
+
+def _contract_document(contract_sources: list[dict[str, Any]], contract_type: str) -> dict[str, Any] | None:
+    for source in contract_sources:
+        if source.get("contract_type") == contract_type and isinstance(source.get("document"), dict):
+            return source["document"]
+    return None
+
+
+def _stable_impact_payload(impact: dict[str, Any] | Any) -> dict[str, Any]:
+    if not isinstance(impact, dict):
+        return {"project_id": None, "count": 0, "items": []}
+    normalized = dict(impact)
+    normalized.pop("generated_at", None)
+    return normalized
+
+
+def _project_safety_summary(contract_sources: list[dict[str, Any]]) -> dict[str, dict[str, str]]:
+    safety_document = _contract_document(contract_sources, "SAFETY_BOUNDARY")
+    metadata: dict[str, Any] = {}
+    if isinstance(safety_document, dict):
+        candidate = safety_document.get("metadata")
+        if isinstance(candidate, dict):
+            metadata = candidate
+        else:
+            metadata = safety_document
+    return {
+        "local_only_operation": _safety_fact_value(metadata.get("local_only_operation")),
+        "cloud_allowed": _safety_fact_value(metadata.get("cloud_allowed")),
+        "device_flashing_allowed": _safety_fact_value(metadata.get("device_flashing_allowed")),
+        "actuator_authority": _safety_fact_value(metadata.get("actuator_authority")),
+        "operator_approval_required": _safety_fact_value(metadata.get("operator_approval_required")),
+    }
+
+
+def _declared_dependencies_from_sources(
+    contract_sources: list[dict[str, Any]],
+    *,
+    manifest: dict[str, Any],
+    registry_entry: dict[str, Any] | None,
+) -> list[str]:
+    dependency_document = _contract_document(contract_sources, "DEPENDENCIES")
+    if isinstance(dependency_document, dict):
+        metadata = dependency_document.get("metadata")
+        if isinstance(metadata, dict):
+            for key in ("declared_dependencies", "dependencies", "project_dependencies", "depends_on_projects"):
+                candidate = metadata.get(key)
+                if candidate:
+                    values = [str(item).strip() for item in _safe_list(candidate) if str(item).strip()]
+                    if values:
+                        return _stable_set(values)
+    contracts = registry_entry.get("contracts", {}) if registry_entry else {}
+    dependencies_contract = contracts.get("dependencies", {}) if isinstance(contracts, dict) else {}
+    if isinstance(dependencies_contract, dict):
+        metadata = dependencies_contract.get("metadata")
+        if isinstance(metadata, dict):
+            declared = metadata.get("declared_dependencies")
+            if declared:
+                values = [str(item).strip() for item in _safe_list(declared) if str(item).strip()]
+                if values:
+                    return _stable_set(values)
+    return _manifest_dependencies(manifest)
+
+
+def _neos_platform_authority() -> dict[str, dict[str, str]]:
+    return {
+        "actuator_authority": {"state": "FALSE", "source": "NEOS_PLATFORM_BOUNDARY"},
+        "firmware_flashing_authority": {"state": "FALSE", "source": "NEOS_PLATFORM_BOUNDARY"},
+        "deployment_authority": {"state": "FALSE", "source": "NEOS_PLATFORM_BOUNDARY"},
+        "external_repository_mutation_authority": {"state": "FALSE", "source": "NEOS_PLATFORM_BOUNDARY"},
+    }
+
+
+def _latest_portfolio_snapshot_id(conn: sqlite3.Connection, project_id: str) -> str | None:
+    rows = conn.execute("SELECT id, project_ids FROM portfolio_snapshots ORDER BY created_at DESC, id DESC").fetchall()
+    for row in rows:
+        project_ids = _json_loads(row["project_ids"], [])
+        if isinstance(project_ids, list):
+            normalized = {str(item).strip() for item in project_ids if str(item).strip()}
+            if project_id in normalized:
+                return row["id"]
+    return None
+
+
+def _observed_dependencies(db_path: Path, project_id: str) -> dict[str, Any]:
+    try:
+        conn = connect(db_path)
+    except sqlite3.Error:
+        return {
+            "project_id": project_id,
+            "snapshot_id": None,
+            "evidence_state": "UNKNOWN",
+            "items": [],
+        }
+    snapshot_id: str | None = None
+    try:
+        snapshot_id = _latest_portfolio_snapshot_id(conn, project_id)
+        if snapshot_id is None:
+            return {
+                "project_id": project_id,
+                "snapshot_id": None,
+                "evidence_state": "UNKNOWN",
+                "items": [],
+            }
+        rows = conn.execute(
+            """
+            SELECT id, source_project_id, target_project_id, relationship_type, confidence, evidence_json, detector, created_at, metadata_json
+            FROM project_relationships
+            WHERE portfolio_snapshot_id=? AND source_project_id=? AND relationship_type=?
+            ORDER BY target_project_id, id
+            """,
+            (snapshot_id, project_id, "cross_project_dependency"),
+        ).fetchall()
+    except sqlite3.Error:
+        return {
+            "project_id": project_id,
+            "snapshot_id": snapshot_id,
+            "evidence_state": "UNKNOWN",
+            "items": [],
+        }
+    finally:
+        conn.close()
+    items: list[dict[str, Any]] = []
+    for row in rows:
+        target = str(row["target_project_id"]).strip()
+        if not target:
+            continue
+        items.append(
+            {
+                "project_id": target,
+                "source": "project_relationships",
+                "snapshot_id": snapshot_id,
+                "relationship_id": row["id"],
+                "relationship_type": row["relationship_type"],
+                "confidence": row["confidence"],
+                "detector": row["detector"],
+                "created_at": row["created_at"],
+                "evidence": _json_loads(row["evidence_json"], {}),
+                "metadata": _json_loads(row["metadata_json"], {}),
+            }
+        )
+    return {
+        "project_id": project_id,
+        "snapshot_id": snapshot_id,
+        "evidence_state": "PRESENT",
+        "items": items,
+    }
+
+
 def _project_manifest(row: Any) -> dict[str, Any]:
     return _json_loads(row["manifest_json"], {}) if row is not None else {}
 
@@ -397,6 +564,7 @@ def reconcile_dependencies(
     declared: list[str],
     observed: list[str],
     project_id: str,
+    observed_state: str = "PRESENT",
 ) -> dict[str, Any]:
     declared_set = set(declared)
     observed_set = set(observed)
@@ -424,6 +592,7 @@ def reconcile_dependencies(
         )
 
     overlap = declared_set & observed_set
+    observed_available = observed_state == "PRESENT"
     if not declared_set and not observed_set:
         status = "NOT_APPLICABLE"
     elif declared_set == observed_set and declared_set:
@@ -431,11 +600,13 @@ def reconcile_dependencies(
     elif overlap and (declared_set - observed_set or observed_set - declared_set):
         status = "PARTIALLY_VERIFIED"
     elif declared_set and not observed_set:
-        status = "STALE"
+        status = "STALE" if observed_available else "UNKNOWN"
     elif observed_set and not declared_set:
         status = "DRIFTED"
     elif declared_set and observed_set and not overlap:
         status = "CONFLICT"
+    elif declared_set and not observed_available:
+        status = "UNKNOWN"
     else:
         status = "UNKNOWN"
     if status not in RECONCILIATION_STATES:
@@ -443,6 +614,7 @@ def reconcile_dependencies(
     return {
         "project_id": project_id,
         "status": status,
+        "observed_state": observed_state,
         "declared": _stable_set(declared),
         "observed": _stable_set(observed),
         "count": len(items),
@@ -453,20 +625,6 @@ def reconcile_dependencies(
             "shared_count": len(overlap),
         },
     }
-
-
-def _observed_dependencies(db_path: Path, project_id: str) -> list[str]:
-    try:
-        analysis = analyse_portfolio(db_path, project_ids=[project_id])
-    except (sqlite3.Error, ValueError):
-        return []
-    dependencies: set[str] = set()
-    for relation in analysis.get("cross_project_dependencies", []):
-        if relation.get("source_project_id") == project_id:
-            target = relation.get("target_project_id")
-            if isinstance(target, str) and target.strip():
-                dependencies.add(target.strip())
-    return sorted(dependencies)
 
 
 def _section_or_empty(data: Any, project_id: str) -> dict[str, Any]:
@@ -544,12 +702,25 @@ def _project_artifacts(
         scan=scan,
         repo_path=observed_repo_path,
     )
-    declared_dependencies = _manifest_dependencies(manifest)
-    observed_dependencies = _observed_dependencies(db_path, project_id) if project_row is not None else []
+    contract_sources = discover_contract_sources(observed_repo_path, Path(manifest_path) if manifest_path else None) if observed_repo_path else []
+    declared_dependencies = _declared_dependencies_from_sources(contract_sources, manifest=manifest, registry_entry=registry_entry)
+    observed_dependency_state: dict[str, Any] = {
+        "project_id": project_id,
+        "snapshot_id": None,
+        "evidence_state": "UNKNOWN",
+        "items": [],
+    }
+    if project_row is not None:
+        observed_dependency_state = _observed_dependencies(db_path, project_id)
+    observed_items = observed_dependency_state.get("items", [])
+    if not isinstance(observed_items, list):
+        observed_items = []
+    observed_dependencies = [str(item["project_id"]).strip() for item in observed_items if isinstance(item, dict) and str(item.get("project_id", "")).strip()]
     dependency_reconciliation = reconcile_dependencies(
         declared=declared_dependencies,
         observed=observed_dependencies,
         project_id=project_id,
+        observed_state=str(observed_dependency_state.get("evidence_state", "UNKNOWN")),
     )
     release_readiness = get_release_readiness(db_path, project_id) if project_row is not None else {
         "project_id": project_id,
@@ -587,7 +758,6 @@ def _project_artifacts(
     requirement_unimplemented = unimplemented_requirements(db_path, project_ids=[project_id]) if project_row is not None else {"project_id": project_id, "count": 0, "items": []}
     requirement_untested = untested_requirements(db_path, project_ids=[project_id]) if project_row is not None else {"project_id": project_id, "count": 0, "items": []}
     requirement_history_state = requirement_history(db_path, project_ids=[project_id]) if project_row is not None else {"project_id": project_id, "count": 0, "items": []}
-    contract_sources = discover_contract_sources(observed_repo_path, Path(manifest_path) if manifest_path else None) if observed_repo_path else []
     contract_adapter = _registry_contract_adapter(
         project_id=project_id,
         project_row=project_row,
@@ -697,6 +867,12 @@ def _project_artifacts(
         "dependencies": {
             "declared": declared_dependencies,
             "observed": observed_dependencies,
+            "observed_details": observed_dependency_state["items"],
+            "observed_provenance": {
+                "source": "project_relationships" if observed_dependency_state["evidence_state"] == "PRESENT" else "unknown",
+                "snapshot_id": observed_dependency_state["snapshot_id"],
+                "evidence_state": observed_dependency_state["evidence_state"],
+            },
             "reconciled": dependency_reconciliation,
         },
         "requirements": requirements,
@@ -708,14 +884,9 @@ def _project_artifacts(
         "release": release_readiness,
         "safety": {
             "project_id": project_id,
-            "boundary": contract_adapter.get("safety_boundary_contract", {}),
-            "summary": {
-                "local_only_operation": bool(contract_adapter.get("safety_boundary_contract", {}).get("metadata", {}).get("local_only_operation", True)),
-                "cloud_allowed": bool(contract_adapter.get("safety_boundary_contract", {}).get("metadata", {}).get("cloud_allowed", False)),
-                "device_flashing_allowed": bool(contract_adapter.get("safety_boundary_contract", {}).get("metadata", {}).get("device_flashing_allowed", False)),
-                "actuator_authority": bool(contract_adapter.get("safety_boundary_contract", {}).get("metadata", {}).get("actuator_authority", False)),
-                "operator_approval_required": bool(contract_adapter.get("safety_boundary_contract", {}).get("metadata", {}).get("operator_approval_required", True)),
-            },
+            "platform_authority": _neos_platform_authority(),
+            "boundary": _contract_document(contract_sources, "SAFETY_BOUNDARY") or {},
+            "summary": _project_safety_summary(contract_sources),
         },
         "evidence": {
             "project_registered": project_row is not None,
@@ -730,7 +901,9 @@ def _project_artifacts(
             "readiness": release_readiness.get("status"),
         },
         "drift": registry.get("drift", {}),
-        "impact": registry.get("impact", architecture_impact(db_path, project_id) if project_row is not None else {"project_id": project_id, "count": 0, "items": []}),
+        "impact": _stable_impact_payload(
+            registry.get("impact", architecture_impact(db_path, project_id) if project_row is not None else {"project_id": project_id, "count": 0, "items": []})
+        ),
         "freshness": freshness,
         "provenance": {
             "declared_sources": [source for source in ([manifest_path] if manifest_path else []) if source],

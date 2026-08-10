@@ -11,4 +11,6 @@ Scope:
 - stable service API and CLI commands
 - desktop Workspace Centre plumbing
 - empty and degraded repository handling
-
+- read-only workspace composition with no implicit Portfolio Intelligence refresh
+- safety provenance that preserves `TRUE` / `FALSE` / `UNKNOWN`
+- dependency provenance sourced from persisted project-relationship evidence
