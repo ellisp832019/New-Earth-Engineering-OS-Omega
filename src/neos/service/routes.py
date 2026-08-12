@@ -84,6 +84,7 @@ from ..governance import (
     governance_snapshot,
     governance_status,
 )
+from ..local_ai_runtime import local_ai_runtime_report
 from ..memory import (
     latest_project_memory,
     memory_assumptions,
@@ -111,7 +112,7 @@ from ..requirements_intelligence import (
     untested_requirements,
     verification_readiness,
 )
-from ..workspace import workspace_context, workspace_inventory, workspace_section
+from ..workspace import workspace_context, workspace_inventory, workspace_section, workspace_summary
 from .health import project_list, service_health
 from .models import ServiceConfig
 
@@ -184,6 +185,26 @@ def _query_platform_core_root(query: dict[str, list[str]]) -> str | None:
     return value or None
 
 
+def _query_gaia_root(query: dict[str, list[str]]) -> str | None:
+    value = query.get("gaia_root", [""])[0].strip()
+    return value or None
+
+
+def _query_runtime_root(query: dict[str, list[str]]) -> str | None:
+    value = query.get("runtime_root", [""])[0].strip()
+    return value or None
+
+
+def _query_runtime_base_url(query: dict[str, list[str]]) -> str | None:
+    value = query.get("runtime_base_url", [""])[0].strip()
+    return value or None
+
+
+def _query_gaia_base_url(query: dict[str, list[str]]) -> str | None:
+    value = query.get("gaia_base_url", [""])[0].strip()
+    return value or None
+
+
 def _project_repo_path(db_path: Path, project_id: str) -> Path:
     conn = connect(db_path)
     row = conn.execute("SELECT repo_path FROM projects WHERE project_id=?", (project_id,)).fetchone()
@@ -200,10 +221,13 @@ def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
     memory = latest_project_memory(db_path, project_id)
     flight = latest_project_flight(db_path, project_id)
     registry = architecture_registry(db_path, project_id)
-    workspace = workspace_context(db_path, project_id)
+    workspace = workspace_summary(db_path, project_id)
+    project_summary_payload = workspace.get("summary")
+    if not isinstance(project_summary_payload, dict):
+        project_summary_payload = project_summary(db_path, project_id)
     return {
-        "project": project_summary(db_path, project_id),
-        "summary": project_summary(db_path, project_id),
+        "project": project_summary_payload,
+        "summary": project_summary_payload,
         "registry": registry,
         "workspace": workspace,
         "identity": registry["identity"],
@@ -534,6 +558,14 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
             platform_core_root=_query_platform_core_root(query),
             estate_roots=_query_governance_estate_roots(query),
         )
+    if segments == ["governance", "local-ai-runtime"]:
+        return 200, local_ai_runtime_report(
+            platform_core_root=_query_platform_core_root(query),
+            gaia_root=_query_gaia_root(query),
+            runtime_root=_query_runtime_root(query),
+            runtime_base_url=_query_runtime_base_url(query),
+            gaia_base_url=_query_gaia_base_url(query),
+        )
     if len(segments) == 2 and segments[0] == "registry":
         try:
             return 200, architecture_registry(db_path, segments[1])
@@ -569,11 +601,13 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
     if len(segments) >= 2 and segments[0] == "workspace":
         project_id = segments[1]
         repo_path = query.get("repo_path", [""])[0].strip() or None
-        context = workspace_context(db_path, project_id, repo_path=Path(repo_path) if repo_path else None)
         if len(segments) == 2:
+            context = workspace_context(db_path, project_id, repo_path=Path(repo_path) if repo_path else None)
             return 200, context
         tail = segments[2:]
         if len(tail) == 1:
+            if tail[0] == "summary":
+                return 200, workspace_summary(db_path, project_id)
             return 200, workspace_section(db_path, project_id, tail[0], repo_path=repo_path)
     if segments == ["projects"]:
         return 200, {"projects": project_list(db_path)}

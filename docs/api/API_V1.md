@@ -17,6 +17,7 @@ NEOS v1.3.0 keeps the service API on `v1` and adds additive hardware and registr
 - `GET /projects/{project_id}/genome` - project genome
 - `GET /projects/{project_id}/memory` - project memory
 - `GET /projects/{project_id}/flight` - engineering flight snapshot
+- `GET /governance/local-ai-runtime` - read-only Local AI Runtime observation and verification report
 
 ## Hardware Routes
 
@@ -36,6 +37,7 @@ NEOS v1.3.0 keeps the service API on `v1` and adds additive hardware and registr
 - Empty projects return empty lists and counts rather than errors.
 - Unknown projects return `404 not_found`.
 - The hardware routes are read-only.
+- The Local AI Runtime governance route is read-only.
 
 ## Compatibility Notes
 
