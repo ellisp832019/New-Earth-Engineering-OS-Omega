@@ -221,7 +221,7 @@ def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
     memory = latest_project_memory(db_path, project_id)
     flight = latest_project_flight(db_path, project_id)
     registry = architecture_registry(db_path, project_id)
-    workspace = workspace_context(db_path, project_id)
+    workspace = workspace_summary(db_path, project_id)
     project_summary_payload = workspace.get("summary")
     if not isinstance(project_summary_payload, dict):
         project_summary_payload = project_summary(db_path, project_id)
