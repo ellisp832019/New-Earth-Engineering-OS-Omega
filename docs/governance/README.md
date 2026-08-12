@@ -22,6 +22,7 @@ python -m neos governance findings
 python -m neos governance project <project_id>
 python -m neos governance report
 python -m neos governance snapshot
+python -m neos governance local-ai-runtime
 ```
 
 Each command accepts:
@@ -29,6 +30,13 @@ Each command accepts:
 - `--platform-core-root <path>`
 - `--estate-root <path>` repeated as needed
 - `--json`
+
+The Local AI Runtime observation command also accepts:
+
+- `--gaia-root <path>`
+- `--runtime-root <path>`
+- `--runtime-base-url <url>`
+- `--gaia-base-url <url>`
 
 ### HTTP API
 
@@ -39,11 +47,19 @@ Read-only GET endpoints:
 - `/governance/findings`
 - `/governance/snapshot`
 - `/governance/project/<project_id>`
+- `/governance/local-ai-runtime`
 
 Query parameters:
 
 - `platform_core_root=<path>`
 - `estate_root=<path>` repeated as needed
+
+The Local AI Runtime observation endpoint also accepts:
+
+- `gaia_root=<path>`
+- `runtime_root=<path>`
+- `runtime_base_url=<url>`
+- `gaia_base_url=<url>`
 
 ## Safety model
 

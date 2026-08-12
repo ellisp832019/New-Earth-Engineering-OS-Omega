@@ -132,6 +132,7 @@ from .hardware import (
     hardware_trace,
     hardware_validation,
 )
+from .local_ai_runtime import local_ai_runtime_report
 from .memory import (
     build_project_memory,
     latest_project_memory,
@@ -603,6 +604,14 @@ def parser() -> argparse.ArgumentParser:
         command_parser.add_argument("--estate-root", action="append")
         command_parser.add_argument("--json", action="store_true")
 
+    def _local_ai_runtime_args(command_parser: argparse.ArgumentParser) -> None:
+        command_parser.add_argument("--platform-core-root")
+        command_parser.add_argument("--gaia-root")
+        command_parser.add_argument("--runtime-root")
+        command_parser.add_argument("--runtime-base-url")
+        command_parser.add_argument("--gaia-base-url")
+        command_parser.add_argument("--json", action="store_true")
+
     governance_status_cmd = governance_sub.add_parser("status")
     _governance_args(governance_status_cmd)
     governance_findings_cmd = governance_sub.add_parser("findings")
@@ -614,6 +623,8 @@ def parser() -> argparse.ArgumentParser:
     _governance_args(governance_report_cmd)
     governance_snapshot_cmd = governance_sub.add_parser("snapshot")
     _governance_args(governance_snapshot_cmd)
+    governance_runtime_cmd = governance_sub.add_parser("local-ai-runtime")
+    _local_ai_runtime_args(governance_runtime_cmd)
 
     decisions = sub.add_parser("decisions")
     decisions.add_argument("project_id")
@@ -1166,6 +1177,17 @@ def main(argv=None) -> int:
                         db,
                         platform_core_root=getattr(args, "platform_core_root", None),
                         estate_roots=getattr(args, "estate_root", None),
+                    ),
+                    fmt,
+                )
+            elif args.governance_cmd == "local-ai-runtime":
+                _print(
+                    local_ai_runtime_report(
+                        platform_core_root=getattr(args, "platform_core_root", None),
+                        gaia_root=getattr(args, "gaia_root", None),
+                        runtime_root=getattr(args, "runtime_root", None),
+                        runtime_base_url=getattr(args, "runtime_base_url", None),
+                        gaia_base_url=getattr(args, "gaia_base_url", None),
                     ),
                     fmt,
                 )

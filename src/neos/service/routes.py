@@ -84,6 +84,7 @@ from ..governance import (
     governance_snapshot,
     governance_status,
 )
+from ..local_ai_runtime import local_ai_runtime_report
 from ..memory import (
     latest_project_memory,
     memory_assumptions,
@@ -181,6 +182,26 @@ def _query_governance_estate_roots(query: dict[str, list[str]]) -> list[str] | N
 
 def _query_platform_core_root(query: dict[str, list[str]]) -> str | None:
     value = query.get("platform_core_root", [""])[0].strip()
+    return value or None
+
+
+def _query_gaia_root(query: dict[str, list[str]]) -> str | None:
+    value = query.get("gaia_root", [""])[0].strip()
+    return value or None
+
+
+def _query_runtime_root(query: dict[str, list[str]]) -> str | None:
+    value = query.get("runtime_root", [""])[0].strip()
+    return value or None
+
+
+def _query_runtime_base_url(query: dict[str, list[str]]) -> str | None:
+    value = query.get("runtime_base_url", [""])[0].strip()
+    return value or None
+
+
+def _query_gaia_base_url(query: dict[str, list[str]]) -> str | None:
+    value = query.get("gaia_base_url", [""])[0].strip()
     return value or None
 
 
@@ -533,6 +554,14 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
             segments[2],
             platform_core_root=_query_platform_core_root(query),
             estate_roots=_query_governance_estate_roots(query),
+        )
+    if segments == ["governance", "local-ai-runtime"]:
+        return 200, local_ai_runtime_report(
+            platform_core_root=_query_platform_core_root(query),
+            gaia_root=_query_gaia_root(query),
+            runtime_root=_query_runtime_root(query),
+            runtime_base_url=_query_runtime_base_url(query),
+            gaia_base_url=_query_gaia_base_url(query),
         )
     if len(segments) == 2 and segments[0] == "registry":
         try:
