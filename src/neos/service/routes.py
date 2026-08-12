@@ -112,7 +112,7 @@ from ..requirements_intelligence import (
     untested_requirements,
     verification_readiness,
 )
-from ..workspace import workspace_context, workspace_inventory, workspace_section
+from ..workspace import workspace_context, workspace_inventory, workspace_section, workspace_summary
 from .health import project_list, service_health
 from .models import ServiceConfig
 
@@ -222,9 +222,12 @@ def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
     flight = latest_project_flight(db_path, project_id)
     registry = architecture_registry(db_path, project_id)
     workspace = workspace_context(db_path, project_id)
+    project_summary_payload = workspace.get("summary")
+    if not isinstance(project_summary_payload, dict):
+        project_summary_payload = project_summary(db_path, project_id)
     return {
-        "project": project_summary(db_path, project_id),
-        "summary": project_summary(db_path, project_id),
+        "project": project_summary_payload,
+        "summary": project_summary_payload,
         "registry": registry,
         "workspace": workspace,
         "identity": registry["identity"],
@@ -598,11 +601,13 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
     if len(segments) >= 2 and segments[0] == "workspace":
         project_id = segments[1]
         repo_path = query.get("repo_path", [""])[0].strip() or None
-        context = workspace_context(db_path, project_id, repo_path=Path(repo_path) if repo_path else None)
         if len(segments) == 2:
+            context = workspace_context(db_path, project_id, repo_path=Path(repo_path) if repo_path else None)
             return 200, context
         tail = segments[2:]
         if len(tail) == 1:
+            if tail[0] == "summary":
+                return 200, workspace_summary(db_path, project_id)
             return 200, workspace_section(db_path, project_id, tail[0], repo_path=repo_path)
     if segments == ["projects"]:
         return 200, {"projects": project_list(db_path)}
