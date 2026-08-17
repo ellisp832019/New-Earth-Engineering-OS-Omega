@@ -983,6 +983,20 @@ def contains_suspicious_instruction(text: str) -> bool:
     return any(marker in lowered for marker in INJECTION_MARKERS)
 
 
+def _safe_repository_text(path: Path) -> str:
+    """Return repository text safely for semantic safety checks.
+
+    Findings may represent directories or paths that cannot be opened as
+    regular files. These paths must not abort an otherwise valid repository
+    scan.
+    """
+    try:
+        if not path.is_file():
+            return ""
+        return path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return ""
+
 def extract_semantics(
     repo_root: Path,
     project_id: str,
@@ -1108,7 +1122,7 @@ def extract_semantics(
                 "warning": "instruction-like text observed in repository content",
             }
             for finding in findings
-            if contains_suspicious_instruction((repo_root / finding.source_path).read_text(encoding="utf-8", errors="ignore") if (repo_root / finding.source_path).exists() else "")
+            if contains_suspicious_instruction(_safe_repository_text(repo_root / finding.source_path))
         ],
     }
 
