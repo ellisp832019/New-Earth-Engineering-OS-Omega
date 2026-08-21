@@ -133,6 +133,7 @@ from .hardware import (
     hardware_validation,
 )
 from .local_ai_runtime import local_ai_runtime_report
+from .mcp.provider import McpProviderConfig, McpProviderError, McpProviderRuntime, run_stdio
 from .memory import (
     build_project_memory,
     latest_project_memory,
@@ -837,6 +838,10 @@ def parser() -> argparse.ArgumentParser:
     service_start.add_argument("--owner-pid", type=int)
     service_start.add_argument("--shutdown-token")
 
+    mcp_provider = sub.add_parser("mcp-provider", help="Run the disabled-by-default MCP provider skeleton")
+    mcp_provider.add_argument("--bundle", type=Path, required=True)
+    mcp_provider.add_argument("--enable", action="store_true")
+
     sub.add_parser("version")
     return p
 
@@ -1465,16 +1470,24 @@ def main(argv=None) -> int:
             elif args.flight_cmd == "regressions":
                 _print(flight_regressions(db, args.project_id), "json" if args.json else "text")
             return 0
-        if args.cmd == "service":
-            if args.service_cmd == "start":
-                serve_service(
-                    Path(args.db),
-                    host=args.host,
-                    port=args.port,
-                    instance_id=args.instance_id,
-                    owner_pid=args.owner_pid,
-                    shutdown_token=args.shutdown_token,
-                )
+        if args.cmd == "service" and args.service_cmd == "start":
+            serve_service(
+                Path(args.db),
+                host=args.host,
+                port=args.port,
+                instance_id=args.instance_id,
+                owner_pid=args.owner_pid,
+                shutdown_token=args.shutdown_token,
+            )
+            return 0
+
+        if args.cmd == "mcp-provider":
+            provider = McpProviderRuntime(McpProviderConfig(args.bundle, enabled=args.enable))
+            try:
+                run_stdio(provider, sys.stdin, sys.stdout)
+            except McpProviderError as exc:
+                print(str(exc), file=sys.stderr)
+                return 1
             return 0
         if args.cmd == "version":
             print(__version__)
