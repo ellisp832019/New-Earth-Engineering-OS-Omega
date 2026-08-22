@@ -3,10 +3,12 @@ from __future__ import annotations
 import io
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 import yaml
 
+import neos.mcp.provider as provider_module
 from neos.mcp.provider import (
     EXPECTED_BASELINE_ID,
     EXPECTED_BUNDLE_FORMAT,
@@ -78,8 +80,16 @@ def _valid_bundle(tmp_path: Path) -> Path:
     return bundle
 
 
-def _runtime(bundle: Path, enabled: bool = True) -> McpProviderRuntime:
-    return McpProviderRuntime(McpProviderConfig(bundle, enabled=enabled))
+def _runtime(
+    bundle: Path,
+    enabled: bool = True,
+    health_reader: Any = None,
+    health_db_path: Path | None = None,
+) -> McpProviderRuntime:
+    return McpProviderRuntime(
+        McpProviderConfig(bundle, enabled=enabled, health_db_path=health_db_path),
+        health_reader=health_reader,
+    )
 
 
 def test_valid_bundle_initializes(tmp_path: Path) -> None:
@@ -155,18 +165,100 @@ def test_manifest_server_mismatch_and_write_contract_fail(tmp_path: Path) -> Non
 
 
 def test_operations_are_allowlisted_and_not_implemented(tmp_path: Path) -> None:
-    runtime = _runtime(_valid_bundle(tmp_path))
+    runtime = _runtime(_valid_bundle(tmp_path), health_reader=lambda: {"status": "healthy"})
     runtime.initialize()
-    for operation in ("neos.health.read", "neos.project.summary.read"):
-        response = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", operation, {}))
-        assert response.status == "not_implemented"
-        assert response.error == {"code": "NOT_IMPLEMENTED", "message": "NEOS MCP read execution is deferred"}
+    health = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.health.read", {}))
+    assert health.status == "success"
+    summary = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.project.summary.read", {}))
+    assert summary.status == "not_implemented"
+    assert summary.error == {"code": "NOT_IMPLEMENTED", "message": "NEOS MCP read execution is deferred"}
     unknown = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.delete", {}))
     assert unknown.error == {"code": "UNKNOWN_OPERATION"}
 
 
-def test_request_client_and_stdio_boundaries(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "health_status,response_status",
+    [("healthy", "success"), ("degraded", "success"), ("unknown", "unknown"), ("unavailable", "unknown")],
+)
+def test_health_status_is_preserved(tmp_path: Path, health_status: str, response_status: str) -> None:
+    result = {"status": health_status, "service_version": "1.3.0"}
+    runtime = _runtime(_valid_bundle(tmp_path), health_reader=lambda: result)
+    runtime.initialize()
+    response = runtime.handle(McpProviderRequest("health-corr", "gaia-mcp-client", "neos.health.read", {}))
+    assert response.status == response_status
+    assert response.result == result
+    assert response.correlation_id == "health-corr"
+    assert response.operation_id == "neos.health.read"
+
+
+def test_health_read_uses_in_process_source_without_http(tmp_path: Path) -> None:
+    calls: list[str] = []
+
+    def read_health() -> dict[str, Any]:
+        calls.append("health")
+        return {"status": "healthy", "source": "service_health"}
+
+    runtime = _runtime(_valid_bundle(tmp_path), health_reader=read_health)
+    runtime.initialize()
+    response = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.health.read", {}))
+    assert response.status == "success"
+    assert calls == ["health"]
+
+
+def test_default_health_reader_uses_canonical_service_health(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    observed: dict[str, Any] = {}
+
+    def canonical_health(db_path: Path, config: Any) -> dict[str, Any]:
+        observed["db_path"] = db_path
+        observed["config_db_path"] = config.db_path
+        return {"status": "healthy", "source": "canonical"}
+
+    monkeypatch.setattr(provider_module, "service_health", canonical_health)
+    db_path = tmp_path / "neos.db"
+    runtime = _runtime(_valid_bundle(tmp_path), health_db_path=db_path)
+    runtime.initialize()
+    response = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.health.read", {}))
+    assert response.result == {"status": "healthy", "source": "canonical"}
+    assert observed == {"db_path": db_path, "config_db_path": db_path}
+
+
+def test_health_failure_is_controlled_without_stack_trace(tmp_path: Path) -> None:
+    def fail_health() -> dict[str, Any]:
+        raise RuntimeError("secret stack detail")
+
+    runtime = _runtime(_valid_bundle(tmp_path), health_reader=fail_health)
+    runtime.initialize()
+    response = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.health.read", {}))
+    assert response.status == "error"
+    assert response.error == {"code": "HEALTH_READ_FAILED", "message": "NEOS health read failed"}
+    assert "secret stack detail" not in json.dumps(response.as_mapping())
+
+
+def test_health_rejects_arguments_without_calling_reader(tmp_path: Path) -> None:
+    calls: list[str] = []
+
+    def read_health() -> dict[str, Any]:
+        calls.append("called")
+        return {"status": "healthy"}
+
+    runtime = _runtime(_valid_bundle(tmp_path), health_reader=read_health)
+    runtime.initialize()
+    response = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.health.read", {"path": "x"}))
+    assert response.status == "rejected"
+    assert response.error and response.error["code"] == "INVALID_ARGUMENTS"
+    assert calls == []
+
+
+def test_health_requires_configured_source_when_no_reader_is_injected(tmp_path: Path) -> None:
     runtime = _runtime(_valid_bundle(tmp_path))
+    runtime.initialize()
+    response = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.health.read", {}))
+    assert response.status == "unknown"
+    assert response.error and response.error["code"] == "HEALTH_UNAVAILABLE"
+
+
+def test_request_client_and_stdio_boundaries(tmp_path: Path) -> None:
+    runtime = _runtime(_valid_bundle(tmp_path), health_reader=lambda: {"status": "healthy"})
     runtime.initialize()
     unknown = runtime.handle(McpProviderRequest("corr", "unknown", "neos.health.read", {}))
     assert unknown.error == {"code": "UNKNOWN_CLIENT"}
@@ -177,4 +269,6 @@ def test_request_client_and_stdio_boundaries(tmp_path: Path) -> None:
     assert request is not None
     output_stream = io.StringIO()
     McpStdioTransport.write_response(output_stream, runtime.handle(request))
-    assert json.loads(output_stream.getvalue())["status"] == "not_implemented"
+    output = json.loads(output_stream.getvalue())
+    assert output["status"] == "success"
+    assert output["operation_id"] == "neos.health.read"
