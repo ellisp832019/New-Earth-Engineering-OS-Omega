@@ -40,7 +40,7 @@ The backend build is expected to pass:
 
 - pytest
 - ruff
-- mypy
+- `python -m mypy src` (runtime/source type gate)
 - Windows packaging
 
 The release bundle also records the backend executable hash and byte size in the manifest and checksum files.

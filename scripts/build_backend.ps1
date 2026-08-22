@@ -13,7 +13,7 @@ $entry = Join-Path $root 'scripts\backend_entry.py'
 if (-not $SkipValidation) {
     python -m pytest -q
     python -m ruff check src tests
-    python -m mypy src\neos
+    python -m mypy src
 }
 
 if (-not (Get-Command pyinstaller -ErrorAction SilentlyContinue)) {
