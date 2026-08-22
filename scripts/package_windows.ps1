@@ -36,7 +36,7 @@ $buildTimer = [System.Diagnostics.Stopwatch]::StartNew()
 
 python -m pytest -q
 python -m ruff check src tests
-python -m mypy src\neos
+python -m mypy src
 
 Push-Location $desktopRoot
 try {
