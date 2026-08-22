@@ -85,10 +85,12 @@ def _runtime(
     enabled: bool = True,
     health_reader: Any = None,
     health_db_path: Path | None = None,
+    project_summary_reader: Any = None,
 ) -> McpProviderRuntime:
     return McpProviderRuntime(
         McpProviderConfig(bundle, enabled=enabled, health_db_path=health_db_path),
         health_reader=health_reader,
+        project_summary_reader=project_summary_reader,
     )
 
 
@@ -164,14 +166,16 @@ def test_manifest_server_mismatch_and_write_contract_fail(tmp_path: Path) -> Non
         _runtime(bundle).initialize()
 
 
-def test_operations_are_allowlisted_and_not_implemented(tmp_path: Path) -> None:
+def test_operations_are_allowlisted_and_summary_requires_source(tmp_path: Path) -> None:
     runtime = _runtime(_valid_bundle(tmp_path), health_reader=lambda: {"status": "healthy"})
     runtime.initialize()
     health = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.health.read", {}))
     assert health.status == "success"
-    summary = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.project.summary.read", {}))
-    assert summary.status == "not_implemented"
-    assert summary.error == {"code": "NOT_IMPLEMENTED", "message": "NEOS MCP read execution is deferred"}
+    summary = runtime.handle(
+        McpProviderRequest("corr", "gaia-mcp-client", "neos.project.summary.read", {"project_id": "demo"})
+    )
+    assert summary.status == "unknown"
+    assert summary.error and summary.error["code"] == "PROJECT_SUMMARY_UNAVAILABLE"
     unknown = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.delete", {}))
     assert unknown.error == {"code": "UNKNOWN_OPERATION"}
 
@@ -257,8 +261,95 @@ def test_health_requires_configured_source_when_no_reader_is_injected(tmp_path: 
     assert response.error and response.error["code"] == "HEALTH_UNAVAILABLE"
 
 
+def test_project_summary_returns_canonical_result(tmp_path: Path) -> None:
+    result = {"project_id": "demo", "counts": {"project": 1}, "last_scan": None}
+    runtime = _runtime(_valid_bundle(tmp_path), project_summary_reader=lambda project_id: {**result, "project_id": project_id})
+    runtime.initialize()
+    response = runtime.handle(
+        McpProviderRequest("summary-corr", "gaia-mcp-client", "neos.project.summary.read", {"project_id": "demo"})
+    )
+    assert response.status == "success"
+    assert response.result == result
+    assert response.correlation_id == "summary-corr"
+    assert response.operation_id == "neos.project.summary.read"
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [{}, {"project_id": ""}, {"project_id": "../demo"}, {"project_id": "Demo"}, {"project_id": 42}, {"project_id": "demo", "extra": True}],
+)
+def test_project_summary_rejects_invalid_project_id(tmp_path: Path, arguments: dict[str, Any]) -> None:
+    runtime = _runtime(_valid_bundle(tmp_path), project_summary_reader=lambda _: {"project_id": "unexpected"})
+    runtime.initialize()
+    response = runtime.handle(McpProviderRequest("corr", "gaia-mcp-client", "neos.project.summary.read", arguments))
+    assert response.status == "rejected"
+    assert response.error and response.error["code"] == "INVALID_PROJECT_ID"
+
+
+def test_project_summary_not_found_is_controlled(tmp_path: Path) -> None:
+    def missing(_: str) -> dict[str, Any]:
+        raise ValueError("Unknown project: missing")
+
+    runtime = _runtime(_valid_bundle(tmp_path), project_summary_reader=missing)
+    runtime.initialize()
+    response = runtime.handle(
+        McpProviderRequest("corr", "gaia-mcp-client", "neos.project.summary.read", {"project_id": "missing"})
+    )
+    assert response.status == "unknown"
+    assert response.error == {"code": "PROJECT_NOT_FOUND", "message": "Project summary is not available"}
+
+
+@pytest.mark.parametrize("marker", ["partial", "stale", "unknown", "unavailable"])
+def test_project_summary_state_is_preserved(tmp_path: Path, marker: str) -> None:
+    result = {"project_id": "demo", "status": marker}
+    runtime = _runtime(_valid_bundle(tmp_path), project_summary_reader=lambda _: result)
+    runtime.initialize()
+    response = runtime.handle(
+        McpProviderRequest("corr", "gaia-mcp-client", "neos.project.summary.read", {"project_id": "demo"})
+    )
+    assert response.result == result
+    assert response.status == ("unknown" if marker in {"unknown", "unavailable"} else "success")
+
+
+def test_project_summary_failure_hides_stack_trace(tmp_path: Path) -> None:
+    def fail(_: str) -> dict[str, Any]:
+        raise RuntimeError("secret summary detail")
+
+    runtime = _runtime(_valid_bundle(tmp_path), project_summary_reader=fail)
+    runtime.initialize()
+    response = runtime.handle(
+        McpProviderRequest("corr", "gaia-mcp-client", "neos.project.summary.read", {"project_id": "demo"})
+    )
+    assert response.status == "error"
+    assert response.error == {"code": "PROJECT_SUMMARY_FAILED", "message": "Project summary read failed"}
+    assert "secret summary detail" not in json.dumps(response.as_mapping())
+
+
+def test_default_project_summary_reader_uses_canonical_source(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    observed: dict[str, Any] = {}
+
+    def canonical_summary(db_path: Path, project_id: str) -> dict[str, Any]:
+        observed["db_path"] = db_path
+        observed["project_id"] = project_id
+        return {"project_id": project_id, "source": "canonical"}
+
+    monkeypatch.setattr(provider_module, "project_summary", canonical_summary)
+    db_path = tmp_path / "neos.db"
+    runtime = _runtime(_valid_bundle(tmp_path), health_db_path=db_path)
+    runtime.initialize()
+    response = runtime.handle(
+        McpProviderRequest("corr", "gaia-mcp-client", "neos.project.summary.read", {"project_id": "demo"})
+    )
+    assert response.result == {"project_id": "demo", "source": "canonical"}
+    assert observed == {"db_path": db_path, "project_id": "demo"}
+
+
 def test_request_client_and_stdio_boundaries(tmp_path: Path) -> None:
-    runtime = _runtime(_valid_bundle(tmp_path), health_reader=lambda: {"status": "healthy"})
+    runtime = _runtime(
+        _valid_bundle(tmp_path),
+        health_reader=lambda: {"status": "healthy"},
+        project_summary_reader=lambda project_id: {"project_id": project_id},
+    )
     runtime.initialize()
     unknown = runtime.handle(McpProviderRequest("corr", "unknown", "neos.health.read", {}))
     assert unknown.error == {"code": "UNKNOWN_CLIENT"}
