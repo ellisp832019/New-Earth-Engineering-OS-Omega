@@ -11,6 +11,7 @@ from typing import Any, TextIO
 
 import yaml
 
+from ..core import project_summary
 from ..service.health import service_health
 from ..service.models import ServiceConfig
 
@@ -28,6 +29,7 @@ WRITE_LIKE_TOKENS = frozenset(
     {"create", "update", "delete", "write", "mutate", "shell", "commit", "push", "merge", "actuate", "control"}
 )
 SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
+PROJECT_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]+$")
 
 
 class McpProviderError(RuntimeError):
@@ -230,10 +232,16 @@ class McpContractBundle:
 
 
 class McpProviderRuntime:
-    def __init__(self, config: McpProviderConfig, health_reader: Callable[[], dict[str, Any]] | None = None):
+    def __init__(
+        self,
+        config: McpProviderConfig,
+        health_reader: Callable[[], dict[str, Any]] | None = None,
+        project_summary_reader: Callable[[str], dict[str, Any]] | None = None,
+    ):
         self.config = config
         self.bundle: McpContractBundle | None = None
         self.health_reader = health_reader or self._read_health
+        self.project_summary_reader = project_summary_reader or self._read_project_summary
 
     def initialize(self) -> None:
         if not self.config.enabled:
@@ -244,6 +252,11 @@ class McpProviderRuntime:
         if self.config.health_db_path is None:
             raise McpProviderError("HEALTH_UNAVAILABLE", "NEOS health database is not configured")
         return service_health(self.config.health_db_path, ServiceConfig(db_path=self.config.health_db_path))
+
+    def _read_project_summary(self, project_id: str) -> dict[str, Any]:
+        if self.config.health_db_path is None:
+            raise McpProviderError("PROJECT_SUMMARY_UNAVAILABLE", "NEOS project database is not configured")
+        return project_summary(self.config.health_db_path, project_id)
 
     def _health_response(self, request: McpProviderRequest) -> McpProviderResponse:
         if request.arguments:
@@ -285,6 +298,62 @@ class McpProviderRuntime:
             operation_id=request.operation_id,
         )
 
+    def _project_summary_response(self, request: McpProviderRequest) -> McpProviderResponse:
+        if not isinstance(request.arguments, dict) or set(request.arguments) != {"project_id"}:
+            return McpProviderResponse(
+                request.correlation_id,
+                "rejected",
+                error={"code": "INVALID_PROJECT_ID", "message": "project_id is required"},
+                operation_id=request.operation_id,
+            )
+        project_id = request.arguments["project_id"]
+        if not isinstance(project_id, str) or PROJECT_ID_PATTERN.fullmatch(project_id) is None:
+            return McpProviderResponse(
+                request.correlation_id,
+                "rejected",
+                error={"code": "INVALID_PROJECT_ID", "message": "project_id is invalid"},
+                operation_id=request.operation_id,
+            )
+        try:
+            result = self.project_summary_reader(project_id)
+        except McpProviderError as exc:
+            return McpProviderResponse(
+                request.correlation_id,
+                "unknown" if exc.code == "PROJECT_SUMMARY_UNAVAILABLE" else "error",
+                error={"code": exc.code, "message": str(exc)},
+                operation_id=request.operation_id,
+            )
+        except ValueError as exc:
+            code = "PROJECT_NOT_FOUND" if str(exc).startswith("Unknown project:") else "PROJECT_SUMMARY_FAILED"
+            return McpProviderResponse(
+                request.correlation_id,
+                "error" if code == "PROJECT_SUMMARY_FAILED" else "unknown",
+                error={"code": code, "message": "Project summary is not available" if code == "PROJECT_NOT_FOUND" else "Project summary read failed"},
+                operation_id=request.operation_id,
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, sqlite3.Error):
+            return McpProviderResponse(
+                request.correlation_id,
+                "error",
+                error={"code": "PROJECT_SUMMARY_FAILED", "message": "Project summary read failed"},
+                operation_id=request.operation_id,
+            )
+        if not isinstance(result, dict):
+            return McpProviderResponse(
+                request.correlation_id,
+                "error",
+                error={"code": "INVALID_PROJECT_SUMMARY", "message": "Project summary result is invalid"},
+                operation_id=request.operation_id,
+            )
+        summary_status = result.get("status")
+        response_status = "unknown" if summary_status in {"unknown", "unavailable"} else "error" if summary_status == "error" else "success"
+        return McpProviderResponse(
+            request.correlation_id,
+            response_status,
+            result=result,
+            operation_id=request.operation_id,
+        )
+
     def handle(self, request: McpProviderRequest) -> McpProviderResponse:
         if self.bundle is None:
             raise McpProviderError("MCP_DISABLED", "Provider is not initialized")
@@ -294,6 +363,8 @@ class McpProviderRuntime:
             return McpProviderResponse(request.correlation_id, "rejected", error={"code": "UNKNOWN_OPERATION"}, operation_id=request.operation_id)
         if request.operation_id == "neos.health.read":
             return self._health_response(request)
+        if request.operation_id == "neos.project.summary.read":
+            return self._project_summary_response(request)
         return McpProviderResponse(
             request.correlation_id,
             "not_implemented",
