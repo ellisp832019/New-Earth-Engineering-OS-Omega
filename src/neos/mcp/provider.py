@@ -3,11 +3,16 @@ from __future__ import annotations
 import json
 import os
 import re
+import sqlite3
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, TextIO
 
 import yaml
+
+from ..service.health import service_health
+from ..service.models import ServiceConfig
 
 EXPECTED_BASELINE_ID = "NE-MCP-READONLY-V1-DECLARATIVE-2026-08-21"
 EXPECTED_BUNDLE_ID = "new-earth-mcp-contract-bundle-v1"
@@ -35,6 +40,7 @@ class McpProviderError(RuntimeError):
 class McpProviderConfig:
     bundle_path: Path
     enabled: bool = False
+    health_db_path: Path | None = None
 
     @classmethod
     def from_environment(cls, bundle_path: Path) -> McpProviderConfig:
@@ -68,10 +74,12 @@ class McpProviderResponse:
     status: str
     result: Any = None
     error: dict[str, str] | None = None
+    operation_id: str | None = None
 
     def as_mapping(self) -> dict[str, Any]:
         return {
             "correlation_id": self.correlation_id,
+            "operation_id": self.operation_id,
             "status": self.status,
             "result": self.result,
             "error": self.error,
@@ -222,26 +230,75 @@ class McpContractBundle:
 
 
 class McpProviderRuntime:
-    def __init__(self, config: McpProviderConfig):
+    def __init__(self, config: McpProviderConfig, health_reader: Callable[[], dict[str, Any]] | None = None):
         self.config = config
         self.bundle: McpContractBundle | None = None
+        self.health_reader = health_reader or self._read_health
 
     def initialize(self) -> None:
         if not self.config.enabled:
             raise McpProviderError("MCP_DISABLED", "NEOS MCP provider is disabled")
         self.bundle = McpContractBundle.load(self.config.bundle_path)
 
+    def _read_health(self) -> dict[str, Any]:
+        if self.config.health_db_path is None:
+            raise McpProviderError("HEALTH_UNAVAILABLE", "NEOS health database is not configured")
+        return service_health(self.config.health_db_path, ServiceConfig(db_path=self.config.health_db_path))
+
+    def _health_response(self, request: McpProviderRequest) -> McpProviderResponse:
+        if request.arguments:
+            return McpProviderResponse(
+                request.correlation_id,
+                "rejected",
+                error={"code": "INVALID_ARGUMENTS", "message": "neos.health.read accepts no arguments"},
+                operation_id=request.operation_id,
+            )
+        try:
+            result = self.health_reader()
+        except McpProviderError as exc:
+            return McpProviderResponse(
+                request.correlation_id,
+                "unknown" if exc.code == "HEALTH_UNAVAILABLE" else "error",
+                error={"code": exc.code, "message": str(exc)},
+                operation_id=request.operation_id,
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError, sqlite3.Error):
+            return McpProviderResponse(
+                request.correlation_id,
+                "error",
+                error={"code": "HEALTH_READ_FAILED", "message": "NEOS health read failed"},
+                operation_id=request.operation_id,
+            )
+        if not isinstance(result, dict) or not isinstance(result.get("status"), str):
+            return McpProviderResponse(
+                request.correlation_id,
+                "error",
+                error={"code": "INVALID_HEALTH_RESPONSE", "message": "NEOS health result is invalid"},
+                operation_id=request.operation_id,
+            )
+        health_status = result["status"].lower()
+        response_status = "unknown" if health_status in {"unknown", "unavailable"} else "error" if health_status == "error" else "success"
+        return McpProviderResponse(
+            request.correlation_id,
+            response_status,
+            result=result,
+            operation_id=request.operation_id,
+        )
+
     def handle(self, request: McpProviderRequest) -> McpProviderResponse:
         if self.bundle is None:
             raise McpProviderError("MCP_DISABLED", "Provider is not initialized")
         if request.client_id != EXPECTED_CLIENT_ID:
-            return McpProviderResponse(request.correlation_id, "rejected", error={"code": "UNKNOWN_CLIENT"})
+            return McpProviderResponse(request.correlation_id, "rejected", error={"code": "UNKNOWN_CLIENT"}, operation_id=request.operation_id)
         if request.operation_id not in self.bundle.known_operations():
-            return McpProviderResponse(request.correlation_id, "rejected", error={"code": "UNKNOWN_OPERATION"})
+            return McpProviderResponse(request.correlation_id, "rejected", error={"code": "UNKNOWN_OPERATION"}, operation_id=request.operation_id)
+        if request.operation_id == "neos.health.read":
+            return self._health_response(request)
         return McpProviderResponse(
             request.correlation_id,
             "not_implemented",
             error={"code": "NOT_IMPLEMENTED", "message": "NEOS MCP read execution is deferred"},
+            operation_id=request.operation_id,
         )
 
 

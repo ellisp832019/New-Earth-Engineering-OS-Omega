@@ -56,9 +56,15 @@ current recognized IDs are:
 - `neos.health.read`
 - `neos.project.summary.read`
 
-Both operations return `NOT_IMPLEMENTED`. They do not call `GET /health` or
-`GET /projects/{project_id}/summary` until the next controlled slices.
-Unknown clients, malformed requests, and unknown operations are rejected.
+`neos.health.read` executes the existing in-process `service_health` source used
+by the HTTP `/health` route. It returns the health result in the MCP response
+envelope and performs no self-HTTP request. `neos.project.summary.read` remains
+`NOT_IMPLEMENTED`. Unknown clients, malformed requests, unexpected health
+arguments, and unknown operations are rejected.
+
+Health execution requires the provider to be enabled, a valid pinned bundle to
+be loaded, and the NEOS health database to be configured. Health failures are
+returned as controlled MCP errors without stack traces.
 
 ## Fail-Closed Behavior
 
@@ -69,12 +75,11 @@ There is no permissive fallback.
 
 ## Runtime Exclusions
 
-MCP-02C does not implement health execution, project-summary execution, query
-execution, authorization, approval, audit persistence, GAIA integration, shell
-execution, subprocess spawning, network transport, or write capability.
+MCP-02D does not implement project-summary execution, query execution,
+authorization, approval, audit persistence, GAIA integration, shell execution,
+subprocess spawning, network transport, or write capability.
 
 ## Next Slice
 
-MCP-02D implements the NEOS MCP health-read operation using the existing NEOS
-health truth boundary. It must preserve this provider's bundle pinning,
-read-only checks, explicit lifecycle, and transport boundary.
+MCP-02E may implement the NEOS MCP project-summary read operation using the
+same provider boundaries.

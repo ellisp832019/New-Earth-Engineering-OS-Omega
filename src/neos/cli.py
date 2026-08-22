@@ -840,6 +840,7 @@ def parser() -> argparse.ArgumentParser:
 
     mcp_provider = sub.add_parser("mcp-provider", help="Run the disabled-by-default MCP provider skeleton")
     mcp_provider.add_argument("--bundle", type=Path, required=True)
+    mcp_provider.add_argument("--db", type=Path, default=DB_PATH)
     mcp_provider.add_argument("--enable", action="store_true")
 
     sub.add_parser("version")
@@ -1482,7 +1483,7 @@ def main(argv=None) -> int:
             return 0
 
         if args.cmd == "mcp-provider":
-            provider = McpProviderRuntime(McpProviderConfig(args.bundle, enabled=args.enable))
+            provider = McpProviderRuntime(McpProviderConfig(args.bundle, enabled=args.enable, health_db_path=args.db))
             try:
                 run_stdio(provider, sys.stdin, sys.stdout)
             except McpProviderError as exc:
