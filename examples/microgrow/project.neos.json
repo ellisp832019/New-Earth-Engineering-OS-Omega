@@ -3,7 +3,7 @@
   "project_id": "microgrow-v1",
   "name": "MicroGrow V1",
   "description": "Reference NEOS Alpha integration for the MicroGrow engineering repository.",
-  "lifecycle": "active",
+  "lifecycle": "archived",
   "repository": {
     "path": "D:/Dev/Projects/MicroGrow V1",
     "default_branch": "develop"
@@ -23,6 +23,7 @@
     "embedded",
     "grow-automation",
     "local-first",
-    "reference-integration"
+    "reference-integration",
+    "legacy"
   ]
 }
