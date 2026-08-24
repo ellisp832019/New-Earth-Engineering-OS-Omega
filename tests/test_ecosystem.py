@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import neos.ecosystem as ecosystem_module
 from neos.ai.engine import AIEngine
 from neos.core import init_project, scan_project
 from neos.db import connect
@@ -170,6 +171,25 @@ def test_ecosystem_analysis_is_deterministic_and_evidence_backed(tmp_path: Path)
     assert search["count"] >= 1
     assert search["items"]
     assert search["items"][0]["score"] > 0
+
+
+def test_project_registry_v2_scopes_before_loading_entries(tmp_path: Path, monkeypatch):
+    db = _seed(tmp_path)
+    loaded_project_ids: list[str] = []
+
+    original_loader = ecosystem_module._load_project_entry
+
+    def tracking_loader(db_path: Path, project_id: str):
+        loaded_project_ids.append(project_id)
+        return original_loader(db_path, project_id)
+
+    monkeypatch.setattr(ecosystem_module, "_load_project_entry", tracking_loader)
+
+    registry = project_registry_v2(db, project_ids=["alpha"])
+
+    assert registry["project_count"] == 1
+    assert [project["project_id"] for project in registry["projects"]] == ["alpha"]
+    assert loaded_project_ids == ["alpha"]
 
 
 def test_portfolio_ai_scope_preserves_multiple_project_ids(tmp_path: Path):

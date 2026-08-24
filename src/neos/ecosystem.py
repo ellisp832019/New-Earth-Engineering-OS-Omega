@@ -416,9 +416,18 @@ def _load_project_entry(db_path: Path, project_id: str) -> dict[str, Any]:
     return project_entry
 
 
-def project_registry_v2(db_path: Path) -> dict[str, Any]:
+def project_registry_v2(db_path: Path, project_ids: list[str] | None = None) -> dict[str, Any]:
     conn = connect(db_path)
-    rows = conn.execute("SELECT project_id FROM projects ORDER BY name, project_id").fetchall()
+    if project_ids is None:
+        rows = conn.execute("SELECT project_id FROM projects ORDER BY name, project_id").fetchall()
+    elif project_ids:
+        placeholders = ",".join("?" for _ in project_ids)
+        rows = conn.execute(
+            f"SELECT project_id FROM projects WHERE project_id IN ({placeholders}) ORDER BY name, project_id",
+            project_ids,
+        ).fetchall()
+    else:
+        rows = []
     conn.close()
     projects = [_load_project_entry(db_path, row["project_id"]) for row in rows]
     return {
@@ -433,13 +442,12 @@ def _snapshot_fingerprint(payload: dict[str, Any]) -> str:
 
 
 def build_portfolio_snapshot(db_path: Path, project_ids: list[str] | None = None, *, name: str = "default") -> dict[str, Any]:
-    registry = project_registry_v2(db_path)
-    projects = registry["projects"]
-    if project_ids:
-        selected = [project for project in projects if project["project_id"] in set(project_ids)]
-    else:
-        selected = projects
-    selected = sorted(selected, key=lambda item: item["project_id"])
+    registry = project_registry_v2(db_path, project_ids=project_ids)
+    return _build_portfolio_snapshot_from_projects(db_path, registry["projects"], name=name)
+
+
+def _build_portfolio_snapshot_from_projects(db_path: Path, projects: list[dict[str, Any]], *, name: str = "default") -> dict[str, Any]:
+    selected = sorted(projects, key=lambda item: item["project_id"])
     selected_project_ids = [project["project_id"] for project in selected]
     source_payload = {
         "name": name,
@@ -1124,12 +1132,10 @@ def _persist_analysis(
 
 
 def analyse_portfolio(db_path: Path, project_ids: list[str] | None = None, *, name: str = "default") -> dict[str, Any]:
-    registry = project_registry_v2(db_path)
+    registry = project_registry_v2(db_path, project_ids=project_ids)
     projects = registry["projects"]
-    if project_ids:
-        projects = [project for project in projects if project["project_id"] in set(project_ids)]
     projects = sorted(projects, key=lambda item: item["project_id"])
-    snapshot_bundle = build_portfolio_snapshot(db_path, [project["project_id"] for project in projects], name=name)
+    snapshot_bundle = _build_portfolio_snapshot_from_projects(db_path, projects, name=name)
     snapshot = snapshot_bundle["portfolio_snapshot"]
     ecosystem = snapshot_bundle["ecosystem"]
     technology_index = _technology_index(projects)
