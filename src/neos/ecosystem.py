@@ -9,9 +9,6 @@ from pathlib import Path
 from typing import Any
 
 from .db import connect
-from .flight import latest_project_flight
-from .genome import latest_project_genome
-from .memory import latest_project_memory
 
 ECOSYSTEM_SCHEMA_VERSION = 1
 
@@ -348,27 +345,51 @@ def _load_project_entry(db_path: Path, project_id: str) -> dict[str, Any]:
     config_count = _safe_count(conn, "SELECT COUNT(*) FROM configuration_keys WHERE project_id=?", (project_id,))
     test_count = _safe_count(conn, "SELECT COUNT(*) FROM nodes WHERE project_id=? AND kind='test'", (project_id,))
     docs_count = _safe_count(conn, "SELECT COUNT(*) FROM nodes WHERE project_id=? AND kind IN ('documentation','release_documentation')", (project_id,))
-    genome = {}
-    memory = {}
-    flight = {}
+    genome_id = None
+    genome_health: dict[str, Any] = {}
+    genome_domains: list[dict[str, Any]] = []
+    memory_id = None
+    flight_id = None
     try:
-        genome = latest_project_genome(db_path, project_id)
-    except (sqlite3.Error, ValueError, OSError):
-        genome = {}
+        genome_row = conn.execute(
+            """
+            SELECT json_extract(genome_json, '$.id') AS genome_id,
+                   json_extract(genome_json, '$.project_health') AS health_json,
+                   json_extract(genome_json, '$.domains') AS domains_json
+            FROM project_genomes
+            WHERE project_id=?
+            ORDER BY created_at DESC, id DESC
+            LIMIT 1
+            """,
+            (project_id,),
+        ).fetchone()
+        if genome_row:
+            genome_id = genome_row["genome_id"]
+            genome_health = _json_loads(genome_row["health_json"], {})
+            genome_domains = _domains_from_genome({"domains": _json_loads(genome_row["domains_json"], [])})
+    except sqlite3.Error:
+        genome_id = None
+        genome_health = {}
+        genome_domains = []
     try:
-        memory = latest_project_memory(db_path, project_id)
-    except (sqlite3.Error, ValueError, OSError):
-        memory = {}
+        memory_row = conn.execute(
+            "SELECT id FROM memory_snapshots WHERE project_id=? ORDER BY created_at DESC, id DESC LIMIT 1",
+            (project_id,),
+        ).fetchone()
+        memory_id = memory_row["id"] if memory_row else None
+    except sqlite3.Error:
+        memory_id = None
     try:
-        flight = latest_project_flight(db_path, project_id)
-    except (sqlite3.Error, ValueError, OSError):
-        flight = {}
+        flight_row = conn.execute(
+            "SELECT id FROM flight_snapshots WHERE project_id=? ORDER BY created_at DESC, id DESC LIMIT 1",
+            (project_id,),
+        ).fetchone()
+        flight_id = flight_row["id"] if flight_row else None
+    except sqlite3.Error:
+        flight_id = None
     conn.close()
 
     scan_id = scan["scan_id"] if scan else None
-    latest_genome_id = genome.get("id") if isinstance(genome, dict) else None
-    latest_memory_id = memory.get("id") if isinstance(memory, dict) else None
-    latest_flight_id = flight.get("id") if isinstance(flight, dict) else None
     current_branch = scan["git_branch"] if scan else None
     current_commit = scan["git_commit"] if scan else None
     tags = _manifest_tags(manifest)
@@ -385,22 +406,22 @@ def _load_project_entry(db_path: Path, project_id: str) -> dict[str, Any]:
         "current_commit": current_commit,
         "last_scan": _row_dict(scan),
         "last_scan_id": scan_id,
-        "last_genome_id": latest_genome_id,
-        "last_memory_id": latest_memory_id,
-        "last_flight_id": latest_flight_id,
-        "health": genome.get("project_health", {}) if isinstance(genome, dict) else {},
+        "last_genome_id": genome_id,
+        "last_memory_id": memory_id,
+        "last_flight_id": flight_id,
+        "health": genome_health,
         "technologies": technologies,
         "technology_names": [item["name"] for item in technologies],
-        "domains": _domains_from_genome(genome),
+        "domains": genome_domains,
         "lifecycle": row["lifecycle"],
         "status": status,
         "tags": tags,
         "family": family,
         "manifest": manifest,
         "scan_id": scan_id,
-        "genome_id": latest_genome_id,
-        "memory_id": latest_memory_id,
-        "flight_id": latest_flight_id,
+        "genome_id": genome_id,
+        "memory_id": memory_id,
+        "flight_id": flight_id,
         "feature_count": len(feature_rows),
         "test_count": test_count,
         "docs_count": docs_count,
@@ -446,7 +467,13 @@ def build_portfolio_snapshot(db_path: Path, project_ids: list[str] | None = None
     return _build_portfolio_snapshot_from_projects(db_path, registry["projects"], name=name)
 
 
-def _build_portfolio_snapshot_from_projects(db_path: Path, projects: list[dict[str, Any]], *, name: str = "default") -> dict[str, Any]:
+def _build_portfolio_snapshot_from_projects(
+    db_path: Path,
+    projects: list[dict[str, Any]],
+    *,
+    name: str = "default",
+    persist: bool = True,
+) -> dict[str, Any]:
     selected = sorted(projects, key=lambda item: item["project_id"])
     selected_project_ids = [project["project_id"] for project in selected]
     source_payload = {
@@ -481,49 +508,50 @@ def _build_portfolio_snapshot_from_projects(db_path: Path, projects: list[dict[s
         "source_fingerprint": fingerprint,
         "created_at": now,
     }
-    conn = connect(db_path)
-    conn.execute(
-        """
-        INSERT INTO ecosystems(id,name,created_at,updated_at,project_ids,snapshot_id,schema_version,metadata_json)
-        VALUES(?,?,?,?,?,?,?,?)
-        ON CONFLICT(id) DO UPDATE SET
-            name=excluded.name,
-            updated_at=excluded.updated_at,
-            project_ids=excluded.project_ids,
-            snapshot_id=excluded.snapshot_id,
-            schema_version=excluded.schema_version,
-            metadata_json=excluded.metadata_json
-        """,
-        (
-            ecosystem_id,
-            name,
-            now,
-            now,
-            _json_dumps(snapshot_json["project_ids"]),
-            snapshot_id,
-            ECOSYSTEM_SCHEMA_VERSION,
-            _json_dumps({"source_fingerprint": fingerprint}),
-        ),
-    )
-    conn.execute(
-        """
-        INSERT OR IGNORE INTO portfolio_snapshots(
-            id, name, ecosystem_id, project_ids, source_fingerprint, created_at, snapshot_json, metadata_json
-        ) VALUES(?,?,?,?,?,?,?,?)
-        """,
-        (
-            snapshot_id,
-            name,
-            ecosystem_id,
-            _json_dumps(snapshot_json["project_ids"]),
-            fingerprint,
-            now,
-            _json_dumps(snapshot_json),
-            _json_dumps({"project_count": len(selected), "schema_version": ECOSYSTEM_SCHEMA_VERSION}),
-        ),
-    )
-    conn.commit()
-    conn.close()
+    if persist:
+        conn = connect(db_path)
+        conn.execute(
+            """
+            INSERT INTO ecosystems(id,name,created_at,updated_at,project_ids,snapshot_id,schema_version,metadata_json)
+            VALUES(?,?,?,?,?,?,?,?)
+            ON CONFLICT(id) DO UPDATE SET
+                name=excluded.name,
+                updated_at=excluded.updated_at,
+                project_ids=excluded.project_ids,
+                snapshot_id=excluded.snapshot_id,
+                schema_version=excluded.schema_version,
+                metadata_json=excluded.metadata_json
+            """,
+            (
+                ecosystem_id,
+                name,
+                now,
+                now,
+                _json_dumps(snapshot_json["project_ids"]),
+                snapshot_id,
+                ECOSYSTEM_SCHEMA_VERSION,
+                _json_dumps({"source_fingerprint": fingerprint}),
+            ),
+        )
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO portfolio_snapshots(
+                id, name, ecosystem_id, project_ids, source_fingerprint, created_at, snapshot_json, metadata_json
+            ) VALUES(?,?,?,?,?,?,?,?)
+            """,
+            (
+                snapshot_id,
+                name,
+                ecosystem_id,
+                _json_dumps(snapshot_json["project_ids"]),
+                fingerprint,
+                now,
+                _json_dumps(snapshot_json),
+                _json_dumps({"project_count": len(selected), "schema_version": ECOSYSTEM_SCHEMA_VERSION}),
+            ),
+        )
+        conn.commit()
+        conn.close()
     return {
         "ecosystem": EngineeringEcosystem(
             id=ecosystem_id,
@@ -1131,11 +1159,17 @@ def _persist_analysis(
     conn.close()
 
 
-def analyse_portfolio(db_path: Path, project_ids: list[str] | None = None, *, name: str = "default") -> dict[str, Any]:
-    registry = project_registry_v2(db_path, project_ids=project_ids)
-    projects = registry["projects"]
+def analyse_portfolio(
+    db_path: Path,
+    project_ids: list[str] | None = None,
+    *,
+    name: str = "default",
+    persist: bool = True,
+    preloaded_projects: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    projects = preloaded_projects if preloaded_projects is not None else project_registry_v2(db_path, project_ids=project_ids)["projects"]
     projects = sorted(projects, key=lambda item: item["project_id"])
-    snapshot_bundle = _build_portfolio_snapshot_from_projects(db_path, projects, name=name)
+    snapshot_bundle = _build_portfolio_snapshot_from_projects(db_path, projects, name=name, persist=persist)
     snapshot = snapshot_bundle["portfolio_snapshot"]
     ecosystem = snapshot_bundle["ecosystem"]
     technology_index = _technology_index(projects)
@@ -1171,20 +1205,21 @@ def analyse_portfolio(db_path: Path, project_ids: list[str] | None = None, *, na
         "attention": attention_items,
         "health": health,
     }
-    _persist_analysis(
-        db_path,
-        ecosystem,
-        snapshot,
-        projects,
-        technology_index,
-        shared_capabilities,
-        reuse_candidates,
-        duplicate_findings,
-        dependencies,
-        decision_conflicts,
-        portfolio_risks,
-        attention_items,
-    )
+    if persist:
+        _persist_analysis(
+            db_path,
+            ecosystem,
+            snapshot,
+            projects,
+            technology_index,
+            shared_capabilities,
+            reuse_candidates,
+            duplicate_findings,
+            dependencies,
+            decision_conflicts,
+            portfolio_risks,
+            attention_items,
+        )
     return analysis
 
 
