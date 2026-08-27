@@ -13,6 +13,7 @@ from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 from .. import __version__
+from ..db import ensure_database
 from .models import ServiceConfig
 from .routes import handle_get, handle_post
 from .serialization import json_bytes
@@ -128,6 +129,7 @@ def create_service_server(
 ) -> ServiceServer:
     if not _local_host(host):
         raise ValueError("NEOS service must bind to localhost only by default.")
+    ensure_database(db_path)
     config = ServiceConfig(
         db_path=db_path,
         host=host,

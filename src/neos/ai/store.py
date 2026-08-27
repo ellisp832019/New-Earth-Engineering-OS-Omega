@@ -42,35 +42,8 @@ def load_ai_settings(db_path: Path) -> AISettings:
     conn = connect(db_path)
     row = conn.execute("SELECT * FROM ai_settings WHERE settings_id=?", (GLOBAL_SETTINGS_ID,)).fetchone()
     if row is None:
-        settings = default_ai_settings()
-        conn.execute(
-            """
-            INSERT INTO ai_settings(
-                settings_id, provider_id, model, endpoint, api_key_env, timeout_seconds,
-                context_budget, max_output_tokens, streaming, temperature, enabled,
-                created_at, updated_at, metadata_json
-            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-            """,
-            (
-                GLOBAL_SETTINGS_ID,
-                settings.provider_id,
-                settings.model,
-                settings.endpoint,
-                settings.api_key_env,
-                settings.timeout_seconds,
-                settings.context_budget,
-                settings.max_output_tokens,
-                int(settings.streaming),
-                settings.temperature,
-                int(settings.enabled),
-                _now(),
-                _now(),
-                "{}",
-            ),
-        )
-        conn.commit()
         conn.close()
-        return settings
+        return default_ai_settings()
     settings = AISettings.from_dict(
         {
             "provider_id": row["provider_id"],

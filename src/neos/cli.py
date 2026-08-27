@@ -63,7 +63,7 @@ from .core import (
     trace_entity,
     why_entity,
 )
-from .db import connect, schema_info
+from .db import connect, ensure_database, schema_info
 from .decision_intelligence import (
     accept_decision,
     compare_options,
@@ -909,6 +909,7 @@ def main(argv=None) -> int:
     db = Path(args.db)
     try:
         if args.cmd == "doctor":
+            ensure_database(db)
             conn = connect(db)
             info = schema_info(conn)
             conn.close()

@@ -57,7 +57,7 @@ def service_health(db_path: Path, config: ServiceConfig) -> dict[str, Any]:
     ai_settings = load_ai_settings(db_path)
     provider = provider_from_settings(ai_settings)
     provider_health = provider.health().to_dict() if provider is not None else {"configured": False, "healthy": False, "message": "AI provider not configured."}
-    portfolio_health = analyse_portfolio(db_path)["health"] if project_count > 1 else {
+    portfolio_health = analyse_portfolio(db_path, persist=False, preloaded_projects=registry["projects"])["health"] if project_count > 1 else {
         "score": 100.0 if project_count else 0.0,
         "project_count": project_count,
         "active_project_count": project_count,

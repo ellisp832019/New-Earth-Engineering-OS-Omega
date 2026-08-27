@@ -14,6 +14,9 @@ from neos.ecosystem import (
     project_registry_v2,
     search_ecosystem,
 )
+from neos.flight import build_project_flight, latest_project_flight
+from neos.genome import build_project_genome, latest_project_genome
+from neos.memory import build_project_memory, latest_project_memory
 
 
 def _git(repo: Path, *args: str) -> None:
@@ -190,6 +193,32 @@ def test_project_registry_v2_scopes_before_loading_entries(tmp_path: Path, monke
     assert registry["project_count"] == 1
     assert [project["project_id"] for project in registry["projects"]] == ["alpha"]
     assert loaded_project_ids == ["alpha"]
+
+
+def test_project_registry_v2_uses_bounded_snapshot_projections(tmp_path: Path, monkeypatch):
+    db = _seed(tmp_path)
+    build_project_genome(db, "alpha")
+    build_project_memory(db, "alpha")
+    build_project_flight(db, "alpha")
+    genome = latest_project_genome(db, "alpha")
+    memory = latest_project_memory(db, "alpha")
+    flight = latest_project_flight(db, "alpha")
+
+    def reject_full_snapshot_load(*args, **kwargs):
+        raise AssertionError("registry must not deserialize full engineering snapshots")
+
+    monkeypatch.setattr("neos.genome.latest_project_genome", reject_full_snapshot_load)
+    monkeypatch.setattr("neos.memory.latest_project_memory", reject_full_snapshot_load)
+    monkeypatch.setattr("neos.flight.latest_project_flight", reject_full_snapshot_load)
+
+    registry = project_registry_v2(db, project_ids=["alpha"])
+
+    project = registry["projects"][0]
+    assert project["last_genome_id"] == genome.get("id")
+    assert project["last_memory_id"] == memory.get("id")
+    assert project["last_flight_id"] == flight.get("id")
+    assert project["health"] == genome.get("project_health", {})
+    assert project["domains"] == ecosystem_module._domains_from_genome(genome)
 
 
 def test_portfolio_ai_scope_preserves_multiple_project_ids(tmp_path: Path):

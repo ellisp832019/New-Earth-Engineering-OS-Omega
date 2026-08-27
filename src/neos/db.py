@@ -907,6 +907,12 @@ def _migration_status(conn: sqlite3.Connection) -> str:
     return "current" if current >= SCHEMA_VERSION else "pending"
 
 
+def _initialize_database(conn: sqlite3.Connection) -> None:
+    conn.executescript(SCHEMA)
+    _migrate(conn)
+    conn.commit()
+
+
 def _migrate(conn: sqlite3.Connection) -> None:
     applied_at = datetime.now(UTC).isoformat()
     _ensure_column(conn, "scans", "git_branch", "TEXT")
@@ -980,14 +986,31 @@ def _migrate(conn: sqlite3.Connection) -> None:
     conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version',?)", (str(SCHEMA_VERSION),))
 
 
+def ensure_database(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(path)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys=ON;")
+    try:
+        current = _current_schema_version(conn)
+    except sqlite3.Error:
+        current = 0
+    if current < SCHEMA_VERSION:
+        _initialize_database(conn)
+    conn.close()
+
+
 def connect(path: Path) -> sqlite3.Connection:
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys=ON;")
-    conn.executescript(SCHEMA)
-    _migrate(conn)
-    conn.commit()
+    try:
+        current = _current_schema_version(conn)
+    except sqlite3.Error:
+        current = 0
+    if current < SCHEMA_VERSION:
+        _initialize_database(conn)
     return conn
 
 
