@@ -23,4 +23,4 @@ if (-not (Get-Command pyinstaller -ErrorAction SilentlyContinue)) {
 New-Item -ItemType Directory -Force -Path $buildRoot | Out-Null
 New-Item -ItemType Directory -Force -Path $workRoot | Out-Null
 
-pyinstaller --noconfirm --clean --onefile --name neos_engine --distpath $buildRoot --workpath $workRoot --specpath $workRoot --paths (Join-Path $root 'src') $entry
+pyinstaller --noconfirm --clean --onefile --noconsole --name neos_engine --distpath $buildRoot --workpath $workRoot --specpath $workRoot --paths (Join-Path $root 'src') $entry

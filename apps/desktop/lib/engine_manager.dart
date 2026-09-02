@@ -46,7 +46,10 @@ class DesktopSettings {
       serviceHost: _string(json['service_host'], defaults.serviceHost),
       servicePort: _int(json['service_port'], defaults.servicePort),
       autoRefresh: _bool(json['auto_refresh'], defaults.autoRefresh),
-      preferBundledBackend: _bool(json['prefer_bundled_backend'], defaults.preferBundledBackend),
+      preferBundledBackend: _bool(
+        json['prefer_bundled_backend'],
+        defaults.preferBundledBackend,
+      ),
       recentProjectId: json['recent_project_id']?.toString(),
     );
   }
@@ -165,14 +168,18 @@ class EngineSnapshot {
 
 class NeosEngineManager {
   NeosEngineManager({HttpNeosClient? client, DesktopSettings? settings})
-      : client = client ?? HttpNeosClient(),
-        settings = settings ?? DesktopSettings.defaults();
+    : client = client ?? HttpNeosClient(),
+      settings = settings ?? DesktopSettings.defaults();
 
   final HttpNeosClient client;
   DesktopSettings settings;
-  final ValueNotifier<EngineSnapshot> snapshot = ValueNotifier(EngineSnapshot.initial());
+  final ValueNotifier<EngineSnapshot> snapshot = ValueNotifier(
+    EngineSnapshot.initial(),
+  );
 
   Process? _process;
+  StreamSubscription<String>? _backendStdoutSub;
+  StreamSubscription<String>? _backendStderrSub;
   Future<Uri>? _bootstrapFuture;
   Future<bool>? _shutdownFuture;
   Uri? _serviceUri;
@@ -181,8 +188,10 @@ class NeosEngineManager {
   Uri? get serviceUri => _serviceUri;
   bool get ownsBackend => snapshot.value.ownedBackend;
 
-  File get _settingsFile => File(_joinPath([settings.dataDirectory, 'desktop-settings.json']));
-  File get _logFile => File(_joinPath([settings.dataDirectory, 'logs', 'neos-desktop.log']));
+  File get _settingsFile =>
+      File(_joinPath([settings.dataDirectory, 'desktop-settings.json']));
+  File get _logFile =>
+      File(_joinPath([settings.dataDirectory, 'logs', 'neos-desktop.log']));
 
   Future<void> loadSettings() async {
     final file = _settingsFile;
@@ -194,7 +203,9 @@ class NeosEngineManager {
     try {
       final decoded = jsonDecode(await file.readAsString());
       if (decoded is Map) {
-        settings = DesktopSettings.fromJson(decoded.map((key, value) => MapEntry(key.toString(), value)));
+        settings = DesktopSettings.fromJson(
+          decoded.map((key, value) => MapEntry(key.toString(), value)),
+        );
       }
     } catch (_) {
       // Keep defaults when settings are unreadable.
@@ -203,7 +214,9 @@ class NeosEngineManager {
 
   Future<void> saveSettings() async {
     await _settingsFile.parent.create(recursive: true);
-    await _settingsFile.writeAsString(const JsonEncoder.withIndent('  ').convert(settings.toJson()));
+    await _settingsFile.writeAsString(
+      const JsonEncoder.withIndent('  ').convert(settings.toJson()),
+    );
   }
 
   Future<Uri> bootstrap() {
@@ -213,10 +226,19 @@ class NeosEngineManager {
   Future<Uri> _bootstrapInternal() async {
     _lastStartupFailure = null;
     await loadSettings();
-    _emit(snapshot.value.copyWith(state: EngineLifecycleState.starting, message: 'Checking local NEOS service...'));
-    _log('Checking local NEOS service at ${settings.serviceHost}:${settings.servicePort}');
+    _emit(
+      snapshot.value.copyWith(
+        state: EngineLifecycleState.starting,
+        message: 'Checking local NEOS service...',
+      ),
+    );
+    _log(
+      'Checking local NEOS service at ${settings.serviceHost}:${settings.servicePort}',
+    );
 
-    final configuredUri = Uri.parse('http://${settings.serviceHost}:${settings.servicePort}');
+    final configuredUri = Uri.parse(
+      'http://${settings.serviceHost}:${settings.servicePort}',
+    );
     final existing = await _probeHealthy(configuredUri);
     if (existing != null && existing.isNeos) {
       _serviceUri = configuredUri;
@@ -237,11 +259,22 @@ class NeosEngineManager {
       return configuredUri;
     }
 
-    _emit(snapshot.value.copyWith(state: EngineLifecycleState.waitingForHealth, message: 'Starting local NEOS backend...'));
+    _emit(
+      snapshot.value.copyWith(
+        state: EngineLifecycleState.waitingForHealth,
+        message: 'Starting local NEOS backend...',
+      ),
+    );
     final launch = await _launchBackend();
     if (launch == null) {
       final message = _lastStartupFailure ?? 'Unable to start NEOS backend.';
-      _emit(snapshot.value.copyWith(state: EngineLifecycleState.failed, message: message, error: message));
+      _emit(
+        snapshot.value.copyWith(
+          state: EngineLifecycleState.failed,
+          message: message,
+          error: message,
+        ),
+      );
       throw StateError(message);
     }
     _process = launch.$1;
@@ -251,7 +284,13 @@ class NeosEngineManager {
     if (ready == null || !ready.isNeos) {
       final message = 'NEOS backend did not become healthy.';
       _lastStartupFailure ??= message;
-      _emit(snapshot.value.copyWith(state: EngineLifecycleState.failed, message: message, error: message));
+      _emit(
+        snapshot.value.copyWith(
+          state: EngineLifecycleState.failed,
+          message: message,
+          error: message,
+        ),
+      );
       throw StateError(message);
     }
     _emit(
@@ -267,7 +306,9 @@ class NeosEngineManager {
         startedAt: DateTime.now().toUtc(),
       ),
     );
-    _log('Started owned NEOS backend at $_serviceUri with pid=${_process?.pid}');
+    _log(
+      'Started owned NEOS backend at $_serviceUri with pid=${_process?.pid}',
+    );
     settings = settings.copyWith(servicePort: _serviceUri!.port);
     await saveSettings();
     return _serviceUri!;
@@ -293,11 +334,23 @@ class NeosEngineManager {
       _log('Shutdown requested but no backend or service URI is active.');
       return false;
     }
-    _emit(snapshot.value.copyWith(state: EngineLifecycleState.stopping, message: 'Stopping backend...'));
-    final owned = snapshot.value.ownedBackend && _serviceUri != null && _shutdownToken != null && _process != null;
+    _emit(
+      snapshot.value.copyWith(
+        state: EngineLifecycleState.stopping,
+        message: 'Stopping backend...',
+      ),
+    );
+    final owned =
+        snapshot.value.ownedBackend &&
+        _serviceUri != null &&
+        _shutdownToken != null &&
+        _process != null;
     if (owned) {
       try {
-        final response = await client.shutdownService(_serviceUri!, _shutdownToken!);
+        final response = await client.shutdownService(
+          _serviceUri!,
+          _shutdownToken!,
+        );
         _log('Controlled shutdown request acknowledged: $response');
       } catch (error) {
         _log('Controlled shutdown request failed: $error');
@@ -306,7 +359,9 @@ class NeosEngineManager {
         await _process!.exitCode.timeout(const Duration(seconds: 8));
         _log('Owned backend process exited after controlled shutdown.');
       } catch (_) {
-        _log('Owned backend did not exit in time; terminating specific PID ${_process?.pid}.');
+        _log(
+          'Owned backend did not exit in time; terminating specific PID ${_process?.pid}.',
+        );
         _process?.kill(ProcessSignal.sigterm);
         try {
           await _process!.exitCode.timeout(const Duration(seconds: 5));
@@ -316,10 +371,21 @@ class NeosEngineManager {
       }
     }
     final ownedShutdown = owned;
+    await _backendStdoutSub?.cancel();
+    await _backendStderrSub?.cancel();
+    _backendStdoutSub = null;
+    _backendStderrSub = null;
     _process = null;
     _serviceUri = null;
     _shutdownToken = null;
-    _emit(snapshot.value.copyWith(state: EngineLifecycleState.stopped, message: 'Stopped.', ownedBackend: false, processId: null));
+    _emit(
+      snapshot.value.copyWith(
+        state: EngineLifecycleState.stopped,
+        message: 'Stopped.',
+        ownedBackend: false,
+        processId: null,
+      ),
+    );
     _log('Backend stopped.');
     return ownedShutdown;
   }
@@ -351,7 +417,9 @@ class NeosEngineManager {
     final shutdownToken = _randomId();
     final dbPath = _settingsDbPath();
     final servicePort = settings.servicePort;
-    final expectedUri = Uri.parse('http://${settings.serviceHost}:$servicePort');
+    final expectedUri = Uri.parse(
+      'http://${settings.serviceHost}:$servicePort',
+    );
     await File(dbPath).parent.create(recursive: true);
     final args = <String>[
       '-m',
@@ -417,23 +485,37 @@ class NeosEngineManager {
   }
 
   Future<Uri?> _waitForBackendReady(Process process, Uri expectedUri) async {
+    // CR-04C1F: keep backend stdio drained for the process lifetime.
+    //
+    // ProcessStartMode.detachedWithStdio gives the desktop live pipes to the
+    // child. Cancelling those subscriptions as soon as /health first passes
+    // can close the pipes while the backend is still running. Keep them
+    // attached until the owned process exits or is deliberately shut down.
     final stdoutLines = process.stdout
         .transform(utf8.decoder)
         .transform(const LineSplitter());
     final stderrLines = process.stderr
         .transform(utf8.decoder)
         .transform(const LineSplitter());
-    StreamSubscription<String>? stdoutSub;
-    StreamSubscription<String>? stderrSub;
-    int? exitCode;
-    stdoutSub = stdoutLines.listen((line) {
+
+    await _backendStdoutSub?.cancel();
+    await _backendStderrSub?.cancel();
+
+    _backendStdoutSub = stdoutLines.listen((line) {
       _log('backend: $line');
     });
-    stderrSub = stderrLines.listen((line) => _log('backend: $line'));
-    process.exitCode.then((code) {
+    _backendStderrSub = stderrLines.listen((line) => _log('backend: $line'));
+
+    int? exitCode;
+    process.exitCode.then((code) async {
       _log('backend exited with code $code');
       exitCode = code;
+      await _backendStdoutSub?.cancel();
+      await _backendStderrSub?.cancel();
+      _backendStdoutSub = null;
+      _backendStderrSub = null;
     });
+
     final deadline = DateTime.now().toUtc().add(const Duration(seconds: 30));
     try {
       while (DateTime.now().toUtc().isBefore(deadline)) {
@@ -441,20 +523,24 @@ class NeosEngineManager {
         if (health != null) {
           return expectedUri;
         }
+        if (exitCode != null) {
+          _lastStartupFailure ??=
+              'NEOS backend exited with code $exitCode before becoming healthy on $expectedUri.';
+          return null;
+        }
         await Future<void>.delayed(const Duration(milliseconds: 250));
       }
       if (exitCode != null) {
-        _lastStartupFailure ??= 'NEOS backend exited with code $exitCode before becoming healthy on $expectedUri.';
+        _lastStartupFailure ??=
+            'NEOS backend exited with code $exitCode before becoming healthy on $expectedUri.';
       } else {
-        _lastStartupFailure ??= 'NEOS backend did not become healthy on $expectedUri within 30 seconds.';
+        _lastStartupFailure ??=
+            'NEOS backend did not become healthy on $expectedUri within 30 seconds.';
       }
       return null;
     } catch (error) {
       _lastStartupFailure ??= 'NEOS backend startup failed: $error';
       return null;
-    } finally {
-      await stdoutSub.cancel();
-      await stderrSub.cancel();
     }
   }
 
@@ -487,7 +573,9 @@ class NeosEngineManager {
   Directory _repoRoot() {
     var current = Directory.current.absolute;
     for (var i = 0; i < 5; i++) {
-      if (File(_joinPath([current.path, 'src', 'neos', 'cli.py'])).existsSync()) {
+      if (File(
+        _joinPath([current.path, 'src', 'neos', 'cli.py']),
+      ).existsSync()) {
         return current;
       }
       final parent = current.parent;
@@ -534,6 +622,8 @@ String _defaultDataDirectory() {
   return '$home${Platform.pathSeparator}.neos-desktop';
 }
 
-String _string(dynamic value, [String fallback = '']) => value == null ? fallback : value.toString();
-int _int(dynamic value, [int fallback = 0]) => value is int ? value : int.tryParse(_string(value)) ?? fallback;
+String _string(dynamic value, [String fallback = '']) =>
+    value == null ? fallback : value.toString();
+int _int(dynamic value, [int fallback = 0]) =>
+    value is int ? value : int.tryParse(_string(value)) ?? fallback;
 bool _bool(dynamic value, bool fallback) => value is bool ? value : fallback;

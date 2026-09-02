@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -214,7 +215,24 @@ def _project_repo_path(db_path: Path, project_id: str) -> Path:
     return Path(row["repo_path"])
 
 
-def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
+def _interactive_configuration_summary(db_path: Path, project_id: str) -> dict[str, Any]:
+    # CR_04D6_INTERACTIVE_PROJECT_LOAD
+    conn = connect(db_path)
+    row = conn.execute(
+        "SELECT COUNT(*) AS count FROM configuration_keys WHERE project_id=?",
+        (project_id,),
+    ).fetchone()
+    conn.close()
+    return {
+        "project_id": project_id,
+        "count": int(row["count"]) if row is not None else 0,
+        "items": [],
+        "deferred": True,
+        "detail_endpoint": f"/projects/{project_id}/configuration",
+    }
+
+
+def _project_payload(db_path: Path, project_id: str, *, interactive: bool = False) -> dict[str, Any]:
     if not _project_exists(db_path, project_id):
         raise ValueError(f"Unknown project: {project_id}")
     genome = latest_project_genome(db_path, project_id)
@@ -225,6 +243,18 @@ def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
     project_summary_payload = workspace.get("summary")
     if not isinstance(project_summary_payload, dict):
         project_summary_payload = project_summary(db_path, project_id)
+    if interactive:
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            hardware_future = executor.submit(hardware_inventory, db_path, project_id)
+            firmware_future = executor.submit(firmware_inventory, db_path, project_id)
+            hardware_payload = hardware_future.result()
+            firmware_payload = firmware_future.result()
+        configuration_payload = _interactive_configuration_summary(db_path, project_id)
+    else:
+        hardware_payload = hardware_inventory(db_path, project_id)
+        firmware_payload = firmware_inventory(db_path, project_id)
+        configuration_payload = configuration_inventory(db_path, project_id)
+
     return {
         "project": project_summary_payload,
         "summary": project_summary_payload,
@@ -245,12 +275,12 @@ def _project_payload(db_path: Path, project_id: str) -> dict[str, Any]:
         "apis": api_inventory(db_path, project_id),
         "tests": test_inventory(db_path, project_id),
         "documentation": documentation_inventory(db_path, project_id),
-        "hardware": hardware_inventory(db_path, project_id),
-        "firmware": firmware_inventory(db_path, project_id),
+        "hardware": hardware_payload,
+        "firmware": firmware_payload,
         "memory": memory,
         "memory_timeline": memory_timeline(memory) if memory else _empty_items(project_id),
         "decisions": decision_inventory(db_path, project_id),
-        "configuration": configuration_inventory(db_path, project_id),
+        "configuration": configuration_payload,
         "dependencies": _dependencies_for_project(db_path, project_id),
         "flight": flight,
         "flight_timeline": flight_timeline(db_path, project_id),
@@ -617,7 +647,8 @@ def handle_get(path: str, query: dict[str, list[str]], db_path: Path, config: Se
     project_id = segments[1]
     try:
         if len(segments) == 2:
-            return 200, _project_payload(db_path, project_id)
+            interactive = query.get("interactive", ["false"])[0].lower() in {"1", "true", "yes", "on"}
+            return 200, _project_payload(db_path, project_id, interactive=interactive)
 
         tail = segments[2:]
         if tail == ["summary"]:

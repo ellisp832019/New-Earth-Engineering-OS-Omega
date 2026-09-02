@@ -19,7 +19,7 @@ class NeosBootstrapApp extends StatefulWidget {
 class _NeosBootstrapAppState extends State<NeosBootstrapApp> {
   late final AppLifecycleListener _lifecycleListener;
   late final MethodChannel _windowChannel = const MethodChannel('neos/window');
-  late Future<void> _bootstrap = widget.manager.bootstrap().then((_) {});
+  late Future<void> _bootstrap = _bootstrapWithAutoRetry();
 
   @override
   void initState() {
@@ -65,6 +65,36 @@ class _NeosBootstrapAppState extends State<NeosBootstrapApp> {
     await _windowChannel.invokeMethod<void>('markReadyToClose');
   }
 
+  Future<void> _bootstrapWithAutoRetry() async {
+    const maxAttempts = 10; // CR-04B: allow backend startup to settle
+    Object? lastError;
+
+    for (var attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        if (attempt == 1) {
+          await widget.manager.bootstrap();
+        } else {
+          await widget.manager.reconnect();
+        }
+
+        if (widget.manager.snapshot.value.isConnected) {
+          return;
+        }
+      } catch (error) {
+        lastError = error;
+      }
+
+      if (attempt < maxAttempts) {
+        await Future<void>.delayed(const Duration(seconds: 2));
+      }
+    }
+
+    throw StateError(
+      'NEOS could not connect automatically after $maxAttempts attempts.'
+      '${lastError == null ? '' : ' Last error: $lastError'}',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -75,24 +105,35 @@ class _NeosBootstrapAppState extends State<NeosBootstrapApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0F766E)),
         scaffoldBackgroundColor: const Color(0xFFF1F5F9),
       ),
-      home: FutureBuilder<void>(
-        future: _bootstrap,
-        builder: (context, snapshot) {
-          final engine = widget.manager.snapshot.value;
-          if (snapshot.connectionState != ConnectionState.done || !engine.isConnected) {
-            return _StartupScreen(
-              engine: engine,
-              onRetry: () {
-                setState(() {
-                  _bootstrap = widget.manager.reconnect().then((_) {});
-                });
-              },
-              onExit: _requestExit,
-            );
-          }
-          return NeosShell(
-            client: widget.manager.client,
-            initialServiceUrl: widget.manager.serviceUri?.toString() ?? 'http://127.0.0.1:8765',
+      home: ValueListenableBuilder(
+        valueListenable: widget.manager.snapshot,
+        builder: (context, engine, _) {
+          return FutureBuilder<void>(
+            future: _bootstrap,
+            builder: (context, bootstrapSnapshot) {
+              // CR-04C1B: live manager truth wins over bootstrap-future timing.
+              // If NEOS has published a connected engine snapshot, enter the
+              // normal shell immediately instead of remaining on Retry while
+              // an older bootstrap/reconnect Future is still settling.
+              if (engine.isConnected) {
+                return NeosShell(
+                  client: widget.manager.client,
+                  initialServiceUrl:
+                      widget.manager.serviceUri?.toString() ??
+                      'http://127.0.0.1:8765',
+                );
+              }
+
+              return _StartupScreen(
+                engine: engine,
+                onRetry: () {
+                  setState(() {
+                    _bootstrap = _bootstrapWithAutoRetry();
+                  });
+                },
+                onExit: _requestExit,
+              );
+            },
           );
         },
       ),
@@ -133,9 +174,17 @@ class _StartupScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('New Earth Engineering OS', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+                  Text(
+                    'New Earth Engineering OS',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                   const SizedBox(height: 8),
-                  Text(engine.message, style: Theme.of(context).textTheme.bodyLarge),
+                  Text(
+                    engine.message,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
                   const SizedBox(height: 20),
                   for (final step in steps)
                     Padding(
@@ -143,7 +192,9 @@ class _StartupScreen extends StatelessWidget {
                       child: Row(
                         children: [
                           Icon(
-                            engine.state.index >= steps.indexOf(step) ? Icons.check_circle : Icons.radio_button_unchecked,
+                            engine.state.index >= steps.indexOf(step)
+                                ? Icons.check_circle
+                                : Icons.radio_button_unchecked,
                             color: const Color(0xFF0F766E),
                           ),
                           const SizedBox(width: 10),
@@ -160,14 +211,21 @@ class _StartupScreen extends StatelessWidget {
                         color: const Color(0xFFFEE2E2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(engine.error!, style: const TextStyle(color: Color(0xFF991B1B))),
+                      child: Text(
+                        engine.error!,
+                        style: const TextStyle(color: Color(0xFF991B1B)),
+                      ),
                     ),
                   const SizedBox(height: 20),
                   Wrap(
                     spacing: 12,
                     runSpacing: 12,
                     children: [
-                      FilledButton(onPressed: onRetry, child: const Text('Retry')),
+                      if (engine.error != null)
+                        FilledButton(
+                          onPressed: onRetry,
+                          child: const Text('Retry'),
+                        ),
                       OutlinedButton(
                         onPressed: () {
                           unawaited(onExit());
