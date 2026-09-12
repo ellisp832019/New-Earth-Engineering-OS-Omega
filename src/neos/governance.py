@@ -21,6 +21,7 @@ from . import __version__
 from .db import connect
 from .ecosystem import project_registry_v2
 from .registry import discover_contract_sources, repo_profile
+from .manifest import ManifestError, _validate_schema
 
 GOVERNANCE_SCHEMA_VERSION = 1
 GOVERNANCE_RESULT_STATES = {"READY", "READY_WITH_WARNINGS", "NOT_READY", "UNKNOWN"}
@@ -208,6 +209,83 @@ def resolve_estate_roots(
     return unique
 
 
+def _core_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """Prepare only the assertion subset used by Core governance v1."""
+    supported = {"$schema", "$id", "$defs", "$ref", "title", "description", "type",
+                 "required", "properties", "additionalProperties", "items", "enum",
+                 "minLength", "pattern", "minItems", "uniqueItems"}
+
+    def expand(node: Any, refs: tuple[str, ...] = ()) -> dict[str, Any]:
+        if not isinstance(node, dict) or set(node) - supported:
+            raise ValueError("unsupported schema assertion")
+        if "$ref" in node:
+            ref = node["$ref"]
+            if (set(node) != {"$ref"} or not isinstance(ref, str)
+                    or not ref.startswith("#/$defs/") or ref in refs):
+                raise ValueError("unsupported schema reference")
+            name = ref[len("#/$defs/"):]
+            if "/" in name or name not in schema.get("$defs", {}):
+                raise ValueError("unresolved schema reference")
+            return expand(schema["$defs"][name], refs + (ref,))
+        result = dict(node)
+        result.pop("$defs", None)
+        if "properties" in node:
+            result["properties"] = {key: expand(value, refs) for key, value in node["properties"].items()}
+        if "items" in node:
+            result["items"] = expand(node["items"], refs)
+        if "additionalProperties" in node and not isinstance(node["additionalProperties"], bool):
+            raise ValueError("unsupported additionalProperties")
+        kinds = node.get("type", [])
+        if isinstance(kinds, str):
+            kinds = [kinds]
+        if not isinstance(kinds, list) or any(k not in {"object", "array", "string", "boolean", "null"} for k in kinds):
+            raise ValueError("unsupported schema type")
+        return result
+
+    for definition in schema.get("$defs", {}).values():
+        expand(definition)
+    return expand(schema)
+
+
+def _validate_core_collections(value: Any, schema: dict[str, Any], path: str = "") -> None:
+    if isinstance(value, list):
+        if len(value) < schema.get("minItems", 0):
+            raise ManifestError(f"{path}: too few items")
+        if schema.get("uniqueItems"):
+            serialized = [_json_dumps(item) for item in value]
+            if len(set(serialized)) != len(serialized):
+                raise ManifestError(f"{path}: duplicate items")
+        for index, item in enumerate(value):
+            _validate_core_collections(item, schema.get("items", {}), f"{path}[{index}]")
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            _validate_core_collections(item, schema.get("properties", {}).get(key, {}), f"{path}.{key}")
+
+
+def _canonical_core_records(document: dict[str, Any]) -> list[dict[str, Any]]:
+    """Adapt Core identity metadata without fabricating observation paths."""
+    records = []
+    for collection in ("systems", "planned_extractions"):
+        for record in document[collection]:
+            repository = record["repository"]
+            planned = collection == "planned_extractions" or record["record_type"] == "planned_extraction"
+            records.append({
+                "system_id": record["id"], "project_id": record["id"],
+                "name": record["canonical_name"], "role": record["architecture_role"],
+                "canonical_owner": record["ownership"]["system_owner"],
+                "owner": record["ownership"]["system_owner"],
+                "identity_kind": "embedded system" if record["lifecycle"] == "embedded" else "",
+                "classification": record["canonical_status"], "lifecycle": record["lifecycle"],
+                "canonical_repository": {"path": "", "remote": "", "branch": ""},
+                "planned_extraction": planned, "placeholder": record["canonical_status"] == "placeholder",
+                "legacy": record["canonical_status"] == "legacy",
+                "source_system": record.get("source_system"), "_core_record": record,
+                "_core_repository": {"canonical_repo": repository.get("canonical_repo"),
+                                     "current_location": repository["current_location"]},
+            })
+    return records
+
+
 def _load_platform_core_document(root: Path | None) -> tuple[dict[str, Any], dict[str, Any]]:
     if root is None or not root.exists():
         return {
@@ -245,18 +323,44 @@ def _load_platform_core_document(root: Path | None) -> tuple[dict[str, Any], dic
             "governance_path": str(governance_path),
         }, {}
 
-    schema_version = governance_doc.get("schema_version")
-    declared_version = governance_doc.get("governance_version") or governance_doc.get("version") or governance_doc.get("platform_core_governance_version")
-    if schema_version not in {GOVERNANCE_SCHEMA_VERSION, str(GOVERNANCE_SCHEMA_VERSION)}:
-        return {
-            "status": "SCHEMA_MISMATCH",
-            "reason": "platform_core_governance_schema_version_mismatch",
-            "root": str(root),
-            "governance_path": str(governance_path),
-            "schema_path": str(schema_path) if schema_path else None,
-            "declared_schema_version": schema_version,
-            "governance_version": declared_version,
-        }, governance_doc
+    declared_version = governance_doc.get("governance_version")
+    reason = None
+    if "governance_version" not in governance_doc:
+        reason = "platform_core_governance_version_missing"
+    elif not isinstance(declared_version, str):
+        reason = "platform_core_governance_version_invalid"
+    elif declared_version != "1.0":
+        reason = "platform_core_governance_version_unsupported"
+    if reason is None:
+        schema = _read_structured_document(schema_path) if schema_path else None
+        if schema is None:
+            return {"status": "UNAVAILABLE", "reason": "platform_core_governance_schema_unavailable",
+                    "root": str(root)}, governance_doc
+        try:
+            prepared = _core_schema(schema)
+            # A substitute permissive schema must not authorize a different producer.
+            if (set(prepared.get("required", [])) != {"governance_version", "ownership_model", "systems", "planned_extractions"}
+                    or prepared.get("additionalProperties") is not False
+                    or prepared.get("properties", {}).get("governance_version", {}).get("enum") != ["1.0"]):
+                raise ValueError("unsupported governance schema binding")
+        except (ValueError, TypeError, KeyError, AttributeError):
+            reason = "platform_core_governance_schema_unsupported"
+        else:
+            try:
+                _validate_schema(governance_doc, prepared, "governance.")
+                _validate_core_collections(governance_doc, prepared)
+                ids = [item["id"] for key in ("systems", "planned_extractions") for item in governance_doc[key]]
+                if len(ids) != len(set(ids)):
+                    raise ManifestError("duplicate canonical identity")
+            except (ManifestError, TypeError, KeyError):
+                reason = "platform_core_governance_schema_invalid"
+    if reason:
+        return {"status": "SCHEMA_MISMATCH", "reason": reason, "root": str(root),
+                "governance_path": str(governance_path),
+                "schema_path": str(schema_path) if schema_path else None,
+                "governance_version": declared_version}, governance_doc
+    schema_version = GOVERNANCE_SCHEMA_VERSION  # NEOS response version, not a Core input alias.
+    canonical_input = {"systems": _canonical_core_records(governance_doc)}
 
     supplemental_documents: dict[str, Any] = {}
     supplemental_paths = {
@@ -295,8 +399,8 @@ def _load_platform_core_document(root: Path | None) -> tuple[dict[str, Any], dic
         ),
         "declared": {
             "estate_roots": _normalize_declared_estate_roots(governance_doc),
-            "systems": _normalize_declared_systems(governance_doc, supplemental_documents),
-            "repositories": _normalize_declared_repositories(governance_doc, supplemental_documents),
+            "systems": _normalize_declared_systems(canonical_input, {}),
+            "repositories": _normalize_declared_repositories(canonical_input, {}),
             "dependencies": _normalize_declared_dependencies(governance_doc, supplemental_documents),
             "interfaces": _normalize_declared_interfaces(governance_doc, supplemental_documents),
             "services": _normalize_declared_services(governance_doc, supplemental_documents),
@@ -364,6 +468,7 @@ def _normalize_declared_repositories(
                     "path": str(repo.get("path") or repo.get("repo_path") or entry.get("repo_path") or "").strip(),
                     "remote": str(repo.get("remote") or repo.get("url") or repo.get("git_remote") or entry.get("remote") or "").strip(),
                     "branch": str(repo.get("branch") or repo.get("default_branch") or entry.get("branch") or "").strip(),
+                    **entry.get("_core_repository", {}),
                 },
                 "capabilities": _normalize_string_list(entry.get("capabilities")),
                 "dependencies": _normalize_string_list(entry.get("dependencies")),
@@ -374,7 +479,8 @@ def _normalize_declared_repositories(
                 "legacy": bool(entry.get("legacy") or entry.get("is_legacy") or entry.get("superseded")),
                 "classification": str(entry.get("classification") or entry.get("repository_classification") or "").strip(),
                 "source": governance_doc.get("governance_path"),
-                "raw": entry,
+                "raw": entry.get("_core_record", entry),
+                "source_system": entry.get("source_system"),
             }
         )
     unique: list[dict[str, Any]] = []
@@ -430,6 +536,7 @@ def _normalize_declared_systems(
                     "path": str(repo.get("path") or repo.get("repo_path") or entry.get("repo_path") or "").strip(),
                     "remote": str(repo.get("remote") or repo.get("url") or repo.get("git_remote") or entry.get("remote") or "").strip(),
                     "branch": str(repo.get("branch") or repo.get("default_branch") or entry.get("branch") or "").strip(),
+                    **entry.get("_core_repository", {}),
                 },
                 "dependencies": _normalize_string_list(entry.get("dependencies")),
                 "interfaces": _normalize_string_list(entry.get("interfaces")),
@@ -441,7 +548,8 @@ def _normalize_declared_systems(
                 "canonical": bool(entry.get("canonical", True)),
                 "observed_repo_hint": str(entry.get("observed_repo_hint") or "").strip(),
                 "source": governance_doc.get("governance_path"),
-                "raw": entry,
+                "raw": entry.get("_core_record", entry),
+                "source_system": entry.get("source_system"),
             }
         )
     deduped: list[dict[str, Any]] = []
@@ -787,7 +895,7 @@ def _declared_is_repository(system: dict[str, Any]) -> bool:
     identity_kind = _normalize_text(system.get("identity_kind"))
     if any(token in identity_kind for token in ("active independent repository", "placeholder repository", "legacy repository", "prototype repository", "reference repository", "vendor repository")):
         return True
-    return bool(system.get("repository", {}).get("path") or system.get("repository", {}).get("remote"))
+    return bool(system.get("repository", {}).get("canonical_repo") or system.get("repository", {}).get("path") or system.get("repository", {}).get("remote"))
 
 
 def _declared_requires_observed_repo(system: dict[str, Any]) -> bool:
@@ -813,6 +921,7 @@ def _match_declared_system(
         _normalize_text(system["name"]),
         _normalize_text(Path(system["repository"]["path"]).name) if system["repository"]["path"] else "",
         _normalize_text(system["repository"]["remote"]),
+        _normalize_text(system["repository"].get("canonical_repo")),
     }
     matches: list[dict[str, Any]] = []
     for key in keys:
@@ -883,7 +992,7 @@ def _evaluate_system(
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     declared_system_id = declared["system_id"]
     finding_system_id = declared.get("project_id") or declared_system_id
-    owner = declared.get("canonical_owner") or declared.get("role") or declared_system_id
+    owner = declared.get("owner") or declared.get("canonical_owner") or declared.get("role") or declared_system_id
     match = observed_matches[0] if observed_matches else None
     observed_state = {
         "matches": [
@@ -1487,6 +1596,8 @@ def _find_unregistered_repositories(
         for system in declared_systems
         if system["repository"]["path"]
     }
+    declared_keys.update(_normalize_text(system["repository"].get("canonical_repo")) for system in declared_systems)
+    declared_keys.discard("")
     observed_lookup = _observed_repo_lookup(observed_projects)
     findings: list[dict[str, Any]] = []
     for repo in _scanned_repositories(estate_roots):

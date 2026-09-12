@@ -1,5 +1,14 @@
 from __future__ import annotations
 
+import copy
+import hashlib
+import os
+import re
+
+import pytest
+import yaml
+import neos.governance as governance_module
+
 import json
 import sqlite3
 import subprocess
@@ -153,36 +162,65 @@ def _seed_dependency_snapshot(db: Path, source_project_id: str, target_project_i
     conn.close()
 
 
-def _write_platform_core(root: Path, *, estate_roots: list[Path], systems: list[dict[str, object]]) -> Path:
-    registry = root / "registry"
-    schemas = root / "schemas"
-    registry.mkdir(parents=True, exist_ok=True)
-    schemas.mkdir(parents=True, exist_ok=True)
-    governance_doc = {
-        "schema_version": 1,
-        "governance_version": "1.0",
-        "platform_core_merge_commit": "62d7b43",
-        "estate_roots": [str(path) for path in estate_roots],
-        "systems": systems,
-        "repositories": systems,
-        "dependencies": [],
-        "interfaces": [],
-        "services": [],
-    }
-    (registry / "governance.yaml").write_text(json.dumps(governance_doc, indent=2, sort_keys=True))
-    (schemas / "governance.schema.json").write_text(
-        json.dumps(
-            {
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "object",
-                "properties": {"schema_version": {"const": 1}},
-                "required": ["schema_version", "systems"],
-            },
-            indent=2,
-            sort_keys=True,
-        )
-    )
+CORE_ROOT = Path(os.environ.get("A04_CORE_ROOT", r"D:\Dev\Projects\New-Earth-Platform-Core-Omega"))
+CORE_REVISION = "7dae83b5591393b62fb5fc7ed8a6a6560bc53e03"
+CORE_HASHES = {
+    "registry/governance.yaml": "E11BB6DEAACD1E9052AD810A7521E838C606088ED131332A257B0CA0BEAABAF0",
+    "schemas/governance.schema.json": "199D02E4DBC49B16C25C8B6F1D1B3CCE29CB13506DC73E82995F89032145E71B",
+}
+_INTERNAL_RULE_INPUTS = {}
+
+
+def _core_inputs():
+    # Canonical producer provenance, never an independently invented producer schema.
+    for relative, expected in CORE_HASHES.items():
+        assert hashlib.sha256((CORE_ROOT / relative).read_bytes()).hexdigest().upper() == expected
+    assert subprocess.check_output(["git", "-C", str(CORE_ROOT), "rev-parse", "HEAD"], text=True).strip() == CORE_REVISION
+    return (yaml.safe_load((CORE_ROOT / "registry/governance.yaml").read_text(encoding="utf-8")),
+            json.loads((CORE_ROOT / "schemas/governance.schema.json").read_text(encoding="utf-8")))
+
+
+def _write_canonical(root, document=None, schema=None):
+    canonical, canonical_schema = _core_inputs()
+    (root / "registry").mkdir(parents=True, exist_ok=True)
+    (root / "schemas").mkdir(parents=True, exist_ok=True)
+    (root / "registry/governance.yaml").write_text(json.dumps(canonical if document is None else document), encoding="utf-8")
+    (root / "schemas/governance.schema.json").write_text(json.dumps(canonical_schema if schema is None else schema), encoding="utf-8")
     return root
+
+
+def _write_platform_core(root: Path, *, estate_roots: list[Path], systems: list[dict[str, object]]) -> Path:
+    document, schema = _core_inputs()
+    template = document["systems"][0]
+    records = []
+    for item in systems:
+        record = copy.deepcopy(template)
+        record["id"] = re.sub(r"[^a-z0-9_-]", "-", str(item["system_id"]).lower())
+        record["canonical_name"] = item["name"]
+        record["ownership"]["system_owner"] = item["canonical_owner"]
+        record["repository"] = {"canonical_repo": item["name"], "current_location": item["name"]}
+        records.append(record)
+    document["systems"] = records
+    document["planned_extractions"] = []
+    _INTERNAL_RULE_INPUTS[str(root)] = {"systems": systems, "estate_roots": [str(p) for p in estate_roots]}
+    return _write_canonical(root, document, schema)
+
+
+def _use_internal_finding_inputs(monkeypatch):
+    """Old broad rule cases test internal normalized findings, NOT producer acceptance."""
+    real_load = governance_module._load_platform_core_document
+
+    def load(root):
+        normalized, document = real_load(root)
+        internal = _INTERNAL_RULE_INPUTS.get(str(root))
+        if internal is not None:
+            assert normalized["status"] == "AVAILABLE"
+            normalized["declared"]["systems"] = governance_module._normalize_declared_systems(internal, {})
+            normalized["declared"]["repositories"] = governance_module._normalize_declared_repositories(internal, {})
+            normalized["declared"]["estate_roots"] = internal["estate_roots"]
+        return normalized, document
+
+    monkeypatch.setattr(governance_module, "_load_platform_core_document", load)
 
 
 def _find(report: dict[str, object], rule_id: str, system_id: str | None = None) -> list[dict[str, object]]:
@@ -207,7 +245,8 @@ def _get_json(url: str):
         return exc.code, json.loads(exc.read().decode("utf-8"))
 
 
-def test_governance_report_covers_core_rules(tmp_path: Path):
+def test_governance_report_covers_core_rules(tmp_path: Path, monkeypatch):
+    _use_internal_finding_inputs(monkeypatch)
     db = tmp_path / "neos.db"
     estate_root = tmp_path / "estate"
     estate_root.mkdir()
@@ -593,7 +632,8 @@ def test_governance_report_covers_core_rules(tmp_path: Path):
     assert _find(report, "NEOS-GOV-014", "Life OS")[0]["status"] in {"PASS", "UNKNOWN"}
 
 
-def test_governance_regression_identity_smoke_cases(tmp_path: Path):
+def test_governance_regression_identity_smoke_cases(tmp_path: Path, monkeypatch):
+    _use_internal_finding_inputs(monkeypatch)
     db = tmp_path / "neos.db"
     estate_root = tmp_path / "estate"
     estate_root.mkdir()
@@ -887,3 +927,105 @@ def test_governance_cli_and_service_json_surfaces(tmp_path: Path):
     finally:
         server.shutdown()
         thread.join(timeout=5)
+
+
+@pytest.mark.parametrize("value,reason", [
+    (None, "invalid"), (1.0, "invalid"), (1, "invalid"), (True, "invalid"),
+    ([], "invalid"), ({}, "invalid"), ("2.0", "unsupported"), (" 1.0", "unsupported"),
+])
+def test_canonical_version_rejections(tmp_path, value, reason):
+    document, schema = _core_inputs()
+    document["governance_version"] = value
+    result, _ = governance_module._load_platform_core_document(_write_canonical(tmp_path, document, schema))
+    assert result["status"] == "SCHEMA_MISMATCH"
+    assert result["reason"] == "platform_core_governance_version_" + reason
+
+
+def test_missing_and_synthetic_producer_versions(tmp_path):
+    for index, mode in enumerate(("missing", "schema_only", "both")):
+        document, schema = _core_inputs()
+        if mode != "both":
+            del document["governance_version"]
+        if mode != "missing":
+            document["schema_version"] = 1
+        result, _ = governance_module._load_platform_core_document(_write_canonical(tmp_path / str(index), document, schema))
+        assert result["status"] == "SCHEMA_MISMATCH"
+        assert result["reason"] == ("platform_core_governance_schema_invalid" if mode == "both" else "platform_core_governance_version_missing")
+
+
+def test_actual_core_canonical_mapping_and_supplement_collision(tmp_path):
+    root = _write_canonical(tmp_path)
+    document, _ = _core_inputs()
+    victim = document["systems"][0]
+    (root / "registry/projects.json").write_text(json.dumps({"systems": [{"id": victim["id"], "owner": "ATTACKER"}]}))
+    result, _ = governance_module._load_platform_core_document(root)
+    assert result["status"] == "AVAILABLE"
+    assert result["schema_version"] == 1
+    assert result["governance_version"] == "1.0"
+    records = result["declared"]["systems"]
+    assert len(records) == len(document["systems"]) + len(document["planned_extractions"])
+    for original in document["systems"] + document["planned_extractions"]:
+        matches = [r for r in records if r["system_id"] == original["id"]]
+        assert len(matches) == 1
+        record = matches[0]
+        assert record["owner"] == original["ownership"]["system_owner"]
+        assert record["repository"]["canonical_repo"] == original["repository"].get("canonical_repo")
+        assert record["repository"]["current_location"] == original["repository"]["current_location"]
+        assert record["repository"]["path"] == record["repository"]["remote"] == ""
+        if original in document["planned_extractions"]:
+            assert record["planned_extraction"] is True
+            assert record["source_system"] == original.get("source_system")
+            assert not governance_module._declared_requires_observed_repo(record)
+            assert not record["embedded_in"]
+
+
+@pytest.mark.parametrize("field,value", [("systems", {}), ("ownership", "bad"),
+    ("repository", []), ("planned_extractions", [None]), ("architecture_notes", []),
+    ("supersedes", ["same", "same"])])
+def test_canonical_malformed_shapes(tmp_path, field, value):
+    document, schema = _core_inputs()
+    if field in {"systems", "planned_extractions"}:
+        document[field] = value
+    else:
+        document["systems"][0][field] = value
+    result, _ = governance_module._load_platform_core_document(_write_canonical(tmp_path, document, schema))
+    assert result["status"] == "SCHEMA_MISMATCH"
+    assert result["reason"] == "platform_core_governance_schema_invalid"
+
+
+@pytest.mark.parametrize("kind", ["external", "missing", "cycle", "assertion"])
+def test_core_unsupported_schema_fails_closed(tmp_path, kind):
+    document, schema = _core_inputs()
+    if kind == "assertion":
+        schema["allOf"] = []
+    elif kind == "cycle":
+        schema["$defs"]["record"] = {"$ref": "#/$defs/record"}
+    else:
+        schema["properties"]["systems"]["items"] = {"$ref": "https://invalid/schema" if kind == "external" else "#/$defs/missing"}
+    result, _ = governance_module._load_platform_core_document(_write_canonical(tmp_path, document, schema))
+    assert result["status"] == "SCHEMA_MISMATCH"
+    assert result["reason"] == "platform_core_governance_schema_unsupported"
+
+
+def test_canonical_identity_ambiguity_preserved(tmp_path):
+    result, _ = governance_module._load_platform_core_document(_write_canonical(tmp_path))
+    record = next(r for r in result["declared"]["systems"] if r["repository"]["canonical_repo"])
+    identity = governance_module._normalize_text(record["repository"]["canonical_repo"])
+    observed = [{"project_id": "one"}, {"project_id": "two"}]
+    matches = governance_module._match_declared_system(record, {identity: observed})
+    assert {p["project_id"] for p in matches} == {"one", "two"}
+
+
+def test_canonical_response_contract_and_determinism(tmp_path):
+    db = tmp_path / "neos.db"
+    _build_project(db, tmp_path / "repo", "demo", "Demo", technologies=["python"], remote="https://example.com/demo.git")
+    root = _write_canonical(tmp_path / "core")
+    first = governance_report(db, platform_core_root=root, estate_roots=[tmp_path / "absent"])
+    second = governance_report(db, platform_core_root=root, estate_roots=[tmp_path / "absent"])
+    assert first["schema_version"] == first["snapshot"]["schema_version"] == 1
+    assert first["governance_version"] == "1.0"
+    assert first["platform_core"]["status"] == "AVAILABLE"
+    assert first["snapshot"]["id"] == second["snapshot"]["id"]
+    assert [f["id"] for f in first["findings"]] == [f["id"] for f in second["findings"]]
+    planned = {r["id"] for r in _core_inputs()[0]["planned_extractions"]}
+    assert planned <= {f["system_id"] for f in first["findings"] if f["rule_id"] == "NEOS-GOV-004"}
