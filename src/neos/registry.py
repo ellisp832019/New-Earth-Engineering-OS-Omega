@@ -93,10 +93,15 @@ def _git_output(repo_path: Path, *args: str) -> str | None:
 
 
 def _git_dirty(repo_path: Path) -> bool | None:
-    output = _git_output(repo_path, "status", "--porcelain")
-    if output is None:
+    try:
+        output = subprocess.check_output(
+            ["git", "-C", str(repo_path), "status", "--porcelain"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError, OSError):
         return None
-    return bool(output)
+    return bool(output.strip())
 
 
 def _git_remote(repo_path: Path) -> str | None:

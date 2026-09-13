@@ -8,6 +8,7 @@ import re
 import pytest
 import yaml
 import neos.governance as governance_module
+import neos.registry as registry_module
 
 import json
 import sqlite3
@@ -912,6 +913,9 @@ def test_governance_cli_and_service_json_surfaces(tmp_path: Path):
     payload = json.loads(result.stdout)
     assert payload["status"] in {"READY", "READY_WITH_WARNINGS", "NOT_READY", "UNKNOWN"}
     assert payload["snapshot"]["id"].startswith("gov-")
+    observed = next(item for item in payload["observed"]["projects"] if item["project_id"] == "demo")
+    assert observed["dirty"] is False
+    assert observed["profile"]["dirty"] is False
 
     server, thread = _start_server(db)
     try:
@@ -919,11 +923,15 @@ def test_governance_cli_and_service_json_surfaces(tmp_path: Path):
         status_code, response = _get_json(f"{base}/governance/status?platform_core_root={platform_core}&estate_root={tmp_path}")
         assert status_code == 200
         assert response["status"] in {"READY", "READY_WITH_WARNINGS", "NOT_READY", "UNKNOWN"}
+        observed = next(item for item in response["observed"]["projects"] if item["project_id"] == "demo")
+        assert observed["dirty"] is False
+        assert observed["profile"]["dirty"] is False
 
         status_code, response = _get_json(f"{base}/governance/project/demo?platform_core_root={platform_core}&estate_root={tmp_path}")
         assert status_code == 200
         assert response["project_id"] == "demo"
         assert response["system"]["system_id"] == "demo"
+        assert response["system"]["observed_state"]["profile"]["dirty"] is False
     finally:
         server.shutdown()
         thread.join(timeout=5)
@@ -1029,3 +1037,76 @@ def test_canonical_response_contract_and_determinism(tmp_path):
     assert [f["id"] for f in first["findings"]] == [f["id"] for f in second["findings"]]
     planned = {r["id"] for r in _core_inputs()[0]["planned_extractions"]}
     assert planned <= {f["system_id"] for f in first["findings"] if f["rule_id"] == "NEOS-GOV-004"}
+
+
+def test_registry_clean_profile_identity(tmp_path: Path):
+    db = tmp_path / "neos.db"
+    repo = tmp_path / "repo"
+    remote = "https://example.invalid/clean-status.git"
+    _build_project(db, repo, "demo", "Demo", remote=remote)
+
+    assert registry_module._git_dirty(repo) is False
+    profile = registry_module.repo_profile(repo)
+    assert profile["dirty"] is False
+    assert profile["branch"] == subprocess.check_output(
+        ["git", "-C", str(repo), "branch", "--show-current"], text=True
+    ).strip()
+    assert profile["commit"] == subprocess.check_output(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True
+    ).strip()
+    assert profile["remote_url"] == remote
+    assert registry_module.repo_profile(repo)["fingerprint"] == profile["fingerprint"]
+
+
+@pytest.mark.parametrize("change", ["tracked", "untracked"])
+def test_registry_dirty_changes(tmp_path: Path, change: str):
+    repo = tmp_path / "repo"
+    _build_project(tmp_path / "neos.db", repo, "demo", "Demo")
+    path = repo / ("README.md" if change == "tracked" else "new.txt")
+    path.write_text("changed\n")
+    assert registry_module._git_dirty(repo) is True
+    assert registry_module.repo_profile(repo)["dirty"] is True
+
+
+@pytest.mark.parametrize("missing", [False, True])
+def test_registry_dirty_non_repository(tmp_path: Path, missing: bool):
+    repo = tmp_path / "not-a-repository"
+    if not missing:
+        repo.mkdir()
+    assert registry_module._git_dirty(repo) is None
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        subprocess.CalledProcessError(128, ["git"]),
+        FileNotFoundError("Git unavailable"),
+        OSError("Git invocation failed"),
+    ],
+    ids=["command-failure", "git-unavailable", "os-failure"],
+)
+def test_registry_dirty_failure_is_unknown(tmp_path: Path, monkeypatch, error):
+    def fail(*args, **kwargs):
+        raise error
+
+    with monkeypatch.context() as context:
+        context.setattr(registry_module.subprocess, "check_output", fail)
+        assert registry_module._git_dirty(tmp_path) is None
+
+
+@pytest.mark.parametrize("state", ["clean", "dirty", "unavailable"])
+def test_registry_release_dirty_blocker_preserved(tmp_path: Path, monkeypatch, state: str):
+    db = tmp_path / "neos.db"
+    repo = tmp_path / "repo"
+    _build_project(db, repo, "demo", "Demo")
+    if state == "dirty":
+        (repo / "README.md").write_text("changed\n")
+        assert registry_module._git_dirty(repo) is True
+    elif state == "unavailable":
+        monkeypatch.setattr(registry_module, "_git_dirty", lambda path: None)
+        assert registry_module._git_dirty(repo) is None
+    else:
+        assert registry_module._git_dirty(repo) is False
+
+    release = registry_module._release_state(db, "demo", repo, {}, {})
+    assert ("working_tree_dirty" in release["known_blockers"]) is (state == "dirty")
