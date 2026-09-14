@@ -1110,3 +1110,164 @@ def test_registry_release_dirty_blocker_preserved(tmp_path: Path, monkeypatch, s
 
     release = registry_module._release_state(db, "demo", repo, {}, {})
     assert ("working_tree_dirty" in release["known_blockers"]) is (state == "dirty")
+
+
+def _revision_fixture(tmp_path: Path, *, extras: bool = False):
+    db = tmp_path / "neos.db"
+    repo = tmp_path / "gaia"
+    _build_project(db, repo, "gaia", "GAIA", technologies=["registry"],
+                   remote="https://example.invalid/gaia.git")
+    estate = tmp_path / "estate"
+    estate.mkdir()
+    if extras:
+        _build_project(db, tmp_path / "peer", "registry-peer", "Registry peer",
+                       technologies=["registry"])
+        unregistered = estate / "New-Earth-Unregistered-Revision"
+        unregistered.mkdir()
+        _init_repo(unregistered)
+        (unregistered / "README.md").write_text("Unregistered fixture\n")
+        _commit(unregistered, "fixture")
+    return db, repo, _write_canonical(tmp_path / "core"), estate
+
+
+def _assert_report_revision(report, revision):
+    assert report["source_commit"] == revision
+    assert report["snapshot"]["neos_commit"] == revision
+    assert all(item["source_commit"] == revision for item in report["findings"])
+    if revision is None:
+        assert report["source_commit"] is None
+        assert report["snapshot"]["neos_commit"] is None
+        assert all(item["source_commit"] is None for item in report["findings"])
+
+
+@pytest.mark.parametrize("revision", ["revision-A", None])
+def test_report_revision_all_finding_producers(tmp_path: Path, monkeypatch, revision):
+    db, repo, core, estate = _revision_fixture(tmp_path, extras=True)
+    calls = []
+
+    def capture():
+        calls.append(revision)
+        assert len(calls) == 1
+        return revision
+
+    monkeypatch.setattr(governance_module, "_current_neos_commit", capture)
+    report = governance_report(db, platform_core_root=core, estate_roots=[estate])
+    assert calls == [revision]
+    assert _find(report, "NEOS-GOV-012")
+    assert _find(report, "NEOS-GOV-009")
+    assert any(item["rule_id"] not in {"NEOS-GOV-012", "NEOS-GOV-009"}
+               for item in report["findings"])
+    _assert_report_revision(report, revision)
+    observed = next(item for item in report["observed"]["projects"] if item["project_id"] == "gaia")
+    assert observed["dirty"] is False
+    assert observed["commit"] == subprocess.check_output(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True
+    ).strip()
+    assert observed["remote_url"] == "https://example.invalid/gaia.git"
+    assert report["platform_core"]["status"] == "AVAILABLE"
+    assert report["governance_version"] == "1.0"
+
+
+def test_report_revision_no_findings(tmp_path: Path, monkeypatch):
+    from neos.db import ensure_database
+
+    db = tmp_path / "empty.db"
+    ensure_database(db)
+    estate = tmp_path / "empty-estate"
+    estate.mkdir()
+    calls = []
+
+    def capture():
+        calls.append(None)
+        return None
+
+    monkeypatch.setattr(governance_module, "_current_neos_commit", capture)
+    report = governance_report(db, platform_core_root=tmp_path / "missing-core", estate_roots=[estate])
+    assert report["findings"] == []
+    assert calls == [None]
+    _assert_report_revision(report, None)
+
+
+@pytest.mark.parametrize(
+    "error",
+    [subprocess.CalledProcessError(128, ["git"]), FileNotFoundError("missing Git"), OSError("failed Git")],
+    ids=["command-failure", "missing-git", "os-failure"],
+)
+def test_report_revision_lookup_failure(tmp_path: Path, monkeypatch, error):
+    def fail(*args, **kwargs):
+        raise error
+
+    with monkeypatch.context() as context:
+        context.setattr(governance_module, "_module_repo_root", lambda: tmp_path)
+        context.setattr(governance_module.subprocess, "check_output", fail)
+        assert governance_module._current_neos_commit() is None
+
+
+def test_report_revision_missing_module_repository(monkeypatch):
+    def unexpected(*args, **kwargs):
+        raise AssertionError("Git must not run without a module repository")
+
+    with monkeypatch.context() as context:
+        context.setattr(governance_module, "_module_repo_root", lambda: None)
+        context.setattr(governance_module.subprocess, "check_output", unexpected)
+        assert governance_module._current_neos_commit() is None
+
+
+@pytest.mark.parametrize("initial,later", [("revision-A", "revision-B"), ("revision-A", None), (None, "revision-B")])
+def test_report_revision_changes_are_report_local(tmp_path: Path, monkeypatch, initial, later):
+    db, repo, core, estate = _revision_fixture(tmp_path)
+    state = {"revision": initial}
+    calls = []
+    original_load = governance_module._load_platform_core_document
+
+    def capture():
+        calls.append(state["revision"])
+        return state["revision"]
+
+    def change_after_capture(root):
+        state["revision"] = later
+        return original_load(root)
+
+    monkeypatch.setattr(governance_module, "_current_neos_commit", capture)
+    monkeypatch.setattr(governance_module, "_load_platform_core_document", change_after_capture)
+    monkeypatch.setattr(governance_module, "utc_now", lambda: "2026-09-14T00:00:00+00:00")
+    first = governance_report(db, platform_core_root=core, estate_roots=[estate])
+    second = governance_report(db, platform_core_root=core, estate_roots=[estate])
+    assert calls == [initial, later]
+    _assert_report_revision(first, initial)
+    _assert_report_revision(second, later)
+    assert first["observed"] == second["observed"]
+    assert first["platform_core"] == second["platform_core"]
+    assert first["snapshot"]["source_fingerprint"] == second["snapshot"]["source_fingerprint"]
+    assert first["snapshot"]["id"] == second["snapshot"]["id"]
+    assert [item["id"] for item in first["findings"]] == [item["id"] for item in second["findings"]]
+
+
+def test_report_revision_concurrent_isolation(tmp_path: Path, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+
+    db, repo, core, estate = _revision_fixture(tmp_path)
+    local = threading.local()
+    barrier = threading.Barrier(2)
+    lock = threading.Lock()
+    calls = []
+
+    def capture():
+        revision = local.revision
+        with lock:
+            calls.append(revision)
+        barrier.wait(timeout=20)
+        return revision
+
+    def evaluate(revision):
+        local.revision = revision
+        return governance_report(db, platform_core_root=core, estate_roots=[estate])
+
+    monkeypatch.setattr(governance_module, "_current_neos_commit", capture)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first = pool.submit(evaluate, "revision-A")
+        second = pool.submit(evaluate, "revision-B")
+        first_report, second_report = first.result(timeout=60), second.result(timeout=60)
+    assert sorted(calls) == ["revision-A", "revision-B"]
+    _assert_report_revision(first_report, "revision-A")
+    _assert_report_revision(second_report, "revision-B")

@@ -952,7 +952,7 @@ def _finding(
     affected: dict[str, Any] | None = None,
     confidence: float | None = None,
     platform_core: dict[str, Any] | None = None,
-    source_commit: str | None = None,
+    source_commit: str | None,
 ) -> dict[str, Any]:
     if status not in GOVERNANCE_FINDING_STATUSES:
         status = "UNKNOWN"
@@ -978,7 +978,7 @@ def _finding(
         "platform_core_governance_hash": (platform_core or {}).get("registry_hash"),
         "platform_core_merge_commit": (platform_core or {}).get("platform_core_merge_commit") or PLATFORM_CORE_GOVERNANCE_REFERENCE,
         "neos_version": __version__,
-        "source_commit": source_commit or _current_neos_commit(),
+        "source_commit": source_commit,
     }
     return payload
 
@@ -989,6 +989,7 @@ def _evaluate_system(
     observed_matches: list[dict[str, Any]],
     platform_core: dict[str, Any],
     db_path: Path,
+    source_commit: str | None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     declared_system_id = declared["system_id"]
     finding_system_id = declared.get("project_id") or declared_system_id
@@ -1087,6 +1088,7 @@ def _evaluate_system(
             affected={"project_ids": [item["project_id"] for item in observed_matches]},
             confidence=0.99 if status == "PASS" and match else 0.88 if status == "ERROR" else 0.75,
             platform_core=platform_core,
+            source_commit=source_commit,
         )
     )
 
@@ -1118,6 +1120,7 @@ def _evaluate_system(
                 affected={"project_ids": []},
                 confidence=0.92 if missing_state == "missing" else 0.7,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
 
@@ -1138,6 +1141,7 @@ def _evaluate_system(
                 affected={"project_ids": [item["project_id"] for item in observed_matches]},
                 confidence=0.9,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
 
@@ -1163,6 +1167,7 @@ def _evaluate_system(
                     affected={"project_ids": [match["project_id"]]},
                     confidence=0.97,
                     platform_core=platform_core,
+                    source_commit=source_commit,
                 )
             )
         if declared_remote and observed_remote and declared_remote != observed_remote:
@@ -1182,6 +1187,7 @@ def _evaluate_system(
                     affected={"project_ids": [match["project_id"]]},
                     confidence=0.97,
                     platform_core=platform_core,
+                    source_commit=source_commit,
                 )
             )
 
@@ -1203,6 +1209,7 @@ def _evaluate_system(
                 affected={"project_ids": [match["project_id"]] if match else []},
                 confidence=0.95,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
 
@@ -1224,6 +1231,7 @@ def _evaluate_system(
                 affected={"project_ids": [match["project_id"]] if match else []},
                 confidence=0.92,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
 
@@ -1245,6 +1253,7 @@ def _evaluate_system(
                 affected={"project_ids": [match["project_id"]] if match else []},
                 confidence=0.95,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
 
@@ -1266,6 +1275,7 @@ def _evaluate_system(
                 affected={"project_ids": [match["project_id"]] if match else []},
                 confidence=0.93,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
 
@@ -1287,6 +1297,7 @@ def _evaluate_system(
                 affected={"project_ids": [match["project_id"]] if match else []},
                 confidence=0.9,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
 
@@ -1316,6 +1327,7 @@ def _evaluate_system(
                 affected={"project_ids": [match["project_id"]]},
                 confidence=0.9,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
 
@@ -1357,6 +1369,7 @@ def _evaluate_system(
                 affected={"project_ids": [match["project_id"]]},
                 confidence=0.92,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
 
@@ -1406,6 +1419,7 @@ def _evaluate_system(
                 affected={"project_ids": [match["project_id"]] if match else []},
                 confidence=0.9 if dep_status != "UNKNOWN" else 0.5,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
 
@@ -1430,6 +1444,7 @@ def _evaluate_system(
                 affected={"project_ids": [match["project_id"]]},
                 confidence=0.9,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
     else:
@@ -1452,6 +1467,7 @@ def _evaluate_system(
                 affected={"project_ids": []},
                 confidence=0.86,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
 
@@ -1582,6 +1598,7 @@ def _find_unregistered_repositories(
     observed_projects: list[dict[str, Any]],
     estate_roots: list[Path],
     platform_core: dict[str, Any],
+    source_commit: str | None,
 ) -> list[dict[str, Any]]:
     if not estate_roots:
         return []
@@ -1659,6 +1676,7 @@ def _find_unregistered_repositories(
                 affected={"repositories": [repo["repo_path"]]},
                 confidence=0.84,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
     return findings
@@ -1667,6 +1685,8 @@ def _find_unregistered_repositories(
 def _find_duplicate_capability_ownership(
     observed_projects: list[dict[str, Any]],
     platform_core: dict[str, Any],
+    *,
+    source_commit: str | None,
 ) -> list[dict[str, Any]]:
     capabilities: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for project in observed_projects:
@@ -1696,6 +1716,7 @@ def _find_duplicate_capability_ownership(
                 affected={"project_ids": project_ids},
                 confidence=0.88,
                 platform_core=platform_core,
+                source_commit=source_commit,
             )
         )
     return findings
@@ -1735,7 +1756,7 @@ def _governance_snapshot_payload(report: dict[str, Any]) -> dict[str, Any]:
         "platform_core_governance_hash": report["platform_core"].get("registry_hash"),
         "platform_core_merge_commit": report["platform_core"].get("platform_core_merge_commit"),
         "neos_version": __version__,
-        "neos_commit": _current_neos_commit(),
+        "neos_commit": report["source_commit"],
         "observed_at": report.get("observed_at"),
         "readiness": report["summary"]["readiness"],
         "status_counts": report["summary"]["status_counts"],
@@ -1756,6 +1777,7 @@ def governance_report(
     platform_core_root: str | Path | None = None,
     estate_roots: Iterable[str | Path] | str | Path | None = None,
 ) -> dict[str, Any]:
+    source_commit = _current_neos_commit()
     platform_core_root_path = resolve_platform_core_root(platform_core_root)
     platform_core, governance_doc = _load_platform_core_document(platform_core_root_path)
     observed_projects = _observed_projects(db_path)
@@ -1770,6 +1792,7 @@ def governance_report(
             observed_matches=matches,
             platform_core=platform_core,
             db_path=db_path,
+            source_commit=source_commit,
         )
         systems.append(system_report)
         findings.extend(system_findings)
@@ -1780,9 +1803,10 @@ def governance_report(
             observed_projects=observed_projects,
             estate_roots=roots,
             platform_core=platform_core,
+            source_commit=source_commit,
         )
     )
-    findings.extend(_find_duplicate_capability_ownership(observed_projects, platform_core))
+    findings.extend(_find_duplicate_capability_ownership(observed_projects, platform_core, source_commit=source_commit))
     findings = sorted(
         findings,
         key=lambda item: (
@@ -1814,7 +1838,7 @@ def governance_report(
         "findings": findings,
         "summary": summary,
         "observed_at": utc_now(),
-        "source_commit": _current_neos_commit(),
+        "source_commit": source_commit,
         "governance_doc": governance_doc,
     }
     snapshot: dict[str, Any] = _governance_snapshot_payload(report)
