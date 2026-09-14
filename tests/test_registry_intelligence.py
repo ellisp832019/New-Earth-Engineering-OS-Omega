@@ -131,3 +131,75 @@ def test_registry_cross_project_compare_is_read_only(tmp_path: Path):
     assert impact["project_id"] == "source"
     assert impact["summary"]["peer_identity"]["project_id"] == "peer"
     assert impact["summary"]["relationship_state"] in {"independent", "related"}
+
+
+def test_registry_metadata_owns_noninteractive_stdin(tmp_path, monkeypatch):
+    from neos import registry as module
+
+    cases = [
+        (["branch", "--show-current"], " feature/example \n", "feature/example"),
+        (["rev-parse", "HEAD"], " abc123 \n", "abc123"),
+        (["remote", "get-url", "origin"], " https://example.invalid/repo.git \n", "https://example.invalid/repo.git"),
+        (["branch", "--show-current"], "", None),
+        (["branch", "--show-current"], " \n", None),
+    ]
+    for args, output, expected in cases:
+        calls = []
+
+        def check_output(command, **kwargs):
+            calls.append(command)
+            assert command == ["git", "-C", str(tmp_path), *args]
+            assert kwargs == {"stdin": subprocess.DEVNULL, "text": True, "stderr": subprocess.DEVNULL}
+            return output
+
+        monkeypatch.setattr(module.subprocess, "check_output", check_output)
+        actual = module._git_remote(tmp_path) if args[0] == "remote" else module._git_output(tmp_path, *args)
+        assert actual == expected
+        assert len(calls) == 1
+
+
+def test_registry_dirty_owns_noninteractive_stdin(tmp_path, monkeypatch):
+    from neos import registry as module
+
+    for output, expected in [("", False), (" \n", False), (" M tracked.py\n", True)]:
+        calls = []
+
+        def check_output(command, **kwargs):
+            calls.append(command)
+            assert command == ["git", "-C", str(tmp_path), "status", "--porcelain"]
+            assert kwargs == {"stdin": subprocess.DEVNULL, "text": True, "stderr": subprocess.DEVNULL}
+            return output
+
+        monkeypatch.setattr(module.subprocess, "check_output", check_output)
+        assert module._git_dirty(tmp_path) is expected
+        assert len(calls) == 1
+
+
+def test_registry_git_stream_ownership_preserves_failures(tmp_path, monkeypatch):
+    import pytest
+    from neos import registry as module
+
+    for dirty in [False, True]:
+        args = ["status", "--porcelain"] if dirty else ["rev-parse", "HEAD"]
+        for error in [
+            FileNotFoundError("git unavailable"),
+            subprocess.CalledProcessError(128, ["git"]),
+            OSError("Git runtime failure"),
+            ValueError("unexpected failure"),
+        ]:
+            calls = []
+
+            def check_output(command, **kwargs):
+                calls.append(command)
+                assert command == ["git", "-C", str(tmp_path), *args]
+                assert kwargs == {"stdin": subprocess.DEVNULL, "text": True, "stderr": subprocess.DEVNULL}
+                raise error
+
+            monkeypatch.setattr(module.subprocess, "check_output", check_output)
+            if isinstance(error, ValueError):
+                with pytest.raises(ValueError, match="unexpected failure"):
+                    module._git_dirty(tmp_path) if dirty else module._git_output(tmp_path, *args)
+            else:
+                actual = module._git_dirty(tmp_path) if dirty else module._git_output(tmp_path, *args)
+                assert actual is None
+            assert len(calls) == 1

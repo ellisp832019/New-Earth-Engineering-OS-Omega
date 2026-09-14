@@ -113,6 +113,7 @@ def _git_output(repo_path: Path | None, *args: str) -> str | None:
     try:
         output = subprocess.check_output(
             ["git", "-C", str(repo_path), *args],
+            stdin=subprocess.DEVNULL,
             text=True,
             stderr=subprocess.DEVNULL,
         )

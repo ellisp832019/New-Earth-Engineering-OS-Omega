@@ -84,6 +84,7 @@ def _git_output(repo_path: Path, *args: str) -> str | None:
     try:
         output = subprocess.check_output(
             ["git", "-C", str(repo_path), *args],
+            stdin=subprocess.DEVNULL,
             text=True,
             stderr=subprocess.DEVNULL,
         )
@@ -96,6 +97,7 @@ def _git_dirty(repo_path: Path) -> bool | None:
     try:
         output = subprocess.check_output(
             ["git", "-C", str(repo_path), "status", "--porcelain"],
+            stdin=subprocess.DEVNULL,
             text=True,
             stderr=subprocess.DEVNULL,
         )

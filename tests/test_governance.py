@@ -1271,3 +1271,36 @@ def test_report_revision_concurrent_isolation(tmp_path: Path, monkeypatch):
     assert sorted(calls) == ["revision-A", "revision-B"]
     _assert_report_revision(first_report, "revision-A")
     _assert_report_revision(second_report, "revision-B")
+
+
+@pytest.mark.parametrize("output,expected", [(" revision-123 \n", "revision-123"), ("", None), (" \n", None)])
+def test_self_revision_owns_noninteractive_stdin(tmp_path, monkeypatch, output, expected):
+    from neos import governance as module
+
+    calls = []
+    monkeypatch.setattr(module, "_module_repo_root", lambda: tmp_path)
+
+    def check_output(command, **kwargs):
+        calls.append(command)
+        assert command == ["git", "-C", str(tmp_path), "rev-parse", "HEAD"]
+        assert kwargs == {"stdin": subprocess.DEVNULL, "text": True, "stderr": subprocess.DEVNULL}
+        return output
+
+    monkeypatch.setattr(module.subprocess, "check_output", check_output)
+    assert module._current_neos_commit() == expected
+    assert len(calls) == 1
+
+
+def test_self_revision_does_not_swallow_unexpected_failure(tmp_path, monkeypatch):
+    from neos import governance as module
+
+    monkeypatch.setattr(module, "_module_repo_root", lambda: tmp_path)
+
+    def check_output(command, **kwargs):
+        assert command == ["git", "-C", str(tmp_path), "rev-parse", "HEAD"]
+        assert kwargs == {"stdin": subprocess.DEVNULL, "text": True, "stderr": subprocess.DEVNULL}
+        raise ValueError("unexpected diagnostic failure")
+
+    monkeypatch.setattr(module.subprocess, "check_output", check_output)
+    with pytest.raises(ValueError, match="unexpected diagnostic failure"):
+        module._current_neos_commit()
