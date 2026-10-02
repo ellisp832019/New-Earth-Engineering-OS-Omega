@@ -164,9 +164,9 @@ def _seed_dependency_snapshot(db: Path, source_project_id: str, target_project_i
 
 
 CORE_ROOT = Path(os.environ.get("A04_CORE_ROOT", r"D:\Dev\Projects\New-Earth-Platform-Core-Omega"))
-CORE_REVISION = "7dae83b5591393b62fb5fc7ed8a6a6560bc53e03"
+CORE_REVISION = "626c33d401512c5de030552201bdae936ab066ec"
 CORE_HASHES = {
-    "registry/governance.yaml": "E11BB6DEAACD1E9052AD810A7521E838C606088ED131332A257B0CA0BEAABAF0",
+    "registry/governance.yaml": "510134B81D216686C480D32AF6D009169E72DF3318520E2CD9B80D3D636E3B16",
     "schemas/governance.schema.json": "199D02E4DBC49B16C25C8B6F1D1B3CCE29CB13506DC73E82995F89032145E71B",
 }
 _INTERNAL_RULE_INPUTS = {}

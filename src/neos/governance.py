@@ -1125,7 +1125,12 @@ def _evaluate_system(
             )
         )
 
-    if len(observed_matches) > 1:
+    live_identity_matches = [
+        item
+        for item in observed_matches
+        if item.get("classification") != "ARCHIVED"
+    ]
+    if len(live_identity_matches) > 1:
         findings.append(
             _finding(
                 rule_id="NEOS-GOV-002",
@@ -1135,17 +1140,27 @@ def _evaluate_system(
                 canonical_owner=owner,
                 declared_state=declared_state,
                 observed_state=observed_state,
-                explanation="Multiple NEOS projects match the same declared canonical system identity.",
+                explanation="Multiple live NEOS projects match the same declared canonical system identity.",
                 recommended_owner=owner,
                 remediation_category="identity",
-                evidence={"matches": observed_state["matches"]},
-                affected={"project_ids": [item["project_id"] for item in observed_matches]},
+                evidence={
+                    "matches": observed_state["matches"],
+                    "live_identity_matches": [
+                        {
+                            "project_id": item["project_id"],
+                            "repo_path": item["repo_path"],
+                            "classification": item["classification"],
+                            "status": item["status"],
+                        }
+                        for item in live_identity_matches
+                    ],
+                },
+                affected={"project_ids": [item["project_id"] for item in live_identity_matches]},
                 confidence=0.9,
                 platform_core=platform_core,
                 source_commit=source_commit,
             )
         )
-
     if match:
         declared_repo_path = _normalize_text(canonical_repo.get("path"))
         declared_remote = _normalize_text(canonical_repo.get("remote"))
